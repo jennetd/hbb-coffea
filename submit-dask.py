@@ -6,7 +6,7 @@ import awkward as ak
 
 from coffea import processor, util, hist
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
-from boostedhiggs import HbbScoutingProcessor
+from boostedhiggs import VHbbProcessor
 
 from distributed import Client
 from lpcjobqueue import LPCCondorCluster
@@ -21,11 +21,11 @@ env_extra = [
 cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="4GB",
-    image="coffeateam/coffea-dask:0.7.8-fastjet-3.3.4.0rc9-g7921522"
+    memory="16GB",
+    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
-cluster.adapt(minimum=1, maximum=100)
+cluster.adapt(minimum=1, maximum=50)
 client = Client(cluster)
 
 print("Waiting for at least one worker...")  # noqa
@@ -36,7 +36,7 @@ year = sys.argv[1]
 with performance_report(filename="dask-report.html"):
 
     # get list of input files                                                                                                 
-    infiles = subprocess.getoutput("ls infiles/"+year+"*bsm.json").split()
+    infiles = subprocess.getoutput("ls infiles/"+year+"*.json").split()
 
     for this_file in infiles:
 
@@ -45,7 +45,7 @@ with performance_report(filename="dask-report.html"):
 
         uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
-        p = HbbScoutingProcessor(year=year)
+        p = VHbbProcessor(year=year)
         args = {'savemetrics':True, 'schema':NanoAODSchema}
 
         output = processor.run_uproot_job(

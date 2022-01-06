@@ -50,8 +50,8 @@ def update(events, collections):
     return out
 
 
-class HbbScoutingProcessor(processor.ProcessorABC):
-    def __init__(self, year='2017', jet_arbitration='pt', 
+class VHbbProcessor(processor.ProcessorABC):
+    def __init__(self, year='2017', jet_arbitration='ddcvb', 
                  ):
         self._year = year
         self._tagger  = 'v2'
@@ -168,10 +168,12 @@ class HbbScoutingProcessor(processor.ProcessorABC):
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('region', 'Region'),
-                hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 3, 4]),
-                hist.Bin('pt1', r'Jet $p_{T}$ [GeV]', [300, 350, 400, 450, 500, 550, 600, 675, 800, 1200]),
-                hist.Bin('msd1', r'Jet $m_{sd}$', 23, 40, 201),
-                hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 1]),
+                hist.Bin('genflavor1', 'Gen. jet 1 flavor', [1, 3, 4]),
+                hist.Bin('genflavor2', 'Gen. jet 2 flavor', [1, 3, 4]),
+                hist.Bin('msd1', r'Jet 1 $m_{sd}$', 23, 40, 201),
+                hist.Bin('msd2', r'Jet 2 $m_{sd}$', 23, 40, 201),
+                hist.Bin('ddb1', r'Jet 1 ddb score', 25,0,1),
+                hist.Bin('ddc2', r'Jet 2 ddc score', [0,0.01,0.02,0.05,0.1,0.2,0.5,1]),
             ),
         }
 
@@ -258,50 +260,56 @@ class HbbScoutingProcessor(processor.ProcessorABC):
             candidatejet = ak.firsts(candidatejet[ak.argmax(candidatejet.btagDDBvLV2, axis=1, keepdims=True)])
         elif self._jet_arbitration == 'ddc':
             candidatejet = ak.firsts(candidatejet[ak.argmax(candidatejet.btagDDCvLV2, axis=1, keepdims=True)])
+        elif self._jet_arbitration == 'ddcvb':
+            leadingjets = candidatejet[:, 0:2]
+            # ascending = true                                                                                                                                
+            indices = ak.argsort(leadingjets.btagDDCvBV2,axis=1)
+
+            # candidate jet is more b-like                                                                                                               
+            candidatejet = ak.firsts(leadingjets[indices[:, 0:1]])
+            # second jet is more charm-like                                                                                                              
+            secondjet = ak.firsts(leadingjets[indices[:, 1:2]])
         else:
             raise RuntimeError("Unknown candidate jet arbitration")
 
-        if self._tagger == 'v1':
-            bvl = candidatejet.btagDDBvL
-            cvl = candidatejet.btagDDCvL
-            cvb = candidatejet.btagDDCvB
-        elif self._tagger == 'v2':
-            bvl = candidatejet.btagDDBvLV2
-            cvl = candidatejet.btagDDCvLV2
-            cvb = candidatejet.btagDDCvBV2
-        elif self._tagger == 'v3':
-            bvl = candidatejet.particleNetMD_Xbb
-            cvl = candidatejet.particleNetMD_Xcc / (1 - candidatejet.particleNetMD_Xbb)
-            cvb = candidatejet.particleNetMD_Xcc / (candidatejet.particleNetMD_Xcc + candidatejet.particleNetMD_Xbb)
-        elif self._tagger == 'v4':
-            bvl = candidatejet.particleNetMD_Xbb
-            cvl = candidatejet.btagDDCvLV2
-            cvb = candidatejet.particleNetMD_Xcc / (candidatejet.particleNetMD_Xcc + candidatejet.particleNetMD_Xbb)
-        else:
-            raise ValueError("Not an option")
+        bvl1 = candidatejet.btagDDBvLV2
+        cvl1 = candidatejet.btagDDCvLV2
+        cvb1 = candidatejet.btagDDCvBV2
 
-        # jet selection in sr
-        selection.add('minjetkin',
-            (candidatejet.pt >= 350) # adelina
-            & (candidatejet.pt < 1200)
-            & (candidatejet.msdcorr >= 40.)
-            & (candidatejet.msdcorr < 201.)
+        bvl2 = secondjet.btagDDBvLV2
+        cvl2 = secondjet.btagDDCvLV2
+        cvb2 = secondjet.btagDDCvBV2
+
+        selection.add('jet1kin',
+            (candidatejet.pt >= 450)
+            & (candidatejet.msdcorr >= 47.)
             & (abs(candidatejet.eta) < 2.5)
         )
-        # jet selection in muon cr
-        selection.add('minjetkinmu',
-            (candidatejet.pt >= 350) # adelina
-            & (candidatejet.pt < 1200)
-            & (candidatejet.msdcorr >= 40.)
-            & (candidatejet.msdcorr < 201.)
-            & (abs(candidatejet.eta) < 2.5)
+        selection.add('jet2kin',
+            (secondjet.pt >= 400)
+            & (secondjet.msdcorr >= 47.)
+            & (abs(secondjet.eta) < 2.5)
         )
-        selection.add('jetid', candidatejet.isTight)
-        selection.add('n2ddt', (candidatejet.n2ddt < 0.))
-        if not self._tagger == 'v2':
-            selection.add('ddbpass', (bvl >= 0.89))
-        else:
-            selection.add('ddbpass', (bvl >= 0.64))
+
+        selection.add('jetacceptance',
+            (candidatejet.msdcorr >= 40.)
+            & (candidatejet.pt < 1200)
+            & (candidatejet.msdcorr < 201.)
+            & (secondjet.msdcorr >= 40.)
+            & (secondjet.pt < 1200)
+            & (secondjet.msdcorr < 201.)
+        )
+
+        selection.add('jetid',
+                      candidatejet.isTight
+                      & secondjet.isTight
+        )
+        selection.add('n2ddt',
+                      (candidatejet.n2ddt < 0.)
+                      & (secondjet.n2ddt < 0.)
+        )
+
+        selection.add('ddbpass', (bvl1 >= 0.64))
 
         jets = events.Jet
         jets = jets[
@@ -354,19 +362,19 @@ class HbbScoutingProcessor(processor.ProcessorABC):
         selection.add('muonDphiAK8', abs(leadingmuon.delta_phi(candidatejet)) > 2*np.pi/3)
 
         if isRealData :
-            genflavor = ak.zeros_like(candidatejet.pt)
+            genflavor1 = ak.zeros_like(candidatejet.pt)
+            genflavor2 = ak.zeros_like(secondjet.pt)
         else:
             weights.add('genweight', events.genWeight)
 
             add_pileup_weight(weights, events.Pileup.nPU, self._year, dataset)
             bosons = getBosons(events.GenPart)
-            matchedBoson = candidatejet.nearest(bosons, axis=None, threshold=0.8)
-            if self._tightMatch:
-                match_mask = ((candidatejet.pt - matchedBoson.pt)/matchedBoson.pt < 0.5) & ((candidatejet.msdcorr - matchedBoson.mass)/matchedBoson.mass < 0.3)
-                selmatchedBoson = ak.mask(matchedBoson, match_mask)
-                genflavor = bosonFlavor(selmatchedBoson)
-            else:
-                genflavor = bosonFlavor(matchedBoson)
+            matchedBoson1 = candidatejet.nearest(bosons, axis=None, threshold=0.8)
+            matchedBoson2 = secondjet.nearest(bosons, axis=None, threshold=0.8)
+
+            genflavor1 = bosonFlavor(matchedBoson1)
+            genflavor2 = bosonFlavor(matchedBoson2)
+
             genBosonPt = ak.fill_none(ak.firsts(bosons.pt), 0)
             if self._newVjetsKfactor:
                 add_VJets_kFactors(weights, events.GenPart, dataset)
@@ -390,12 +398,11 @@ class HbbScoutingProcessor(processor.ProcessorABC):
 
             logger.debug("Weight statistics: %r" % weights.weightStatistics)
 
-        msd_matched = candidatejet.msdcorr * self._msdSF[self._year] * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
+        msd1_matched = candidatejet.msdcorr * self._msdSF[self._year] * (genflavor1 > 0) + candidatejet.msdcorr * (genflavor1 == 0)
+        msd2_matched = secondjet.msdcorr * self._msdSF[self._year] * (genflavor2 > 0) + secondjet.msdcorr * (genflavor2 == 0)
 
         regions = {
-            'signal': ['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons'],
-            'muoncontrol': ['muontrigger','lumimask','metfilter','minjetkinmu', 'jetid', 'n2ddt', 'ak4btagMedium08', 'onemuon', 'muonkin', 'muonDphiAK8'],
-#            'noselection': [],
+            'signal': ['trigger','lumimask','metfilter','jet1kin','jet2kin','jetid','jetacceptance','n2ddt','met','noleptons'],
         }
 
         def normalize(val, cut):
@@ -426,10 +433,12 @@ class HbbScoutingProcessor(processor.ProcessorABC):
             output['templates'].fill(
                 dataset=dataset,
                 region=region,
-                genflavor=normalize(genflavor,cut),
-                pt1=normalize(candidatejet.pt, cut),
-                msd1=normalize(msd_matched, cut),
-                ddb1=normalize(bvl, cut),
+                genflavor1=normalize(genflavor1,cut),
+                genflavor2=normalize(genflavor2,cut),
+                msd1=normalize(msd1_matched, cut),
+                msd2=normalize(msd2_matched, cut),
+                ddb1=normalize(bvl1, cut),
+                ddc2=normalize(cvl2, cut),
                 weight=weight,
             )
 
