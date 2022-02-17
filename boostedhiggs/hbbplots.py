@@ -47,10 +47,11 @@ def update(events, collections):
 class HbbPlotProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
                  nnlops_rew=False, skipJER=False, tightMatch=False, newTrigger=True,
-                 newVjetsKfactor=True,
+                 newVjetsKfactor=True, ak4tagger='deepcsv'
                  ):
         self._year = year
         self._tagger  = tagger
+        self._ak4tagger = ak4tagger
 #        self._nnlops_rew = nnlops_rew  # for 2018, reweight POWHEG to NNLOPS
         self._jet_arbitration = jet_arbitration
         self._skipJER = skipJER
@@ -59,7 +60,14 @@ class HbbPlotProcessor(processor.ProcessorABC):
         self._newTrigger = newTrigger  # Fewer triggers, new maps (2017 only, ~no effect)
 #        self._looseTau = looseTau  # Looser tau veto
 
-        self._btagSF = BTagCorrector(year, 'medium')
+        if self._ak4tagger == 'deepcsv':
+            self._ak4tagBranch = 'btagDeepB'
+        elif self._ak4tagger == 'deepjet':
+            self._ak4tagBranch = 'btagDeepFlavB'
+        else:
+            raise NotImplementedError()
+
+        self._btagSF = BTagCorrector(year, self._ak4tagger, 'medium')
 
         self._msdSF = {
             '2016': 1.,
@@ -113,7 +121,7 @@ class HbbPlotProcessor(processor.ProcessorABC):
                     'HBHENoiseIsoFilter',
                     'EcalDeadCellTriggerPrimitiveFilter',
                     'BadPFMuonFilter',
-                    'eeBadScFilter',
+#                    'eeBadScFilter',
                     'ecalBadCalibFilterV2',
                 ],
             },
@@ -125,7 +133,7 @@ class HbbPlotProcessor(processor.ProcessorABC):
                     'HBHENoiseIsoFilter',
                     'EcalDeadCellTriggerPrimitiveFilter',
                     'BadPFMuonFilter',
-                    'eeBadScFilter',
+#                    'eeBadScFilter',
                     'ecalBadCalibFilterV2',
                 ],
                 'mc': [
@@ -169,7 +177,7 @@ class HbbPlotProcessor(processor.ProcessorABC):
                 hist.Cat('region', 'Region'),
                 hist.Bin('ptmu',r'Muon $p_{T}$ [GeV]',50,0,500),
                 hist.Bin('etamu',r'Muon $\eta$',20,0,5),
-                hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 0.89, 1]),
+                hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 1]),
             ),
             'fatjetkin': hist.Hist(
                 'Events',
@@ -187,7 +195,7 @@ class HbbPlotProcessor(processor.ProcessorABC):
                 hist.Bin('deta', r'$\Delta \eta_{jj}$',28,0,7),
                 hist.Bin('dphi', r'$\Delta \phi_{jj}$',20,0,2*np.pi),
                 hist.Bin('mjj',  r'$m_{jj}$ [GeV]',50,0,10000),
-                hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 0.89, 1])
+                hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 1])
             ),
             'smalljetflav': hist.Hist(
                 'Events',
@@ -195,7 +203,7 @@ class HbbPlotProcessor(processor.ProcessorABC):
                 hist.Cat('region', 'Region'),
                 hist.Bin('qgl1', r'Jet 1 QGL',25,0,1),
                 hist.Bin('qgl2', r'Jet 2 QGL',25,0,1),
-                hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 0.89, 1])
+                hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 1])
             ),
         }
 
@@ -334,13 +342,22 @@ class HbbPlotProcessor(processor.ProcessorABC):
             (jets.pt > 30.)
             & (abs(jets.eta) < 5.0)
             & jets.isTight
+            & (jets.puId > 0)
         ]
+        # EE noise for 2017                                                                                                                           
+        if self._year == '2017':
+            jets = jets[
+            (jets.pt > 50)
+                | (abs(jets.eta) < 2.65)
+                | (abs(jets.eta) > 3.139)
+            ]
+
         # only consider first 4 jets to be consistent with old framework
         jets = jets[:, :4]
         dphi = abs(jets.delta_phi(candidatejet))
-        selection.add('antiak4btagMediumOppHem', ak.max(jets[dphi > np.pi / 2].btagDeepB, axis=1, mask_identity=False) < BTagEfficiency.btagWPs[self._year]['medium'])
+        selection.add('antiak4btagMediumOppHem', ak.max(jets[dphi > np.pi / 2].btagDeepB, axis=1, mask_identity=False) < BTagEfficiency.btagWPs[self._ak4tagger][self._year]['medium'])
         ak4_away = jets[dphi > 0.8]
-        selection.add('ak4btagMedium08', ak.max(ak4_away.btagDeepB, axis=1, mask_identity=False) > BTagEfficiency.btagWPs[self._year]['medium'])
+        selection.add('ak4btagMedium08', ak.max(ak4_away.btagDeepB, axis=1, mask_identity=False) > BTagEfficiency.btagWPs[self._ak4tagger][self._year]['medium'])
 
         met = events.MET
         selection.add('met', met.pt < 140.)
@@ -419,9 +436,7 @@ class HbbPlotProcessor(processor.ProcessorABC):
             else:
                 add_VJets_NLOkFactor(weights, genBosonPt, self._year, dataset)
             if shift_name is None:
-                output['btagWeight'].fill(val=self._btagSF.addBtagWeight(weights, ak4_away))
-#            if self._nnlops_rew and dataset in ['GluGluHToCC_M125_13TeV_powheg_pythia8']:
-#                weights.add('minlo_rew', powheg_to_nnlops(ak.to_numpy(genBosonPt)))
+                output['btagWeight'].fill(val=self._btagSF.addBtagWeight(weights, ak4_away, self._ak4tagBranch))
 
             if self._newTrigger:
                 add_jetTriggerSF(weights, ak.firsts(fatjets), self._year, selection)

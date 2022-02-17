@@ -125,7 +125,7 @@ class HbbProcessor(processor.ProcessorABC):
                     'HBHENoiseIsoFilter',
                     'EcalDeadCellTriggerPrimitiveFilter',
                     'BadPFMuonFilter',
-                    'eeBadScFilter',
+                    #'eeBadScFilter',
                     'ecalBadCalibFilterV2',
                 ],
             },
@@ -147,7 +147,7 @@ class HbbProcessor(processor.ProcessorABC):
                     'HBHENoiseIsoFilter',
                     'EcalDeadCellTriggerPrimitiveFilter',
                     'BadPFMuonFilter',
-                    'eeBadScFilter',
+                    #'eeBadScFilter',
                     'ecalBadCalibFilterV2',
                 ],
             },
@@ -176,7 +176,7 @@ class HbbProcessor(processor.ProcessorABC):
                 hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 3, 4]),
                 hist.Bin('pt1', r'Jet $p_{T}$ [GeV]', [400, 450, 500, 550, 600, 675, 800, 1200]),
                 hist.Bin('msd1', r'Jet $m_{sd}$', 23, 40, 201),
-                hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 1]),
+                hist.Bin('ddb1', r'Jet ddb score', [0, 0.4, 0.5, 0.64, 1]),
                 hist.Bin('mjj', r'$m_{jj}$ [GeV]',[1000,2000,13000]),
             ),
         }
@@ -318,7 +318,16 @@ class HbbProcessor(processor.ProcessorABC):
             (jets.pt > 30.)
             & (abs(jets.eta) < 5.0)
             & jets.isTight
+            & (jets.puId > 0)
         ]
+        # EE noise for 2017
+        if self._year == '2017':
+            jets = jets[
+                (jets.pt > 50) 
+                | (abs(jets.eta) < 2.65) 
+                | (abs(jets.eta) > 3.139)
+            ]
+
         # only consider first 4 jets to be consistent with old framework
         jets = jets[:, :4]
         dphi = abs(jets.delta_phi(candidatejet))

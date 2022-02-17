@@ -6,7 +6,7 @@ import awkward as ak
 
 from coffea import processor, util, hist
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
-from boostedhiggs import HbbProcessor
+from boostedhiggs import HbbTruthProcessor
 
 from distributed import Client
 from lpcjobqueue import LPCCondorCluster
@@ -21,7 +21,7 @@ env_extra = [
 cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="14GB",
+    memory="4GB",
     image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
@@ -42,29 +42,34 @@ with performance_report(filename="dask-report.html"):
 
         index = this_file.split("_")[1].split(".json")[0]
 
+        if 'higgs' not in index:
+            continue
+
         print(this_file, index)
 
-        uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
+        for arb in ['ddb','pt']:
 
-        p = HbbProcessor(year=year,jet_arbitration='ddb')
-        args = {'savemetrics':True, 'schema':NanoAODSchema}
+            uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
-        output = processor.run_uproot_job(
-            this_file,
-            treename="Events",
-            processor_instance=p,
-            executor=processor.dask_executor,
-            executor_args={
-                "client": client,
-                "skipbadfiles": 1,
-                "schema": processor.NanoAODSchema,
-                "treereduction": 2,
-            },
-            chunksize=100000,
-            #        maxchunks=args.max,
-        )
+            p = HbbTruthProcessor(year=year,jet_arbitration=arb)
+            args = {'savemetrics':True, 'schema':NanoAODSchema}
 
-        outfile = 'outfiles/'+str(year)+'_dask_'+index+'.coffea'
-        util.save(output, outfile)
-        print("saved " + outfile)
-
+            output = processor.run_uproot_job(
+                this_file,
+                treename="Events",
+                processor_instance=p,
+                executor=processor.dask_executor,
+                executor_args={
+                    "client": client,
+                    "skipbadfiles": 1,
+                    "schema": processor.NanoAODSchema,
+                    "treereduction": 2,
+                },
+                chunksize=100000,
+                #        maxchunks=args.max,
+            )
+            
+            outfile = 'outfiles-truth/'+str(year)+'_'+arb+'_'+index+'.coffea'
+            util.save(output, outfile)
+            print("saved " + outfile)
+            

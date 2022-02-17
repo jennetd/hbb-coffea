@@ -1,6 +1,6 @@
 #!/usr/bin/python  
 
-import os, sys
+import os, sys, re
 import subprocess
 import json
 import uproot3
@@ -19,11 +19,12 @@ def main():
 
     raw = False
 
-    if len(sys.argv) < 2:
-        print("Enter year")
+    if len(sys.argv) < 3:
+        print("Enter year and name")
         return 
 
     year = sys.argv[1]
+    name = sys.argv[2]
 
     with open('xsec.json') as f:
         xs = json.load(f)
@@ -31,12 +32,12 @@ def main():
     with open('pmap.json') as f:
         pmap = json.load(f)
             
-    indir = "outfiles/"
+    indir = "outfiles-plots/"
     infiles = subprocess.getoutput("ls "+indir+year+"*.coffea").split()
     outsum = processor.dict_accumulator()
 
     # Check if pickle exists, remove it if it does
-    picklename = str(year)+'/templates.pkl'
+    picklename = str(year)+'/'+name+'.pkl'
     if os.path.isfile(picklename):
         os.remove(picklename)
 
@@ -49,22 +50,19 @@ def main():
             out = util.load(filename)
 
             if started == 0:
-                outsum['templates'] = out['templates']
+                outsum[name] = out[name]
                 outsum['sumw'] = out['sumw']
                 started += 1
             else:
-                outsum['templates'].add(out['templates'])
+                outsum[name].add(out[name])
                 outsum['sumw'].add(out['sumw'])
 
             del out
 
     scale_lumi = {k: xs[k] * 1000 *lumis[year] / w for k, w in outsum['sumw'].items()} 
 
-    outsum['templates'].scale(scale_lumi, 'dataset')
-
-    print(len(outsum['templates'].identifiers('dataset')))
-
-    templates = outsum['templates'].group('dataset', hist.Cat('process', 'Process'), pmap)
+    outsum[name].scale(scale_lumi, 'dataset')
+    templates = outsum[name].group('dataset', hist.Cat('process', 'Process'), pmap)
 
     del outsum
           
