@@ -1,13 +1,13 @@
 from .version import __version__
-from .hbbprocessor import HbbProcessor
-from .hbbcutflow import HbbCutflowProcessor
-from .hbbplots import HbbPlotProcessor
+from .vbfprocessor import VBFProcessor
+from .vbfplots import VBFPlotProcessor
+from .vbftruth import VBFTruthProcessor
 from .vhbbprocessor import VHbbProcessor
 
 __all__ = [
     '__version__',
-    'HbbProcessor',
-    'HbbCutflowProcessor',
-    'HbbPlotProcessor',
+    'VBFProcessor',
+    'VBFPlotProcessor',
+    'VBFTruthProcessor'
     'VHbbProcessor',
 ]

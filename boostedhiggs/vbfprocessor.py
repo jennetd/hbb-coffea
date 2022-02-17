@@ -38,7 +38,9 @@ from boostedhiggs.corrections import (
     add_pdf_weight,
 )
 
+
 logger = logging.getLogger(__name__)
+
 
 def update(events, collections):
     """Return a shallow copy of events array with some collections swapped out"""
@@ -48,7 +50,7 @@ def update(events, collections):
     return out
 
 
-class HbbTruthProcessor(processor.ProcessorABC):
+class VBFProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
                  nnlops_rew=False, skipJER=False, tightMatch=False, newTrigger=True,
                  newVjetsKfactor=True, ak4tagger='deepcsv',
@@ -166,12 +168,16 @@ class HbbTruthProcessor(processor.ProcessorABC):
                 hist2.axis.Regular(50, 0, 3, name='val', label='BTag correction'),
                 hist2.storage.Weight(),
             ),
-            'truth': hist.Hist(
+            'templates': hist.Hist(
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
-                hist.Cat('region','Region'),
-                hist.Bin('ptH',r'Higgs $p_{T}$ [GeV]',[400,450,500,550,600,650,700,750,800,13000]),
-                hist.Bin('deltaR',r'$\Delta R$ (H, high $p_T$ jet)',[0,0.4,0.8,10]),
+                hist.Cat('region', 'Region'),
+                hist.Cat('systematic', 'Systematic'),
+                hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 3, 4]),
+                hist.Bin('pt1', r'Jet $p_{T}$ [GeV]', [400, 450, 500, 550, 600, 675, 800, 1200]),
+                hist.Bin('msd1', r'Jet $m_{sd}$', 23, 40, 201),
+                hist.Bin('ddb1', r'Jet ddb score', [0, 0.4, 0.5, 0.64, 1]),
+                hist.Bin('mjj', r'$m_{jj}$ [GeV]',[1000,2000,13000]),
             ),
         }
 
@@ -239,9 +245,6 @@ class HbbTruthProcessor(processor.ProcessorABC):
             metfilter &= np.array(events.Flag[flag])
         selection.add('metfilter', metfilter)
         del metfilter
-
-        particles = events.GenPart
-        truthHiggs = ak.firsts(particles[particles.pdgId==25])
 
         fatjets = events.FatJet
         fatjets['msdcorr'] = corrected_msoftdrop(fatjets)
@@ -460,7 +463,10 @@ class HbbTruthProcessor(processor.ProcessorABC):
         import time
         tic = time.time()
 
-        systematics = [None]
+        if shift_name is None:
+            systematics = [None] + list(weights.variations)
+        else:
+            systematics = [shift_name]
 
         def fill(region, systematic, wmod=None):
             selections = regions[region]
@@ -473,13 +479,17 @@ class HbbTruthProcessor(processor.ProcessorABC):
                     weight = weights.weight()[cut]
             else:
                 weight = weights.weight()[cut] * wmod[cut]
-                
-            output['truth'].fill(
-                dataset = dataset,
-                region = region,
-                ptH = normalize(truthHiggs.pt,cut),
-                deltaR = normalize(truthHiggs.delta_r(candidatejet),cut),
-                weight = weights.weight()[cut],
+
+            output['templates'].fill(
+                dataset=dataset,
+                region=region,
+                systematic=sname,
+                genflavor=normalize(genflavor,cut),
+                pt1=normalize(candidatejet.pt, cut),
+                msd1=normalize(msd_matched, cut),
+                ddb1=normalize(bvl, cut),
+                mjj=normalize(mjj, cut),
+                weight=weight,
             )
 
         for region in regions:

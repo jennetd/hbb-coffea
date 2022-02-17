@@ -44,7 +44,7 @@ def update(events, collections):
     return out
 
 
-class HbbPlotProcessor(processor.ProcessorABC):
+class VBFPlotProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
                  nnlops_rew=False, skipJER=False, tightMatch=False, newTrigger=True,
                  newVjetsKfactor=True, ak4tagger='deepcsv'

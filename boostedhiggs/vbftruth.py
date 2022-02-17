@@ -38,9 +38,7 @@ from boostedhiggs.corrections import (
     add_pdf_weight,
 )
 
-
 logger = logging.getLogger(__name__)
-
 
 def update(events, collections):
     """Return a shallow copy of events array with some collections swapped out"""
@@ -50,7 +48,7 @@ def update(events, collections):
     return out
 
 
-class HbbCutflowProcessor(processor.ProcessorABC):
+class VBFTruthProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
                  nnlops_rew=False, skipJER=False, tightMatch=False, newTrigger=True,
                  newVjetsKfactor=True, ak4tagger='deepcsv',
@@ -125,7 +123,7 @@ class HbbCutflowProcessor(processor.ProcessorABC):
                     'HBHENoiseIsoFilter',
                     'EcalDeadCellTriggerPrimitiveFilter',
                     'BadPFMuonFilter',
-                    'eeBadScFilter',
+                    #'eeBadScFilter',
                     'ecalBadCalibFilterV2',
                 ],
             },
@@ -147,7 +145,7 @@ class HbbCutflowProcessor(processor.ProcessorABC):
                     'HBHENoiseIsoFilter',
                     'EcalDeadCellTriggerPrimitiveFilter',
                     'BadPFMuonFilter',
-                    'eeBadScFilter',
+                    #'eeBadScFilter',
                     'ecalBadCalibFilterV2',
                 ],
             },
@@ -164,21 +162,47 @@ class HbbCutflowProcessor(processor.ProcessorABC):
         optbins = np.r_[np.linspace(0, 0.15, 30, endpoint=False), np.linspace(0.15, 1, 86)]
         self.make_output = lambda: {
             'sumw': processor.defaultdict_accumulator(float),
-            'cutflow': hist.Hist(
+            'btagWeight': hist2.Hist(
+                hist2.axis.Regular(50, 0, 3, name='val', label='BTag correction'),
+                hist2.storage.Weight(),
+            ),
+            'truth': hist.Hist(
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
-                hist.Cat('region', 'Region'),
-                hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 2, 3, 4]),
-                hist.Bin('cut', 'Cut index', 15, 0, 15),
+                hist.Cat('region','Region'),
+                hist.Bin('ptH',r'Higgs $p_{T}$ [GeV]',[400,450,500,550,600,650,700,750,800,13000]),
+                hist.Bin('deltaR',r'$\Delta R$ (H, high $p_T$ jet)',[0,0.4,0.8,10]),
             ),
         }
 
     def process(self, events):
-        return self.process_shift(events, None)
+        isRealData = not hasattr(events, "genWeight")
+        isQCDMC = 'QCD' in events.metadata['dataset']
+
+        if isRealData or isQCDMC:
+            # Nominal JEC are already applied in data
+            return self.process_shift(events, None)
+
+        jec_cache = {}
+        fatjets = fatjet_factory[f"{self._year}mc"].build(add_jec_variables(events.FatJet, events.fixedGridRhoFastjetAll), jec_cache)
+        jets = jet_factory[f"{self._year}mc"].build(add_jec_variables(events.Jet, events.fixedGridRhoFastjetAll), jec_cache)
+        met = met_factory.build(events.MET, jets, {})
+
+        shifts = [
+            ({"Jet": jets, "FatJet": fatjets, "MET": met}, None),
+            ({"Jet": jets.JES_jes.up, "FatJet": fatjets.JES_jes.up, "MET": met.JES_jes.up}, "JESUp"),
+            ({"Jet": jets.JES_jes.down, "FatJet": fatjets.JES_jes.down, "MET": met.JES_jes.down}, "JESDown"),
+            ({"Jet": jets, "FatJet": fatjets, "MET": met.MET_UnclusteredEnergy.up}, "UESUp"),
+            ({"Jet": jets, "FatJet": fatjets, "MET": met.MET_UnclusteredEnergy.down}, "UESDown"),
+            ({"Jet": jets.JER.up, "FatJet": fatjets.JER.up, "MET": met.JER.up}, "JERUp"),
+            ({"Jet": jets.JER.down, "FatJet": fatjets.JER.down, "MET": met.JER.down}, "JERDown"),
+        ]
+        return processor.accumulate(self.process_shift(update(events, collections), name) for collections, name in shifts)
 
     def process_shift(self, events, shift_name):
         dataset = events.metadata['dataset']
         isRealData = not hasattr(events, "genWeight")
+        isQCDMC = 'QCD' in dataset
         selection = PackedSelection()
         weights = Weights(len(events), storeIndividual=True)
         output = self.make_output()
@@ -215,6 +239,9 @@ class HbbCutflowProcessor(processor.ProcessorABC):
             metfilter &= np.array(events.Flag[flag])
         selection.add('metfilter', metfilter)
         del metfilter
+
+        particles = events.GenPart
+        truthHiggs = ak.firsts(particles[particles.pdgId==25])
 
         fatjets = events.FatJet
         fatjets['msdcorr'] = corrected_msoftdrop(fatjets)
@@ -288,7 +315,16 @@ class HbbCutflowProcessor(processor.ProcessorABC):
             (jets.pt > 30.)
             & (abs(jets.eta) < 5.0)
             & jets.isTight
+            & (jets.puId > 0)
         ]
+        # EE noise for 2017
+        if self._year == '2017':
+            jets = jets[
+                (jets.pt > 50) 
+                | (abs(jets.eta) < 2.65) 
+                | (abs(jets.eta) > 3.139)
+            ]
+
         # only consider first 4 jets to be consistent with old framework
         jets = jets[:, :4]
         dphi = abs(jets.delta_phi(candidatejet))
@@ -358,18 +394,19 @@ class HbbCutflowProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
-            # Jennet adds theory variations                                                                                      
-            add_ps_weight(weights, events.PSWeight)
-            if "LHEPdfWeight" in events.fields:
-                add_pdf_weight(weights,events.LHEPdfWeight)
-            else:
-                add_pdf_weight(weights,[])
-            if "LHEScaleWeight" in events.fields:
-                add_scalevar_7pt(weights, events.LHEScaleWeight)
-                add_scalevar_3pt(weights, events.LHEScaleWeight)
-            else:
-                add_scalevar_7pt(weights,[])
-                add_scalevar_3pt(weights,[])
+            if 'H' in dataset:
+                # Jennet adds theory variations                                                                               
+                add_ps_weight(weights, events.PSWeight)
+                if "LHEPdfWeight" in events.fields:
+                    add_pdf_weight(weights,events.LHEPdfWeight)
+                else:
+                    add_pdf_weight(weights,[])
+                if "LHEScaleWeight" in events.fields:
+                    add_scalevar_7pt(weights, events.LHEScaleWeight)
+                    add_scalevar_3pt(weights, events.LHEScaleWeight)
+                else:
+                    add_scalevar_7pt(weights,[])
+                    add_scalevar_3pt(weights,[])
 
             add_pileup_weight(weights, events.Pileup.nPU, self._year, dataset)
             bosons = getBosons(events.GenPart)
@@ -385,6 +422,9 @@ class HbbCutflowProcessor(processor.ProcessorABC):
                 add_VJets_kFactors(weights, events.GenPart, dataset)
             else:
                 add_VJets_NLOkFactor(weights, genBosonPt, self._year, dataset)
+
+            if shift_name is None:
+                output['btagWeight'].fill(val=self._btagSF.addBtagWeight(weights, ak4_away, self._ak4tagBranch))
 
             if self._newTrigger:
                 add_jetTriggerSF(weights, ak.firsts(fatjets), self._year, selection)
@@ -406,7 +446,7 @@ class HbbCutflowProcessor(processor.ProcessorABC):
             'signal-ggf': ['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf'],
             'signal-vbf': ['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','isvbf'],
             'muoncontrol': ['muontrigger','lumimask','metfilter','minjetkinmu', 'jetid', 'n2ddt', 'ak4btagMedium08', 'onemuon', 'muonkin', 'muonDphiAK8'],
-            'noselection': [],
+#            'noselection': [],
         }
 
         def normalize(val, cut):
@@ -419,28 +459,8 @@ class HbbCutflowProcessor(processor.ProcessorABC):
 
         import time
         tic = time.time()
-        if shift_name is None:
-            for region, cuts in regions.items():
-                allcuts = set([])
-                cut = selection.all(*allcuts)
-                output['cutflow'].fill(dataset=dataset,
-                                       region=region,
-                                       genflavor=normalize(genflavor, None),
-                                       cut=0,
-                                       weight=weights.weight())
-                for i, cut in enumerate(cuts + ['ddbpass']):
-                    allcuts.add(cut)
-                    cut = selection.all(*allcuts)
-                    output['cutflow'].fill(dataset=dataset,
-                                           region=region,
-                                           genflavor=normalize(genflavor, cut),
-                                           cut=i + 1,
-                                           weight=weights.weight()[cut])
 
-        if shift_name is None:
-            systematics = [None] + list(weights.variations)
-        else:
-            systematics = [shift_name]
+        systematics = [None]
 
         def fill(region, systematic, wmod=None):
             selections = regions[region]
@@ -453,6 +473,14 @@ class HbbCutflowProcessor(processor.ProcessorABC):
                     weight = weights.weight()[cut]
             else:
                 weight = weights.weight()[cut] * wmod[cut]
+                
+            output['truth'].fill(
+                dataset = dataset,
+                region = region,
+                ptH = normalize(truthHiggs.pt,cut),
+                deltaR = normalize(truthHiggs.delta_r(candidatejet),cut),
+                weight = weights.weight()[cut],
+            )
 
         for region in regions:
             for systematic in systematics:
