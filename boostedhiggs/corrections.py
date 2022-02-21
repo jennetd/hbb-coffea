@@ -13,7 +13,10 @@ with importlib.resources.path("boostedhiggs.data", "corrections.pkl.gz") as path
     with gzip.open(path) as fin:
         compiled = pickle.load(fin)
 
-# hotfix some crazy large weights
+# Cap crazy large pileup weights
+compiled['2016_pileupweight']._values = np.minimum(5, compiled['2016_pileupweight']._values)
+compiled['2016_pileupweight_puUp']._values = np.minimum(5, compiled['2016_pileupweight_puUp']._values)
+compiled['2016_pileupweight_puDown']._values = np.minimum(5, compiled['2016_pileupweight_puDown']._values)
 compiled['2017_pileupweight']._values = np.minimum(5, compiled['2017_pileupweight']._values)
 compiled['2017_pileupweight_puUp']._values = np.minimum(5, compiled['2017_pileupweight_puUp']._values)
 compiled['2017_pileupweight_puDown']._values = np.minimum(5, compiled['2017_pileupweight_puDown']._values)
@@ -24,6 +27,7 @@ compiled['2018_pileupweight_puDown']._values = np.minimum(5, compiled['2018_pile
 with importlib.resources.path("boostedhiggs.data", 'powhegToMinloPtCC.coffea') as filename:
     compiled['powheg_to_nnlops'] = util.load(filename)
 
+# UPDATE FOR UL
 class SoftDropWeight(lookup_base):
     def _evaluate(self, pt, eta):
         gpar = np.array([1.00626, -1.06161, 0.0799900, 1.20454])
@@ -177,26 +181,7 @@ def add_pileup_weight(weights, nPU, year='2017', dataset=None):
             compiled[f'{year}_pileupweight_puDown'](nPU),
         )
 
-
-def add_VJets_NLOkFactor(weights, genBosonPt, year, dataset):
-    if year == '2017' and 'ZJetsToQQ_HT' in dataset:
-        nlo_over_lo_qcd = compiled['2017_Z_nlo_qcd'](genBosonPt)
-        nlo_over_lo_ewk = compiled['Z_nlo_over_lo_ewk'](genBosonPt)
-    elif year == '2017' and 'WJetsToQQ_HT' in dataset:
-        nlo_over_lo_qcd = compiled['2017_W_nlo_qcd'](genBosonPt)
-        nlo_over_lo_ewk = compiled['W_nlo_over_lo_ewk'](genBosonPt)
-    elif year == '2016' and 'DYJetsToQQ' in dataset:
-        nlo_over_lo_qcd = compiled['2016_Z_nlo_qcd'](genBosonPt)
-        nlo_over_lo_ewk = compiled['Z_nlo_over_lo_ewk'](genBosonPt)
-    elif year == '2016' and 'WJetsToQQ' in dataset:
-        nlo_over_lo_qcd = compiled['2016_W_nlo_qcd'](genBosonPt)
-        nlo_over_lo_ewk = compiled['W_nlo_over_lo_ewk'](genBosonPt)
-    else:
-        return
-    weights.add('VJets_NLOkFactor', nlo_over_lo_qcd * nlo_over_lo_ewk)
-
-
-with importlib.resources.path("boostedhiggs.data", "vjets_corrections.json") as filename:
+with importlib.resources.path("boostedhiggs.data", "ULvjets_corrections.json") as filename:
     vjets_kfactors = correctionlib.CorrectionSet.from_file(str(filename))
 
 
