@@ -68,36 +68,6 @@ for year in pileup_corr.keys():
     corrections['%s_pileupweight_puUp'%year] = pileup_corr[year]["up"]
     corrections['%s_pileupweight_puDown'%year] = pileup_corr[year]["down"]
 
-# TODO: Update to UL
-"""
-Lepton ID, Isolation and Trigger SFs
-Key: [ROOT file,
-      Histogram label,
-      Error Histogram label,
-      Option]
-Option: 0 for eta-pt, 1 for abseta-pt, 2 for pt-abseta
-"""
-lepton_sf_dict = {
-    "elec_RECO":["egammaEffi_txt_EGM2D_runBCDEF_passingRECO.root","EGamma_SF2D","EGamma_SF2D_error",0],
-    "elec_ID":["egammaEffi_txt_EGM2D_runBCDEF_passingID.root","EGamma_SF2D","EGamma_SF2D_error",0],
-    "elec_TRIG32":["egammaEffi_txt_runBCDEF_passingEle32.root","EGamma_SF2D","EGamma_SF2D_error",0],
-    "elec_TRIG115":["egammaEffi_txt_runBCDEF_passingEle115.json","Ele115_PtEtaBins/abseta_pt_SF_value","Ele115_PtEtaBins/abseta_pt_SF_error",1],
-    "muon_ISO":["muonEff_RunBCDEF_SF_ISO.json","NUM_LooseRelIso_DEN_MediumID/abseta_pt_value","NUM_LooseRelIso_DEN_MediumID/abseta_pt_error",1],
-    "muon_ID":["muonEff_RunBCDEF_SF_ID.json","NUM_MediumID_DEN_genTracks/abseta_pt_value","NUM_MediumID_DEN_genTracks/abseta_pt_error",1],
-    "muon_TRIG27":["muonEff_RunBCDEF_SF_Trig_Nov17Nov2017.json","IsoMu27_PtEtaBins/pt_abseta_ratio_value","IsoMu27_PtEtaBins/pt_abseta_ratio_error",2],
-    "muon_TRIG50":["muonEff_RunBCDEF_SF_Trig_Nov17Nov2017.json","Mu50_PtEtaBins/pt_abseta_ratio_value","Mu50_PtEtaBins/pt_abseta_ratio_error",2],
-}
-extractor = extractor()
-for sfname, sfopts in lepton_sf_dict.items():
-    extractor.add_weight_sets(["%s_value %s data/%s"%(sfname,sfopts[1],sfopts[0])])
-    extractor.add_weight_sets(["%s_error %s data/%s"%(sfname,sfopts[2],sfopts[0])])
-extractor.finalize()
-evaluator = extractor.make_evaluator()
-
-for sfname, sfopts in lepton_sf_dict.items():
-    corrections["%s_value"%sfname] = evaluator["%s_value"%sfname]
-    corrections["%s_error"%sfname] = evaluator["%s_error"%sfname]
-
 import pickle
 import gzip
 with gzip.open('data/corrections.pkl.gz', 'wb') as f:

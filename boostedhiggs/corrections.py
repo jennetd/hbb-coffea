@@ -278,31 +278,6 @@ def add_jetTriggerSF(weights, leadingjet, year, selection):
     down = mask(jet_triggerSF[f'fatjet_triggerSF{year}'].evaluate("stat_dn", jet_pt, jet_msd))
     weights.add('jet_trigger', nom, up, down)
 
-def add_mutriggerSF(weights, leadingmuon, year, selection):
-    def mask(w):
-        return np.where(selection.all('onemuon'), w, 1.)
-
-    mu_pt = np.array(ak.fill_none(leadingmuon.pt, 0.))
-    mu_eta = np.array(ak.fill_none(abs(leadingmuon.eta), 0.))
-    nom = mask(compiled[f'{year}_mutrigweight_pt_abseta'](mu_pt, mu_eta))
-    shift = mask(compiled[f'{year}_mutrigweight_pt_abseta_mutrigweightShift'](mu_pt, mu_eta))
-    weights.add('mu_trigger', nom, shift, shift=True)
-
-def add_mucorrectionsSF(weights, leadingmuon, year, selection):
-    def mask(w):
-        return np.where(selection.all('onemuon'), w, 1.)
-
-    mu_pt = np.array(ak.fill_none(leadingmuon.pt, 0.))
-    mu_eta = np.array(ak.fill_none(abs(leadingmuon.eta), 0.))
-    nom = mask(compiled[f'{year}_muidweight_abseta_pt'](mu_eta, mu_pt))
-    shift = mask(compiled[f'{year}_muidweight_abseta_pt_muidweightShift'](mu_eta, mu_pt))
-    weights.add('mu_idweight', nom, shift, shift=True)
-
-    nom = mask(compiled[f'{year}_muisoweight_abseta_pt'](mu_eta, mu_pt))
-    shift = mask(compiled[f'{year}_muisoweight_abseta_pt_muisoweightShift'](mu_eta, mu_pt))
-    weights.add('mu_isoweight', nom, shift, shift=True)
-
-
 with importlib.resources.path("boostedhiggs.data", "jec_compiled.pkl.gz") as path:
     with gzip.open(path) as fin:
         jmestuff = cloudpickle.load(fin)
@@ -331,3 +306,52 @@ lumiMasks = {
     '2017': build_lumimask('Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt'),
     '2018': build_lumimask('Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'),
 }
+
+basedir = 'boostedhiggs/data/'
+mutriglist = {
+    '2016preVFP':{
+        'TRIGNOISO':'NUM_Mu50_or_TkMu50_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose_abseta_pt',
+    },
+    '2016postVFP':{
+        'TRIGNOISO':'NUM_Mu50_or_TkMu50_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose_abseta_pt',
+    },
+    '2017':{
+        'TRIGNOISO':'NUM_Mu50_or_OldMu100_or_TkMu100_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose_abseta_pt',
+    },
+    '2018':{
+        'TRIGNOISO':'NUM_Mu50_or_OldMu100_or_TkMu100_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose_abseta_pt',
+    },
+}
+
+ext = lookup_tools.extractor()
+for year in ['2016preVFP','2016postVFP','2017','2018']:
+    ext.add_weight_sets([f'muon_ID_{year}_value NUM_MediumPromptID_DEN_TrackerMuons_abseta_pt {basedir}Efficiencies_muon_generalTracks_Z_Run{year}_UL_ID.root'])
+    ext.add_weight_sets([f'muon_ID_{year}_error NUM_MediumPromptID_DEN_TrackerMuons_abseta_pt_error {basedir}Efficiencies_muon_generalTracks_Z_Run{year}_UL_ID.root'])
+
+    ext.add_weight_sets([f'muon_ISO_{year}_value NUM_LooseRelIso_DEN_MediumPromptID_abseta_pt {basedir}Efficiencies_muon_generalTracks_Z_Run{year}_UL_ISO.root'])
+    ext.add_weight_sets([f'muon_ISO_{year}_error NUM_LooseRelIso_DEN_MediumPromptID_abseta_pt_error {basedir}Efficiencies_muon_generalTracks_Z_Run{year}_UL_ISO.root'])
+
+    for trigopt in mutriglist[year]:
+        trigname = mutriglist[year][trigopt]
+        ext.add_weight_sets([f'muon_{trigopt}_{year}_value {trigname} {basedir}Efficiencies_muon_generalTracks_Z_Run{year}_UL_SingleMuonTriggers.root'])
+        ext.add_weight_sets([f'muon_{trigopt}_{year}_error {trigname}_error {basedir}Efficiencies_muon_generalTracks_Z_Run{year}_UL_SingleMuonTriggers.root'])
+ext.finalize()
+lepsf_evaluator = ext.make_evaluator()
+lepsf_keys = lepsf_evaluator.keys()
+
+def add_muonSFs(weights, leadingmuon, year, selection):
+    def mask(w):
+        return np.where(selection.all('onemuon'), w, 1.)
+
+    for sf in lepsf_keys:
+        if 'muon' not in sf:
+            continue
+        lep_pt = np.array(ak.fill_none(leadingmuon.pt, 0.))
+        lep_eta = np.array(ak.fill_none(leadingmuon.eta, 0.))
+
+        if 'value' in sf:
+            nom = mask(lepsf_evaluator[sf](np.abs(lep_eta),lep_pt))
+            shift = mask(lepsf_evaluator[sf.replace('_value','_error')](np.abs(lep_eta),lep_pt))
+
+            weights.add(sf, nom, shift, shift=True)
+
