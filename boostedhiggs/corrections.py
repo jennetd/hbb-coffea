@@ -13,20 +13,6 @@ with importlib.resources.path("boostedhiggs.data", "corrections.pkl.gz") as path
     with gzip.open(path) as fin:
         compiled = pickle.load(fin)
 
-# Cap crazy large pileup weights
-compiled['2016_pileupweight']._values = np.minimum(5, compiled['2016_pileupweight']._values)
-compiled['2016_pileupweight_puUp']._values = np.minimum(5, compiled['2016_pileupweight_puUp']._values)
-compiled['2016_pileupweight_puDown']._values = np.minimum(5, compiled['2016_pileupweight_puDown']._values)
-compiled['2017_pileupweight']._values = np.minimum(5, compiled['2017_pileupweight']._values)
-compiled['2017_pileupweight_puUp']._values = np.minimum(5, compiled['2017_pileupweight_puUp']._values)
-compiled['2017_pileupweight_puDown']._values = np.minimum(5, compiled['2017_pileupweight_puDown']._values)
-compiled['2018_pileupweight']._values = np.minimum(5, compiled['2018_pileupweight']._values)
-compiled['2018_pileupweight_puUp']._values = np.minimum(5, compiled['2018_pileupweight_puUp']._values)
-compiled['2018_pileupweight_puDown']._values = np.minimum(5, compiled['2018_pileupweight_puDown']._values)
-
-#with importlib.resources.path("boostedhiggs.data", 'powhegToMinloPtCC.coffea') as filename:
-#    compiled['powheg_to_nnlops'] = util.load(filename)
-
 # UPDATE FOR UL
 class SoftDropWeight(lookup_base):
     def _evaluate(self, pt, eta):

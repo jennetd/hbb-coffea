@@ -52,7 +52,7 @@ def update(events, collections):
 class VBFProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
                  nnlops_rew=False, skipJER=False, tightMatch=False,
-                 ak4tagger='deepcsv',systematics=True
+                 ak4tagger='deepjet',systematics=True
                  ):
         self._year = year
         self._tagger  = tagger
@@ -63,7 +63,8 @@ class VBFProcessor(processor.ProcessorABC):
         self._systematics = systematics
 
         if self._ak4tagger == 'deepcsv':
-            self._ak4tagBranch = 'btagDeepB'
+            raise NotImplementedError()
+#            self._ak4tagBranch = 'btagDeepB'
         elif self._ak4tagger == 'deepjet':
             self._ak4tagBranch = 'btagDeepFlavB'
         else:

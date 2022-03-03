@@ -3,6 +3,7 @@ from .vbfprocessor import VBFProcessor
 from .vbfplots import VBFPlotProcessor
 from .vbftruth import VBFTruthProcessor
 from .vhbbprocessor import VHbbProcessor
+from .btag import BTagEfficiency
 
 __all__ = [
     '__version__',
@@ -10,4 +11,5 @@ __all__ = [
     'VBFPlotProcessor',
     'VBFTruthProcessor'
     'VHbbProcessor',
+    'BTagEfficiency'
 ]

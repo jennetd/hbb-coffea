@@ -7,10 +7,14 @@ from coffea.lookup_tools import extractor
 corrections = {}
 
 pu = {}
-pu["2016"] = {"central": "data/PileupHistogram-goldenJSON-13tev-2016-preVFP-69200ub-99bins.root",
-              "up": "data/PileupHistogram-goldenJSON-13tev-2016-preVFP-72400ub-99bins.root",
-              "down": "data/PileupHistogram-goldenJSON-13tev-2016-preVFP-66000ub-99bins.root",
-          }
+pu["2016preVFP"] = {"central": "data/PileupHistogram-goldenJSON-13tev-2016-preVFP-69200ub-99bins.root",
+                    "up": "data/PileupHistogram-goldenJSON-13tev-2016-preVFP-72400ub-99bins.root",
+                    "down": "data/PileupHistogram-goldenJSON-13tev-2016-preVFP-66000ub-99bins.root",
+                }
+pu["2016postVFP"] = {"central": "data/PileupHistogram-goldenJSON-13tev-2016-postVFP-69200ub-99bins.root",
+                     "up": "data/PileupHistogram-goldenJSON-13tev-2016-postVFP-72400ub-99bins.root",
+                     "down": "data/PileupHistogram-goldenJSON-13tev-2016-postVFP-66000ub-99bins.root",
+                 }
 pu["2017"] = {"central": "data/PileupHistogram-goldenJSON-13tev-2017-69200ub-99bins.root",
               "up": "data/PileupHistogram-goldenJSON-13tev-2017-72400ub-99bins.root",
               "down": "data/PileupHistogram-goldenJSON-13tev-2017-66000ub-99bins.root",
@@ -19,7 +23,13 @@ pu["2018"] = {"central": "data/PileupHistogram-goldenJSON-13tev-2018-69200ub-99b
               "up": "data/PileupHistogram-goldenJSON-13tev-2018-72400ub-99bins.root",
               "down": "data/PileupHistogram-goldenJSON-13tev-2018-66000ub-99bins.root"
           }
-              
+
+pu_mc = {}
+pu_mc['2016preVFP'] = "data/pileup_mc_2016preVFP.root"
+pu_mc['2016postVFP'] = "data/pileup_mc_2016postVFP.root"
+pu_mc['2017'] = "data/pileup_mc_2017.root"
+pu_mc['2018'] = "data/pileup_mc_2018.root"
+
 pileup_corr = {}
 norm = lambda x: x / x.sum()
 for year,pdict in pu.items():
@@ -31,28 +41,13 @@ for year,pdict in pu.items():
             data_pu[var] = norm(ifile["pileup"].values())
             data_pu_edges[var] = ifile["pileup"].axis().edges()
 
-    # from mix.input.nbPileupEvents.probValue:
-    # https://github.com/cms-sw/cmssw/blob/master/SimGeneral/MixingModule/python/mix_2017_25ns_UltraLegacy_PoissonOOTPU_cfi.py
-    mc_pu = np.array([1.1840841518e-05, 3.46661037703e-05, 8.98772521472e-05, 7.47400487733e-05, 0.000123005176624,
-                      0.000156501700614, 0.000154660478659, 0.000177496185603, 0.000324149805611, 0.000737524009713,
-                      0.00140432980253, 0.00244424508696, 0.00380027898037, 0.00541093042612, 0.00768803501793,
-                      0.010828224552, 0.0146608623707, 0.01887739113, 0.0228418813823, 0.0264817796874,
-                      0.0294637401336, 0.0317960986171, 0.0336645950831, 0.0352638818387, 0.036869429333,
-                      0.0382797316998, 0.039386705577, 0.0398389681346, 0.039646211131, 0.0388392805703,
-                      0.0374195678161, 0.0355377892706, 0.0333383902828, 0.0308286549265, 0.0282914440969,
-                      0.0257860718304, 0.02341635055, 0.0213126338243, 0.0195035612803, 0.0181079838989,
-                      0.0171991315458, 0.0166377598339, 0.0166445341361, 0.0171943735369, 0.0181980997278,
-                      0.0191339792146, 0.0198518804356, 0.0199714909193, 0.0194616474094, 0.0178626975229,
-                      0.0153296785464, 0.0126789254325, 0.0100766041988, 0.00773867100481, 0.00592386091874,
-                      0.00434706240169, 0.00310217013427, 0.00213213401899, 0.0013996000761, 0.000879148859271,
-                      0.000540866009427, 0.000326115560156, 0.000193965828516, 0.000114607606623, 6.74262828734e-05,
-                      3.97805301078e-05, 2.19948704638e-05, 9.72007976207e-06, 4.26179259146e-06, 2.80015581327e-06,
-                      1.14675436465e-06, 2.52452411995e-07, 9.08394910044e-08, 1.14291987912e-08, 0.0,
-                      0.0, 0.0, 0.0, 0.0, 0.0,
-                      0.0, 0.0, 0.0, 0.0, 0.0,
-                      0.0, 0.0, 0.0, 0.0, 0.0,
-                      0.0, 0.0, 0.0, 0.0, 0.0,
-                      0.0, 0.0, 0.0, 0.0])
+    mc_pu = {}
+    with uproot.open(pu_mc[year]) as ifile:
+        mc_pu = norm(ifile["pileup"].values())
+    # mc hist goes from -0.5 to 99.5, data hist goes from 0 to 99, data[i] -> mc[i-1] so I insert 0 at the front and delete the extra 0s at the end to match them up
+    # adapted from https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/3689/1/1.html
+    mc_pu = np.insert(mc_pu,0,0.)
+    mc_pu = mc_pu[:-2]
     mask = mc_pu > 0.
     for var in data_pu.keys():
         corr = data_pu[var].copy()
