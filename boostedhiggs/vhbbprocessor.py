@@ -19,12 +19,9 @@ from boostedhiggs.corrections import (
     n2ddt_shift,
     powheg_to_nnlops,
     add_pileup_weight,
-    add_VJets_NLOkFactor,
     add_VJets_kFactors,
-    add_jetTriggerWeight,
     add_jetTriggerSF,
-    add_mutriggerSF,
-    add_mucorrectionsSF,
+    add_muonSFs,
     jet_factory,
     fatjet_factory,
     add_jec_variables,
@@ -59,8 +56,6 @@ class VHbbProcessor(processor.ProcessorABC):
         self._jet_arbitration = jet_arbitration
         self._skipJER = True
         self._tightMatch = False
-        self._newVjetsKfactor= True
-        self._newTrigger = True  # Fewer triggers, new maps (2017 only, ~no effect)
 
         if self._ak4tagger == 'deepcsv':
             self._ak4tagBranch = 'btagDeepB'
@@ -205,7 +200,7 @@ class VHbbProcessor(processor.ProcessorABC):
         if shift_name is None and not isRealData:
             output['sumw'][dataset] = ak.sum(events.genWeight)
 
-        if isRealData or self._newTrigger:
+        if isRealData:
             trigger = np.zeros(len(events), dtype='bool')
             for t in self._triggers[self._year]:
                 if t in events.HLT.fields:

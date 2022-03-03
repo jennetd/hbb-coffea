@@ -21,8 +21,8 @@ env_extra = [
 cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="14GB",
-    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
+    memory="4GB",
+#    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
 cluster.adapt(minimum=1, maximum=50)
@@ -36,7 +36,7 @@ year = sys.argv[1]
 with performance_report(filename="dask-report.html"):
 
     # get list of input files                                                                                                 
-    infiles = subprocess.getoutput("ls infiles/"+year+"*.json").split()
+    infiles = subprocess.getoutput("ls infiles/"+year+"*QCD*.json").split()
 
     for this_file in infiles:
 
@@ -46,7 +46,7 @@ with performance_report(filename="dask-report.html"):
 
         uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
-        p = VBFProcessor(year=year,jet_arbitration='ddb')
+        p = VBFProcessor(year=year,jet_arbitration='ddb',systematics=False)
         args = {'savemetrics':True, 'schema':NanoAODSchema}
 
         output = processor.run_uproot_job(

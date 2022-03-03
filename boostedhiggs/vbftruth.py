@@ -19,12 +19,9 @@ from boostedhiggs.corrections import (
     n2ddt_shift,
     powheg_to_nnlops,
     add_pileup_weight,
-    add_VJets_NLOkFactor,
     add_VJets_kFactors,
-    add_jetTriggerWeight,
     add_jetTriggerSF,
-    add_mutriggerSF,
-    add_mucorrectionsSF,
+    add_muonSFs,
     jet_factory,
     fatjet_factory,
     add_jec_variables,
@@ -50,8 +47,8 @@ def update(events, collections):
 
 class VBFTruthProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
-                 nnlops_rew=False, skipJER=False, tightMatch=False, newTrigger=True,
-                 newVjetsKfactor=True, ak4tagger='deepcsv',
+                 skipJER=False, tightMatch=False, 
+                 ak4tagger='deepcsv',
                  ):
         self._year = year
         self._tagger  = tagger
@@ -59,8 +56,6 @@ class VBFTruthProcessor(processor.ProcessorABC):
         self._jet_arbitration = jet_arbitration
         self._skipJER = skipJER
         self._tightMatch = tightMatch
-        self._newVjetsKfactor= newVjetsKfactor
-        self._newTrigger = newTrigger  # Fewer triggers, new maps (2017 only, ~no effect)
 
         if self._ak4tagger == 'deepcsv':
             self._ak4tagBranch = 'btagDeepB'
@@ -151,14 +146,6 @@ class VBFTruthProcessor(processor.ProcessorABC):
             },
         }
 
-
-
-        self._json_paths = {
-            '2016': 'jsons/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt',
-            '2017': 'jsons/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt',
-            '2018': 'jsons/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt',
-        }
-
         optbins = np.r_[np.linspace(0, 0.15, 30, endpoint=False), np.linspace(0.15, 1, 86)]
         self.make_output = lambda: {
             'sumw': processor.defaultdict_accumulator(float),
@@ -209,7 +196,7 @@ class VBFTruthProcessor(processor.ProcessorABC):
         if shift_name is None and not isRealData:
             output['sumw'][dataset] = ak.sum(events.genWeight)
 
-        if isRealData or self._newTrigger:
+        if isRealData:
             trigger = np.zeros(len(events), dtype='bool')
             for t in self._triggers[self._year]:
                 if t in events.HLT.fields:
@@ -418,21 +405,15 @@ class VBFTruthProcessor(processor.ProcessorABC):
             else:
                 genflavor = bosonFlavor(matchedBoson)
             genBosonPt = ak.fill_none(ak.firsts(bosons.pt), 0)
-            if self._newVjetsKfactor:
-                add_VJets_kFactors(weights, events.GenPart, dataset)
-            else:
-                add_VJets_NLOkFactor(weights, genBosonPt, self._year, dataset)
+            
+            add_VJets_kFactors(weights, events.GenPart, dataset)
 
             if shift_name is None:
                 output['btagWeight'].fill(val=self._btagSF.addBtagWeight(weights, ak4_away, self._ak4tagBranch))
 
-            if self._newTrigger:
-                add_jetTriggerSF(weights, ak.firsts(fatjets), self._year, selection)
-            else:
-                add_jetTriggerWeight(weights, candidatejet.msdcorr, candidatejet.pt, self._year)
+            add_jetTriggerSF(weights, ak.firsts(fatjets), self._year, selection)
 
-            add_mutriggerSF(weights, leadingmuon, self._year, selection)
-            add_mucorrectionsSF(weights, leadingmuon, self._year, selection)
+            add_muonSFs(weights, leadingmuon, self._year, selection)
 
             if self._year in ("2016", "2017"):
                 weights.add("L1Prefiring", events.L1PreFiringWeight.Nom, events.L1PreFiringWeight.Up, events.L1PreFiringWeight.Dn)

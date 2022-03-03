@@ -24,8 +24,8 @@ compiled['2018_pileupweight']._values = np.minimum(5, compiled['2018_pileupweigh
 compiled['2018_pileupweight_puUp']._values = np.minimum(5, compiled['2018_pileupweight_puUp']._values)
 compiled['2018_pileupweight_puDown']._values = np.minimum(5, compiled['2018_pileupweight_puDown']._values)
 
-with importlib.resources.path("boostedhiggs.data", 'powhegToMinloPtCC.coffea') as filename:
-    compiled['powheg_to_nnlops'] = util.load(filename)
+#with importlib.resources.path("boostedhiggs.data", 'powhegToMinloPtCC.coffea') as filename:
+#    compiled['powheg_to_nnlops'] = util.load(filename)
 
 # UPDATE FOR UL
 class SoftDropWeight(lookup_base):
@@ -256,13 +256,6 @@ def add_VJets_kFactors(weights, genpart, dataset):
         add_systs(wsysts, None, ewkcorr, vpt)
 
 
-def add_jetTriggerWeight(weights, jet_msd, jet_pt, year):
-    nom = compiled[f'{year}_trigweight_msd_pt'](jet_msd, jet_pt)
-    up = compiled[f'{year}_trigweight_msd_pt_trigweightUp'](jet_msd, jet_pt)
-    down = compiled[f'{year}_trigweight_msd_pt_trigweightDown'](jet_msd, jet_pt)
-    weights.add('jet_trigger', nom, up, down)
-
-
 with importlib.resources.path("boostedhiggs.data", "fatjet_triggerSF.json") as filename:
     jet_triggerSF = correctionlib.CorrectionSet.from_file(str(filename))
 
@@ -302,9 +295,9 @@ def build_lumimask(filename):
 
 
 lumiMasks = {
-    '2016': build_lumimask('Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'),
-    '2017': build_lumimask('Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt'),
-    '2018': build_lumimask('Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'),
+    "2016": build_lumimask("Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt"),
+    "2017": build_lumimask("Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt"),
+    "2018": build_lumimask("Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt"),
 }
 
 basedir = 'boostedhiggs/data/'
