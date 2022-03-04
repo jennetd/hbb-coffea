@@ -9,10 +9,8 @@ import numpy as np
 from coffea import processor, util, hist
 import pickle
 
-lumis = {}
-lumis['2016'] = 35.9
-lumis['2017'] = 41.5
-lumis['2018'] = 59.9
+with open('lumi.json') as f:
+    lumis = json.load(f)
 
 ddbthr = 0.84
 ddcthr = 0.05
