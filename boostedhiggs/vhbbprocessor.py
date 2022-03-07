@@ -48,14 +48,14 @@ def update(events, collections):
 
 
 class VHbbProcessor(processor.ProcessorABC):
-    def __init__(self, year='2017', jet_arbitration='ddcvb', 
-                 ):
+    def __init__(self, year='2017', jet_arbitration='ddcvb', systematics = True):
         self._year = year
         self._tagger  = 'v2'
         self._ak4tagger = 'deepcsv'
         self._jet_arbitration = jet_arbitration
         self._skipJER = True
         self._tightMatch = False
+        self._systematics = systematics
 
         if self._ak4tagger == 'deepcsv':
             self._ak4tagBranch = 'btagDeepB'
@@ -78,79 +78,9 @@ class VHbbProcessor(processor.ProcessorABC):
         with open('triggers.json') as f:
             self._triggers = json.load(f)
 
-        # https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2
-        self._met_filters = {
-            '2016': {
-                'data': [
-                    'goodVertices',
-                    'globalSuperTightHalo2016Filter',
-                    'HBHENoiseFilter',
-                    'HBHENoiseIsoFilter',
-                    'EcalDeadCellTriggerPrimitiveFilter',
-                    'BadPFMuonFilter',
-                    'eeBadScFilter',
-                ],
-                'mc': [
-                    'goodVertices',
-                    'globalSuperTightHalo2016Filter',
-                    'HBHENoiseFilter',
-                    'HBHENoiseIsoFilter',
-                    'EcalDeadCellTriggerPrimitiveFilter',
-                    'BadPFMuonFilter',
-                    # 'eeBadScFilter',
-                ],
-            },
-            '2017': {
-                'data': [
-                    'goodVertices',
-                    'globalSuperTightHalo2016Filter',
-                    'HBHENoiseFilter',
-                    'HBHENoiseIsoFilter',
-                    'EcalDeadCellTriggerPrimitiveFilter',
-                    'BadPFMuonFilter',
-                    'eeBadScFilter',
-                    'ecalBadCalibFilterV2',
-                ],
-                'mc': [
-                    'goodVertices',
-                    'globalSuperTightHalo2016Filter',
-                    'HBHENoiseFilter',
-                    'HBHENoiseIsoFilter',
-                    'EcalDeadCellTriggerPrimitiveFilter',
-                    'BadPFMuonFilter',
-                    'eeBadScFilter',
-                    'ecalBadCalibFilterV2',
-                ],
-            },
-            '2018': {
-                'data': [
-                    'goodVertices',
-                    'globalSuperTightHalo2016Filter',
-                    'HBHENoiseFilter',
-                    'HBHENoiseIsoFilter',
-                    'EcalDeadCellTriggerPrimitiveFilter',
-                    'BadPFMuonFilter',
-                    'eeBadScFilter',
-                    'ecalBadCalibFilterV2',
-                ],
-                'mc': [
-                    'goodVertices',
-                    'globalSuperTightHalo2016Filter',
-                    'HBHENoiseFilter',
-                    'HBHENoiseIsoFilter',
-                    'EcalDeadCellTriggerPrimitiveFilter',
-                    'BadPFMuonFilter',
-                    'eeBadScFilter',
-                    'ecalBadCalibFilterV2',
-                ],
-            },
-        }
-
-        self._json_paths = {
-            '2016': 'jsons/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt',
-            '2017': 'jsons/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt',
-            '2018': 'jsons/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt',
-        }
+        # https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2                                     
+        with open('metfilters.json') as f:
+            self._met_filters = json.load(f)
 
         optbins = np.r_[np.linspace(0, 0.15, 30, endpoint=False), np.linspace(0.15, 1, 86)]
         self.make_output = lambda: {
@@ -411,7 +341,10 @@ class VHbbProcessor(processor.ProcessorABC):
         import time
         tic = time.time()
 
-        systematics = [None] #+ list(weights.variations)
+        if shift_name is None:
+            systematics = [None] + list(weights.variations)
+        else:
+            systematics = [shift_name]
 
         def fill(region, systematic, wmod=None):
             selections = regions[region]
@@ -438,10 +371,13 @@ class VHbbProcessor(processor.ProcessorABC):
             )
 
         for region in regions:
-            for systematic in systematics:
-                if isRealData and systematic is not None:
-                    continue
-                fill(region, systematic)
+            if self._systematics:
+                for systematic in systematics:
+                    if isRealData and systematic is not None:
+                        continue
+                    fill(region, systematic)
+            else:
+                fill(region, None)
 
         toc = time.time()
         output["filltime"] = toc - tic

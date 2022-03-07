@@ -30,12 +30,12 @@ btagWPs = {
             'L': 0.0490,
             'M': 0.2783,
             'T': 0.7100,
-        },
+        }
     }
 }
 taggerBranch = {
     "deepJet": "btagDeepFlavB",
-    "deepCSV": "btagDeep"
+#    "deepCSV": "btagDeep"
 }
 
 class BTagEfficiency(processor.ProcessorABC):
@@ -44,7 +44,7 @@ class BTagEfficiency(processor.ProcessorABC):
         self._accumulator = hist.Hist(
             'Events',
             hist.Cat('tagger', 'Tagger'),
-            hist.Cat('btag', 'passWP'),
+            hist.Bin('passWP', 'passWP',0,2,2),
             hist.Bin('flavor', 'Jet hadronFlavour', [0, 4, 5]),
             hist.Bin('pt', 'Jet pT', 40, 300, 20),
             hist.Bin('abseta', 'Jet abseta', 0, 2.5, 4),
@@ -64,17 +64,18 @@ class BTagEfficiency(processor.ProcessorABC):
 
         out = self.accumulator.identity()
         tags = [
-#            ('deepcsv', 'btagDeepB', 'medium'),
-            ('deepjet', 'btagDeepFlavB', 'medium'),
+#            ('deepcsv', 'btagDeepB', 'M'),
+            ('deepJet', 'btagDeepFlavB', 'M'),
         ]
 
         for tagger, branch, wp in tags:
-            passbtag = jets[branch] > BTagEfficiency.btagWPs[tagger][self._year][wp]
+            passbtag = jets[branch] > btagWPs[tagger][self._year][wp]
 
-            out.fill(pt=jets.pt,
-                     abseta=abs(jets.eta),
-                     flavor=jets.hadronFlavour,
-                     passWP=jets[taggerBranch[tagger]] > btagWPs[tagger][year][wp]
+            out.fill(tagger=tagger,
+                     pt=ak.flatten(jets.pt),
+                     abseta=ak.flatten(abs(jets.eta)),
+                     flavor=ak.flatten(jets.hadronFlavour),
+                     passWP=ak.flatten(passbtag)
                  )
         return out
 
@@ -93,11 +94,10 @@ class BTagCorrector:
         self._cset = correctionlib.CorrectionSet.from_file(f"/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/BTV/{year}_UL/btagging.json.gz")
 
         # efficiency lookup
-        with importlib.resources.path("boostedhiggs.data", f"btageff_{tagger}_{wp}_{year}.pkl") as path: 
-            with open(path, 'rb') as f:
-                eff = pkl.load(f)
+        eff = util.load(f'boostedhiggs/data/btageff_{tagger}_{wp}_{year}.coffea').integrate('tagger',tagger)
+        print(eff.values())
 
-        self.efflookup = dense_lookup(eff.values(), [ax.edges for ax in eff.axes])
+        self.efflookup = dense_lookup(eff.values()[()], [ax.edges for ax in eff.axes()])
 
     def lighttagSF(self, j, syst="central"):
         # syst: central, down, down_correlated, down_uncorrelated, up, up_correlated
