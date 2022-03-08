@@ -11,12 +11,12 @@ from coffea.lookup_tools.dense_lookup import dense_lookup
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation
 btagWPs = {
     "deepJet": {
-        '2016preVFP': {
+        '2016APV': {
             'L': 0.0508,
             'M': 0.2598,
             'T': 0.6502,
         },
-        '2016postVFP': {
+        '2016': {
             'L': 0.0480,
             'M': 0.2489,
             'T': 0.6377,
@@ -44,10 +44,10 @@ class BTagEfficiency(processor.ProcessorABC):
         self._accumulator = hist.Hist(
             'Events',
             hist.Cat('tagger', 'Tagger'),
-            hist.Bin('passWP', 'passWP',0,2,2),
+            hist.Bin('passWP', 'passWP',2,0,2),
             hist.Bin('flavor', 'Jet hadronFlavour', [0, 4, 5]),
-            hist.Bin('pt', 'Jet pT', 40, 300, 20),
-            hist.Bin('abseta', 'Jet abseta', 0, 2.5, 4),
+            hist.Bin('pt', 'Jet pT', 20, 40, 300),
+            hist.Bin('abseta', 'Jet abseta', 4, 0, 2.5)
         )
 
     @property
