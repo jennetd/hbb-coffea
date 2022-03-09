@@ -90,8 +90,13 @@ class BTagCorrector:
         self._btagwp = btagWPs[tagger][year+mod][wp]
         self._branch = taggerBranch[tagger]
 
-        # more docs at https://cms-nanoaod-integration.web.cern.ch/commonJSONSFs/BTV_btagging_Run2_UL/BTV_btagging_201*_UL.html
-        self._cset = correctionlib.CorrectionSet.from_file(f"/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/BTV/{year}_UL/btagging.json.gz")
+        # more docs at https://cms-nanoaod-integration.web.cern.ch/commonJSONSFs/BTV_btagging_Run2_UL/BTV_btagging_201*_UL.html   
+        if year == '2016':
+            self._cset = correctionlib.CorrectionSet.from_file("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/BTV/2016postVBF_UL/btagging.json.gz")
+        elif year == '2016APV':
+            self._cset = correctionlib.CorrectionSet.from_file("/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/BTV/2016preVFP_UL/btagging.json.gz")
+        else:
+            self._cset = correctionlib.CorrectionSet.from_file(f"/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/BTV/{year}_UL/btagging.json.gz")
 
         # efficiency lookup
         eff = util.load(f'boostedhiggs/data/btageff_{tagger}_{wp}_{year}.coffea').integrate('tagger',tagger)

@@ -73,6 +73,7 @@ class VBFProcessor(processor.ProcessorABC):
         self._btagSF = BTagCorrector('M', self._ak4tagger, year)
 
         self._msdSF = {
+            '2016APV': 1.,
             '2016': 1.,
             '2017': 0.987,
             '2018': 0.970,
