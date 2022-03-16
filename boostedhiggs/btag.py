@@ -100,7 +100,6 @@ class BTagCorrector:
 
         # efficiency lookup
         eff = util.load(f'boostedhiggs/data/btageff_{tagger}_{wp}_{year}.coffea').integrate('tagger',tagger)
-        print(eff.values())
 
         self.efflookup = dense_lookup(eff.values()[()], [ax.edges for ax in eff.axes()])
 
@@ -126,7 +125,9 @@ class BTagCorrector:
         """
         lightJets = jets[jets.hadronFlavour == 0]
         bcJets = jets[jets.hadronFlavour > 0]
-        
+
+        print(lightJets)
+
         lightEff = self.efflookup(lightJets.pt, abs(lightJets.eta), lightJets.hadronFlavour)
         bcEff = self.efflookup(bcJets.pt, abs(bcJets.eta), bcJets.hadronFlavour)
 

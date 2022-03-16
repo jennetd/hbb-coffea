@@ -6,12 +6,21 @@ import cloudpickle
 import importlib.resources
 import correctionlib
 from coffea.lookup_tools.lookup_base import lookup_base
+from coffea.lookup_tools.dense_lookup import dense_lookup
 from coffea import lookup_tools
 from coffea import util
 
 with importlib.resources.path("boostedhiggs.data", "corrections.pkl.gz") as path:
     with gzip.open(path) as fin:
         compiled = pickle.load(fin)
+
+ddt = util.load(f"boostedhiggs/data/ddtmap_n2b1_UL.coffea")
+ddt_dict = {}
+
+for year in ["2016APV", "2016", "2017"]:
+    h = ddt[year].to_hist()
+    lookup = dense_lookup(h.view(), (h.axes[0].edges, h.axes[1].edges))
+    ddt_dict[year] = lookup
 
 # UPDATE FOR UL
 class SoftDropWeight(lookup_base):
@@ -38,8 +47,7 @@ def corrected_msoftdrop(fatjets):
 
 
 def n2ddt_shift(fatjets, year='2017'):
-    return compiled[f'{year}_n2ddt_rho_pt'](fatjets.qcdrho, fatjets.pt)
-
+    return ddt_dict[year](fatjets.qcdrho, fatjets.pt)
 
 def powheg_to_nnlops(genpt):
     return compiled['powheg_to_nnlops'](genpt)
@@ -151,15 +159,7 @@ def add_ps_weight(weights,ps_weights):
     weights.add('UEPS_FSR', nom, up_fsr, down_fsr)
 
 
-def add_pileup_weight(weights, nPU, year='2017', dataset=None):
-    if year == '2017' and dataset in compiled['2017_pileupweight_dataset']:
-        weights.add(
-            'pileup_weight',
-            compiled['2017_pileupweight_dataset'][dataset](nPU),
-            compiled['2017_pileupweight_dataset_puUp'][dataset](nPU),
-            compiled['2017_pileupweight_dataset_puDown'][dataset](nPU),
-        )
-    else:
+def add_pileup_weight(weights, nPU, year='2017'):
         weights.add(
             'pileup_weight',
             compiled[f'{year}_pileupweight'](nPU),

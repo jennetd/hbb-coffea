@@ -21,8 +21,6 @@ from boostedhiggs.corrections import (
     add_pileup_weight,
     add_VJets_kFactors,
     add_jetTriggerSF,
-#    add_mutriggerSF,
-#    add_mucorrectionsSF,
     add_muonSFs,
     jet_factory,
     fatjet_factory,
@@ -259,12 +257,14 @@ class VBFProcessor(processor.ProcessorABC):
         # only consider first 4 jets to be consistent with old framework
         jets = jets[:, :4]
         dphi = abs(jets.delta_phi(candidatejet))
-        selection.add('antiak4btagMediumOppHem', ak.max(jets[dphi > np.pi / 2].btagDeepB, axis=1, mask_identity=False) < BTagEfficiency.btagWPs[self._ak4tagger][self._year]['medium'])
+        selection.add('antiak4btagMediumOppHem', ak.max(jets[dphi > np.pi / 2].btagDeepB, axis=1, mask_identity=False) < self._btagSF._btagwp) #WPs[self._ak4tagger][self._year]['M'])
         ak4_away = jets[dphi > 0.8]
-        selection.add('ak4btagMedium08', ak.max(ak4_away.btagDeepB, axis=1, mask_identity=False) > BTagEfficiency.btagWPs[self._ak4tagger][self._year]['medium'])
+        selection.add('ak4btagMedium08', ak.max(ak4_away.btagDeepB, axis=1, mask_identity=False) > self._btagSF._btagwp) #WPs[self._ak4tagger][self._year]['M'])
 
         met = events.MET
         selection.add('met', met.pt < 140.)
+
+        print(jets.hadronFlavour)
 
         # VBF specific variables                                                                        
         dR = jets.delta_r(candidatejet)
@@ -306,7 +306,7 @@ class VBFProcessor(processor.ProcessorABC):
             (
                 (events.Tau.pt > 20)
                 & (abs(events.Tau.eta) < 2.3)
-                & events.Tau.idDecayMode
+#                & events.Tau.idDecayMode
                 & (events.Tau.rawIso < 5)
                 & (events.Tau.idDeepTau2017v2p1VSjet)
                 & ak.all(events.Tau.metric_table(events.Muon[goodmuon]) > 0.4, axis=2)
@@ -339,7 +339,7 @@ class VBFProcessor(processor.ProcessorABC):
                     add_scalevar_7pt(weights,[])
                     add_scalevar_3pt(weights,[])
 
-            add_pileup_weight(weights, events.Pileup.nPU, self._year, dataset)
+            add_pileup_weight(weights, events.Pileup.nPU, self._year)
             bosons = getBosons(events.GenPart)
             matchedBoson = candidatejet.nearest(bosons, axis=None, threshold=0.8)
             if self._tightMatch:
@@ -351,18 +351,18 @@ class VBFProcessor(processor.ProcessorABC):
             genBosonPt = ak.fill_none(ak.firsts(bosons.pt), 0)
             add_VJets_kFactors(weights, events.GenPart, dataset)
 
-            if shift_name is None:
-                output['btagWeight'].fill(val=self._btagSF.addBtagWeight(weights, ak4_away, self._ak4tagBranch))
+            nom = self._btagSF.addBtagWeight(jets, weights)
+#            print(self._btagSF.addBtagWeight(ak4_away, weights))
+
+#            if shift_name is None:
+#                output['btagWeight'].fill(val=self._btagSF.addBtagWeight(ak.flatten(ak4_away), weights))
 
             add_jetTriggerSF(weights, ak.firsts(fatjets), self._year, selection)
 
-            add_muonSFs(weights, leadingmuon, self._year, "muon",)
-#            add_mutriggerSF(weights, leadingmuon, self._year, selection)
-#            add_mucorrectionsSF(weights, leadingmuon, self._year, selection)
+            add_muonSFs(weights, leadingmuon, self._year, selection)
 
             if self._year in ("2016", "2017"):
                 weights.add("L1Prefiring", events.L1PreFiringWeight.Nom, events.L1PreFiringWeight.Up, events.L1PreFiringWeight.Dn)
-
 
             logger.debug("Weight statistics: %r" % weights.weightStatistics)
 
