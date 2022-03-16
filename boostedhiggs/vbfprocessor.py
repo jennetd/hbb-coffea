@@ -310,8 +310,6 @@ class VBFProcessor(processor.ProcessorABC):
                 # https://twiki.cern.ch/CMS/TauIDRecommendationForRun2#Decay_Mode_Reconstruction
                 & (decayModeFindingNewDM != 5)
                 & (decayModeFindingNewDM != 6)
-                & ak.all(events.Tau.metric_table(events.Muon[goodmuon]) > 0.4, axis=2)
-                & ak.all(events.Tau.metric_table(events.Electron[goodelectron]) > 0.4, axis=2)
             ),
             axis=1,
         )
