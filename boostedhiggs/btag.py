@@ -101,7 +101,11 @@ class BTagCorrector:
         # efficiency lookup
         eff = util.load(f'boostedhiggs/data/btageff_{tagger}_{wp}_{year}.coffea').integrate('tagger',tagger)
 
-        self.efflookup = dense_lookup(eff.values()[()], [ax.edges for ax in eff.axes()])
+        effLight = eff.integrate("passWP", 0)
+        effBC = eff.integrate("passWP", 1)
+
+        self.efflookupLight = dense_lookup(effLight.values()[()] / eff.integrate("passWP").values()[()], [ax.edges() for ax in effLight.axes()])
+        self.efflookupBC    = dense_lookup(effBC.values()[()] / eff.integrate("passWP").values()[()], [ax.edges() for ax in effBC.axes()])
 
     def lighttagSF(self, j, syst="central"):
         # syst: central, down, down_correlated, down_uncorrelated, up, up_correlated
@@ -123,13 +127,11 @@ class BTagCorrector:
         weights: weights class from coffea
         jets: jets selected in your analysis
         """
-        lightJets = jets[jets.hadronFlavour == 0]
-        bcJets = jets[jets.hadronFlavour > 0]
+        lightJets = jets[(jets.hadronFlavour == 0) & (abs(jets.eta)<2.5)]
+        bcJets = jets[(jets.hadronFlavour > 0) & (abs(jets.eta)<2.5)]
 
-        print(lightJets)
-
-        lightEff = self.efflookup(lightJets.pt, abs(lightJets.eta), lightJets.hadronFlavour)
-        bcEff = self.efflookup(bcJets.pt, abs(bcJets.eta), bcJets.hadronFlavour)
+        lightEff = self.efflookupLight(lightJets.hadronFlavour, lightJets.pt, abs(lightJets.eta))
+        bcEff = self.efflookupBC(bcJets.hadronFlavour, bcJets.pt, abs(bcJets.eta))
 
         lightPass = lightJets[self._branch] > self._btagwp
         bcPass = bcJets[self._branch] > self._btagwp
