@@ -1,1 +1,103 @@
-{"QCD": ["QCD_Pt_120to170", "QCD_Pt_170to300", "QCD_Pt_300to470", "QCD_Pt_470to600", "QCD_Pt_600to800", "QCD_Pt_800to1000", "QCD_Pt_1000to1400", "QCD_Pt_1400to1800", "QCD_Pt_1800to2400", "QCD_Pt_2400to3200", "QCD_Pt_3200toInf"], "QCDHT": ["QCD_HT500to700", "QCD_HT700to1000", "QCD_HT1000to1500", "QCD_HT1500to2000", "QCD_HT2000toInf"], "ttbar": ["TTTo2L2Nu", "TTToHadronic", "TTToSemiLeptonic", "TTToSemiLeptonic_ext1"], "SingleTop": ["ST_t-channel_antitop_4f_InclusiveDecays", "ST_t-channel_top_4f_InclusiveDecays", "ST_tW_antitop_5f_inclusiveDecays", "ST_tW_top_5f_inclusiveDecays"], "Wjets": ["WJetsToQQ_HT-400to600", "WJetsToQQ_HT-600to800", "WJetsToQQ_HT-800toInf", "WJetsToLNu_HT-70To100", "WJetsToLNu_HT-100To200", "WJetsToLNu_HT-200To400", "WJetsToLNu_HT-400To600", "WJetsToLNu_HT-600To800", "WJetsToLNu_HT-800To1200WJetsToLNu_HT-1200To2500", "WJetsToLNu_HT-2500ToInf"], "Zjets": ["ZJetsToQQ_HT-400to600", "ZJetsToQQ_HT-600to800", "ZJetsToQQ_HT-800toInf", "DYJetsToLL_HT-70To100", "DYJetsToLL_HT-100To200", "DYJetsToLL_HT-200To400", "DYJetsToLL_HT-400To600", "DYJetsToLL_HT-600To800", "DYJetsToLL_HT-800To1200DYJetsToLL_HT-1200To2500", "DYJetsToLL_HT-2500ToInf"], "VV": ["WW", "WZ", "ZZ"], "EWKZ": ["EWKZ_ZToQQ", "EWKZ_ZToLL", "EWKZ_ZtoNuNu"], "EWKW": ["EWKWminus_WToQQ", "EWKWplus_WToQQ", "EWKWminus_WToLNu", "EWKWplus_WToLNu"], "ggF": ["GluGluHToBB_MINLO"], "VBF": ["VBFHToBB"], "WH": ["WminusH_HToBB_WToQQ", "WplusH_HToBB_WToQQ", "WminusH_HToBB_WToLNu", "WplusH_HToBB_WToLNu"], "ZH": ["ZH_HToBB_ZToQQ", "ZH_HToBB_ZToLL", "ZH_HToBB_ZToNuNu", "ggZH_HToBB_ZToQQ", "ggZH_HToBB_ZToLL", "ggZH_HToBB_ZToNuNu"], "ttH": ["ttHToBB"], "data": ["JetHTData"], "muondata": ["SingleMuonData"]}
+{
+    "QCD": [
+        "QCD_Pt_120to170",
+        "QCD_Pt_170to300",
+        "QCD_Pt_300to470",
+        "QCD_Pt_470to600",
+        "QCD_Pt_600to800",
+        "QCD_Pt_800to1000",
+        "QCD_Pt_1000to1400",
+        "QCD_Pt_1400to1800",
+        "QCD_Pt_1800to2400",
+        "QCD_Pt_2400to3200",
+        "QCD_Pt_3200toInf"
+    ],
+    "QCDHT": [
+        "QCD_HT500to700",
+        "QCD_HT700to1000",
+        "QCD_HT1000to1500",
+        "QCD_HT1500to2000",
+        "QCD_HT2000toInf"
+    ],
+    "ttbar": [
+        "TTTo2L2Nu",
+        "TTToHadronic",
+        "TTToSemiLeptonic",
+        "TTToSemiLeptonic_ext1"
+    ],
+    "SingleTop": [
+        "ST_t-channel_antitop_4f_InclusiveDecays",
+        "ST_t-channel_top_4f_InclusiveDecays",
+        "ST_tW_antitop_5f_inclusiveDecays",
+        "ST_tW_top_5f_inclusiveDecays"
+    ],
+    "Wjets": [
+        "WJetsToQQ_HT-400to600",
+        "WJetsToQQ_HT-600to800",
+        "WJetsToQQ_HT-800toInf",
+        "WJetsToLNu_HT-70To100",
+        "WJetsToLNu_HT-100To200",
+        "WJetsToLNu_HT-200To400",
+        "WJetsToLNu_HT-400To600",
+        "WJetsToLNu_HT-600To800",
+        "WJetsToLNu_HT-800To1200WJetsToLNu_HT-1200To2500",
+        "WJetsToLNu_HT-2500ToInf"
+    ],
+    "Zjets": [
+        "ZJetsToQQ_HT-400to600",
+        "ZJetsToQQ_HT-600to800",
+        "ZJetsToQQ_HT-800toInf",
+        "DYJetsToLL_HT-70To100",
+        "DYJetsToLL_HT-100To200",
+        "DYJetsToLL_HT-200To400",
+        "DYJetsToLL_HT-400To600",
+        "DYJetsToLL_HT-600To800",
+        "DYJetsToLL_HT-800To1200DYJetsToLL_HT-1200To2500",
+        "DYJetsToLL_HT-2500ToInf"
+    ],
+    "VV": [
+        "WW",
+        "WZ",
+        "ZZ"
+    ],
+    "EWKZ": [
+        "EWKZ_ZToQQ",
+        "EWKZ_ZToLL",
+        "EWKZ_ZtoNuNu"
+    ],
+    "EWKW": [
+        "EWKWminus_WToQQ",
+        "EWKWplus_WToQQ",
+        "EWKWminus_WToLNu",
+        "EWKWplus_WToLNu"
+    ],
+    "ggF": [
+        "GluGluHToBB_MINLO"
+    ],
+    "VBF": [
+        "VBFHToBB"
+    ],
+    "WH": [
+        "WminusH_HToBB_WToQQ",
+        "WplusH_HToBB_WToQQ",
+        "WminusH_HToBB_WToLNu",
+        "WplusH_HToBB_WToLNu"
+    ],
+    "ZH": [
+        "ZH_HToBB_ZToQQ",
+        "ZH_HToBB_ZToLL",
+        "ZH_HToBB_ZToNuNu",
+        "ggZH_HToBB_ZToQQ",
+        "ggZH_HToBB_ZToLL",
+        "ggZH_HToBB_ZToNuNu"
+    ],
+    "ttH": [
+        "ttHToBB"
+    ],
+    "data": [
+        "JetHTData"
+    ],
+    "muondata": [
+        "SingleMuonData"
+    ]
+}
