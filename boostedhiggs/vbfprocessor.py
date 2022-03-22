@@ -73,8 +73,8 @@ class VBFProcessor(processor.ProcessorABC):
         self._msdSF = {
             '2016APV': 1.,
             '2016': 1.,
-            '2017': 0.987,
-            '2018': 0.970,
+            '2017': 1, #0.987,
+            '2018': 1, #0.970,
         }
 
         with open('muon_triggers.json') as f:
@@ -264,8 +264,6 @@ class VBFProcessor(processor.ProcessorABC):
         met = events.MET
         selection.add('met', met.pt < 140.)
 
-        print(jets.hadronFlavour)
-
         # VBF specific variables                                                                        
         dR = jets.delta_r(candidatejet)
         ak4_outside_ak8 = jets[dR > 0.8]
@@ -308,8 +306,8 @@ class VBFProcessor(processor.ProcessorABC):
                 & (abs(events.Tau.eta) < 2.3)
                 & (events.Tau.rawIso < 5)
                 # https://twiki.cern.ch/CMS/TauIDRecommendationForRun2#Decay_Mode_Reconstruction
-                & (events.Tau.decayModeFindingNewDM != 5)
-                & (events.Tau.decayModeFindingNewDM != 6)
+#                & (events.Tau.decayModeFindingNewDMs != 5)
+#                & (events.Tau.decayModeFindingNewDMs != 6)
             ),
             axis=1,
         )

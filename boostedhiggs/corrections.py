@@ -38,13 +38,13 @@ class SoftDropWeight(lookup_base):
 
 _softdrop_weight = SoftDropWeight()
 
-
+# Needs updated for UL
 def corrected_msoftdrop(fatjets):
-    sf = _softdrop_weight(fatjets.pt, fatjets.eta)
-    sf = np.maximum(1e-5, sf)
-    dazsle_msd = (fatjets.subjets * (1 - fatjets.subjets.rawFactor)).sum()
-    return dazsle_msd.mass * sf
-
+#    sf = _softdrop_weight(fatjets.pt, fatjets.eta)
+#    sf = np.maximum(1e-5, sf)
+#    dazsle_msd = (fatjets.subjets * (1 - fatjets.subjets.rawFactor)).sum()
+#    return dazsle_msd.mass * sf
+    return fatjets.msoftdrop
 
 def n2ddt_shift(fatjets, year='2017'):
     return ddt_dict[year](fatjets.qcdrho, fatjets.pt)

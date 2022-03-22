@@ -7,11 +7,11 @@ from coffea.lookup_tools import extractor
 corrections = {}
 
 pu = {}
-pu["2016preVFP"] = {"central": "data/PileupHistogram-goldenJSON-13tev-2016-preVFP-69200ub-99bins.root",
+pu["2016APV"] = {"central": "data/PileupHistogram-goldenJSON-13tev-2016-preVFP-69200ub-99bins.root",
                     "up": "data/PileupHistogram-goldenJSON-13tev-2016-preVFP-72400ub-99bins.root",
                     "down": "data/PileupHistogram-goldenJSON-13tev-2016-preVFP-66000ub-99bins.root",
                 }
-pu["2016postVFP"] = {"central": "data/PileupHistogram-goldenJSON-13tev-2016-postVFP-69200ub-99bins.root",
+pu["2016"] = {"central": "data/PileupHistogram-goldenJSON-13tev-2016-postVFP-69200ub-99bins.root",
                      "up": "data/PileupHistogram-goldenJSON-13tev-2016-postVFP-72400ub-99bins.root",
                      "down": "data/PileupHistogram-goldenJSON-13tev-2016-postVFP-66000ub-99bins.root",
                  }
@@ -25,8 +25,8 @@ pu["2018"] = {"central": "data/PileupHistogram-goldenJSON-13tev-2018-69200ub-99b
           }
 
 pu_mc = {}
-pu_mc['2016preVFP'] = "data/pileup_mc_2016preVFP.root"
-pu_mc['2016postVFP'] = "data/pileup_mc_2016postVFP.root"
+pu_mc['2016APV'] = "data/pileup_mc_2016preVFP.root"
+pu_mc['2016'] = "data/pileup_mc_2016postVFP.root"
 pu_mc['2017'] = "data/pileup_mc_2017.root"
 pu_mc['2018'] = "data/pileup_mc_2018.root"
 
