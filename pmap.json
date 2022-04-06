@@ -47,13 +47,24 @@
         "ZJetsToQQ_HT-400to600",
         "ZJetsToQQ_HT-600to800",
         "ZJetsToQQ_HT-800toInf",
-        "DYJetsToLL_HT-70To100",
-        "DYJetsToLL_HT-100To200",
-        "DYJetsToLL_HT-200To400",
-        "DYJetsToLL_HT-400To600",
-        "DYJetsToLL_HT-600To800",
-        "DYJetsToLL_HT-800To1200DYJetsToLL_HT-1200To2500",
-        "DYJetsToLL_HT-2500ToInf"
+        "DYJetsToLL_Pt-50To100",
+        "DYJetsToLL_Pt-100To250",
+        "DYJetsToLL_Pt-250To400",
+        "DYJetsToLL_Pt-400To650",
+        "DYJetsToLL_Pt-650ToInf"
+    ],
+    "ZjetsHT": [
+        "ZJetsToQQ_HT-400to600",
+        "ZJetsToQQ_HT-600to800",
+        "ZJetsToQQ_HT-800toInf",
+        "DYJetsToLL_HT-70to100",
+        "DYJetsToLL_HT-100to200",
+        "DYJetsToLL_HT-200to400",
+        "DYJetsToLL_HT-400to600",
+        "DYJetsToLL_HT-600to800",
+        "DYJetsToLL_HT-800to1200",
+        "DYJetsToLL_HT-1200to2500",
+        "DYJetsToLL_HT-2500toInf"
     ],
     "VV": [
         "WW",

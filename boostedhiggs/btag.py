@@ -77,6 +77,7 @@ class BTagEfficiency(processor.ProcessorABC):
                      flavor=ak.flatten(jets.hadronFlavour),
                      passWP=ak.flatten(passbtag)
                  )
+            
         return out
 
     def postprocess(self, a):
@@ -99,13 +100,7 @@ class BTagCorrector:
             self._cset = correctionlib.CorrectionSet.from_file(f"/cvmfs/cms.cern.ch/rsync/cms-nanoAOD/jsonpog-integration/POG/BTV/{year}_UL/btagging.json.gz")
 
         # efficiency lookup
-        eff = util.load(f'boostedhiggs/data/btageff_{tagger}_{wp}_{year}.coffea').integrate('tagger',tagger)
-
-        effLight = eff.integrate("passWP", 0)
-        effBC = eff.integrate("passWP", 1)
-
-        self.efflookupLight = dense_lookup(effLight.values()[()] / eff.integrate("passWP").values()[()], [ax.edges() for ax in effLight.axes()])
-        self.efflookupBC    = dense_lookup(effBC.values()[()] / eff.integrate("passWP").values()[()], [ax.edges() for ax in effBC.axes()])
+        self.efflookup = util.load(f'boostedhiggs/data/btageff_{tagger}_{wp}_{year}.coffea')
 
     def lighttagSF(self, j, syst="central"):
         # syst: central, down, down_correlated, down_uncorrelated, up, up_correlated
@@ -127,11 +122,12 @@ class BTagCorrector:
         weights: weights class from coffea
         jets: jets selected in your analysis
         """
+        
         lightJets = jets[(jets.hadronFlavour == 0) & (abs(jets.eta)<2.5)]
         bcJets = jets[(jets.hadronFlavour > 0) & (abs(jets.eta)<2.5)]
 
-        lightEff = self.efflookupLight(lightJets.hadronFlavour, lightJets.pt, abs(lightJets.eta))
-        bcEff = self.efflookupBC(bcJets.hadronFlavour, bcJets.pt, abs(bcJets.eta))
+        lightEff = self.efflookup(lightJets.hadronFlavour, lightJets.pt, abs(lightJets.eta))
+        bcEff = self.efflookup(bcJets.hadronFlavour, bcJets.pt, abs(bcJets.eta))
 
         lightPass = lightJets[self._branch] > self._btagwp
         bcPass = bcJets[self._branch] > self._btagwp
@@ -141,7 +137,9 @@ class BTagCorrector:
             tagged_sf = ak.prod(sf[passbtag], axis=-1)
             # untagged SF = (1 - SF*eff) / (1 - eff)
             untagged_sf = ak.prod(((1 - sf*eff) / (1 - eff))[~passbtag], axis=-1)
-            return tagged_sf * untagged_sf
+
+            return ak.fill_none(tagged_sf * untagged_sf, 1.)
+#            return tagged_sf * untagged_sf
             
         lightweight = combine(
             lightEff,
@@ -156,67 +154,69 @@ class BTagCorrector:
         
         # nominal weight = btagSF (btagSFbc*btagSFlight)
         nominal = lightweight * bcweight
-        weights.add('btagSF', lightweight * bcweight)
+        weights.add('btagSF', nominal )
+        print(lightweight)
+        print(bcweight)
 
         # systematics:
         # btagSFlight_{year}: btagSFlight_up/down
         # btagSFbc_{year}: btagSFbc_up/down
         # btagSFlight_correlated: btagSFlight_up/down_correlated
         # btagSFbc_correlated:  btagSFbc_up/down_correlated
-        weights.add(
-            'btagSFlight_%s'%self._year,
-            np.ones(len(nominal)),
-            weightUp=combine(
-                lightEff,
-                self.lighttagSF(lightJets, "up"),
-                lightPass
-            ),
-            weightDown=combine(
-                lightEff,
-                self.lighttagSF(lightJets, "down"),
-                lightPass
-            )
-        )
-        weights.add(
-            'btagSFbc_%s'%self._year, 
-            np.ones(len(nominal)),
-            weightUp=combine(
-                bcEff,
-                self.btagSF(bcJets, "up"),
-                bcPass
-            ),
-            weightDown=combine(
-                bcEff,
-                self.btagSF(bcJets, "down"),
-                bcPass
-            )
-        )
-        weights.add(
-            'btagSFlight_correlated',
-            np.ones(len(nominal)),
-            weightUp=combine(
-                lightEff,
-                self.lighttagSF(lightJets, "up_correlated"),
-                lightPass
-            ),
-            weightDown=combine(
-                lightEff,
-                self.lighttagSF(lightJets, "down_correlated"),
-                lightPass
-            )
-        )
-        weights.add(
-            'btagSFbc_correlated',
-            np.ones(len(nominal)),
-            weightUp=combine(
-                bcEff,
-                self.btagSF(bcJets, "up_correlated"),
-                bcPass
-            ),
-            weightDown=combine(
-                bcEff,
-                self.btagSF(bcJets, "down_correlated"),
-                bcPass
-            )
-        )
+        #weights.add(
+        #    'btagSFlight_%s'%self._year,
+        #    np.ones(len(nominal)),
+        #    weightUp=combine(
+        #        lightEff,
+        #        self.lighttagSF(lightJets, "up"),
+        #        lightPass
+        #    ),
+        #    weightDown=combine(
+        #        lightEff,
+        #        self.lighttagSF(lightJets, "down"),
+        #        lightPass
+        #    )
+        #)
+        #weights.add(
+        #    'btagSFbc_%s'%self._year, 
+        #    np.ones(len(nominal)),
+        #    weightUp=combine(
+        #        bcEff,
+        #        self.btagSF(bcJets, "up"),
+        #        bcPass
+        #    ),
+        #    weightDown=combine(
+        #        bcEff,
+        #        self.btagSF(bcJets, "down"),
+        #        bcPass
+        #    )
+        #)
+        #weights.add(
+        #    'btagSFlight_correlated',
+        #    np.ones(len(nominal)),
+        #    weightUp=combine(
+        #        lightEff,
+        #        self.lighttagSF(lightJets, "up_correlated"),
+        #        lightPass
+        #    ),
+        #    weightDown=combine(
+        #        lightEff,
+        #        self.lighttagSF(lightJets, "down_correlated"),
+        #        lightPass
+        #    )
+        #)
+        #weights.add(
+        #    'btagSFbc_correlated',
+        #    np.ones(len(nominal)),
+        #    weightUp=combine(
+        #        bcEff,
+        #        self.btagSF(bcJets, "up_correlated"),
+        #        bcPass
+        #    ),
+        #    weightDown=combine(
+        #        bcEff,
+        #        self.btagSF(bcJets, "down_correlated"),
+        #        bcPass
+        #    )
+        #)
         return nominal

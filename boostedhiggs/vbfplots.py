@@ -529,11 +529,6 @@ class VBFPlotProcessor(processor.ProcessorABC):
                 if isRealData and systematic is not None:
                     continue
                 fill(region, systematic)
-            if shift_name is None and 'GluGluH' in dataset and 'LHEWeight' in events.fields:
-                for i in range(9):
-                    fill(region, 'LHEScale_%d' % i, events.LHEScaleWeight[:, i])
-                for c in events.LHEWeight.fields[1:]:
-                    fill(region, 'LHEWeight_%s' % c, events.LHEWeight[c])
 
         toc = time.time()
         output["filltime"] = toc - tic

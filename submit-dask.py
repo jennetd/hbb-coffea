@@ -21,50 +21,53 @@ env_extra = [
 cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="4GB",
+    memory="6GB",
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
 cluster.adapt(minimum=1, maximum=50)
-client = Client(cluster)
+with Client(cluster) as client:
 
-print("Waiting for at least one worker...")  # noqa
-client.wait_for_workers(1)
+    print("Waiting for at least one worker...")  # noqa
+    client.wait_for_workers(1)
 
-year = sys.argv[1]
+    year = sys.argv[1]
 
-with performance_report(filename="dask-report.html"):
+    with performance_report(filename="dask-report.html"):
 
-    # get list of input files                                                                                                 
-    infiles = subprocess.getoutput("ls infiles/"+year+"*QCD*.json").split()
+        infiles = subprocess.getoutput("ls infiles/"+year+"_*.json").split()
 
-    for this_file in infiles:
+        for this_file in infiles:
 
-        index = this_file.split("_")[1].split(".json")[0]
+            index = this_file.split("_")[1].split(".json")[0]
+            outfile = 'outfiles/'+str(year)+'_dask_'+index+'.coffea'
 
-        print(this_file, index)
+            if os.path.isfile(outfile):
+                print("File " + outfile + " alread exists. Skipping.")
+                continue
+            else:
+                print("Begin running " + outfile)
 
-        uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
+            uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
-        p = VBFProcessor(year=year,jet_arbitration='ddb',systematics=False)
-        args = {'savemetrics':True, 'schema':NanoAODSchema}
+            p = VBFProcessor(year=year,jet_arbitration='ddb',systematics=False)
+            args = {'savemetrics':True, 'schema':NanoAODSchema}
 
-        output = processor.run_uproot_job(
-            this_file,
-            treename="Events",
-            processor_instance=p,
-            executor=processor.dask_executor,
-            executor_args={
-                "client": client,
-                "skipbadfiles": 1,
-                "schema": processor.NanoAODSchema,
-                "treereduction": 2,
-            },
-            chunksize=100000,
-            #        maxchunks=args.max,
-        )
+            output = processor.run_uproot_job(
+                this_file,
+                treename="Events",
+                processor_instance=p,
+                executor=processor.dask_executor,
+                executor_args={
+                    "client": client,
+                    "skipbadfiles": 1,
+                    "schema": processor.NanoAODSchema,
+                    "treereduction": 2,
+                },
+                chunksize=100000,
+                #        maxchunks=args.max,
+            )
 
-        outfile = 'outfiles/'+str(year)+'_dask_'+index+'.coffea'
-        util.save(output, outfile)
-        print("saved " + outfile)
+            util.save(output, outfile)
+            print("saved " + outfile)
 

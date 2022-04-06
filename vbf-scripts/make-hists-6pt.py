@@ -17,27 +17,20 @@ ddbthr = 0.64
 # Main method
 def main():
 
-    raw = False
-
     if len(sys.argv) < 2:
         print("Enter year")
         return
-    elif len(sys.argv) == 3:
-        if int(sys.argv[2]) > 0:
-            raw = True
     elif len(sys.argv) > 3:
         print("Incorrect number of arguments")
         return
 
     year = sys.argv[1]
 
-    if raw:
-        year = year+"-raw"
     if os.path.isfile(year+'/6pt-signalregion.root'):
         os.remove(year+'/6pt-signalregion.root')
     fout = uproot3.create(year+'/6pt-signalregion.root')
 
-    samples = ['data','muondata','QCD','ttbar','singlet','VV','ggF','VBF','WH','ZH','ttH']
+    samples = ['data','muondata','QCD']#,'ttbar','singlet','VV','ggF','VBF','WH','ZH','ttH']
 
     print("6 PT BINS ggF SR")
     ptbins = [450, 500, 550, 600, 675, 800, 1200]
@@ -58,14 +51,6 @@ def main():
 
             hpass = ggf.integrate('pt1',int_range=slice(ptbins[i],ptbins[i+1])).sum('genflavor').integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
             hfail = ggf.integrate('pt1',int_range=slice(ptbins[i],ptbins[i+1])).sum('genflavor').integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
-
-            if year == '2016' and p == 'ggF' and not raw:
-                print("Taking shape for 2016 ggF from 2017")
-                ggf17 = pickle.load(open('2017/templates.pkl','rb')).integrate('region','signal-ggf').integrate('mjj',overflow='allnan')
-                ggf17.scale(lumis['2016']/lumis['2017'])
-
-                hpass = ggf17.integrate('pt1',int_range=slice(ptbins[i],ptbins[i+1])).sum('genflavor').integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
-                hfail = ggf17.integrate('pt1',int_range=slice(ptbins[i],ptbins[i+1])).sum('genflavor').integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
 
             for s in hfail.identifiers('systematic'):
 

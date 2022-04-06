@@ -116,22 +116,35 @@ class VBFProcessor(processor.ProcessorABC):
             return self.process_shift(events, None)
 
         jec_cache = {}
-        fatjets = fatjet_factory[f"{self._year}mc"].build(add_jec_variables(events.FatJet, events.fixedGridRhoFastjetAll), jec_cache)
-        jets = jet_factory[f"{self._year}mc"].build(add_jec_variables(events.Jet, events.fixedGridRhoFastjetAll), jec_cache)
+
+        thekey = f"{self._year}mc"
+        if self._year == "2016":
+            thekey = "2016postVFPmc"
+        elif self._year == "2016APV":
+            thekey = "2016preVFPmc"
+
+        print(len(events))
+            
+        fatjets = fatjet_factory[thekey].build(add_jec_variables(events.FatJet, events.fixedGridRhoFastjetAll), jec_cache)
+        jets = jet_factory[thekey].build(add_jec_variables(events.Jet, events.fixedGridRhoFastjetAll), jec_cache)
         met = met_factory.build(events.MET, jets, {})
 
-        shifts = [
-            ({"Jet": jets, "FatJet": fatjets, "MET": met}, None),
-            ({"Jet": jets.JES_jes.up, "FatJet": fatjets.JES_jes.up, "MET": met.JES_jes.up}, "JESUp"),
-            ({"Jet": jets.JES_jes.down, "FatJet": fatjets.JES_jes.down, "MET": met.JES_jes.down}, "JESDown"),
-            ({"Jet": jets, "FatJet": fatjets, "MET": met.MET_UnclusteredEnergy.up}, "UESUp"),
-            ({"Jet": jets, "FatJet": fatjets, "MET": met.MET_UnclusteredEnergy.down}, "UESDown"),
-            ({"Jet": jets.JER.up, "FatJet": fatjets.JER.up, "MET": met.JER.up}, "JERUp"),
-            ({"Jet": jets.JER.down, "FatJet": fatjets.JER.down, "MET": met.JER.down}, "JERDown"),
-        ]
+        shifts = [({"Jet": jets, "FatJet": fatjets, "MET": met}, None)]
+        if self._systematics:
+            shifts = [
+                ({"Jet": jets, "FatJet": fatjets, "MET": met}, None),
+                ({"Jet": jets.JES_jes.up, "FatJet": fatjets.JES_jes.up, "MET": met.JES_jes.up}, "JESUp"),
+                ({"Jet": jets.JES_jes.down, "FatJet": fatjets.JES_jes.down, "MET": met.JES_jes.down}, "JESDown"),
+                ({"Jet": jets, "FatJet": fatjets, "MET": met.MET_UnclusteredEnergy.up}, "UESUp"),
+                ({"Jet": jets, "FatJet": fatjets, "MET": met.MET_UnclusteredEnergy.down}, "UESDown"),
+                ({"Jet": jets.JER.up, "FatJet": fatjets.JER.up, "MET": met.JER.up}, "JERUp"),
+                ({"Jet": jets.JER.down, "FatJet": fatjets.JER.down, "MET": met.JER.down}, "JERDown"),
+            ]
+
         return processor.accumulate(self.process_shift(update(events, collections), name) for collections, name in shifts)
 
     def process_shift(self, events, shift_name):
+
         dataset = events.metadata['dataset']
         isRealData = not hasattr(events, "genWeight")
         isQCDMC = 'QCD' in dataset
@@ -140,6 +153,9 @@ class VBFProcessor(processor.ProcessorABC):
         output = self.make_output()
         if shift_name is None and not isRealData:
             output['sumw'][dataset] = ak.sum(events.genWeight)
+
+        if len(events) == 0:
+            return output
 
         if isRealData:
             trigger = np.zeros(len(events), dtype='bool')
@@ -257,9 +273,9 @@ class VBFProcessor(processor.ProcessorABC):
         # only consider first 4 jets to be consistent with old framework
         jets = jets[:, :4]
         dphi = abs(jets.delta_phi(candidatejet))
-        selection.add('antiak4btagMediumOppHem', ak.max(jets[dphi > np.pi / 2].btagDeepB, axis=1, mask_identity=False) < self._btagSF._btagwp) #WPs[self._ak4tagger][self._year]['M'])
+        selection.add('antiak4btagMediumOppHem', ak.max(jets[dphi > np.pi / 2].btagDeepB, axis=1, mask_identity=False) < self._btagSF._btagwp) 
         ak4_away = jets[dphi > 0.8]
-        selection.add('ak4btagMedium08', ak.max(ak4_away.btagDeepB, axis=1, mask_identity=False) > self._btagSF._btagwp) #WPs[self._ak4tagger][self._year]['M'])
+        selection.add('ak4btagMedium08', ak.max(ak4_away.btagDeepB, axis=1, mask_identity=False) > self._btagSF._btagwp) 
 
         met = events.MET
         selection.add('met', met.pt < 140.)
@@ -322,7 +338,7 @@ class VBFProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
-            if 'H' in dataset:
+            if 'H' in dataset and self._systematics:
                 # Jennet adds theory variations                                                                               
                 add_ps_weight(weights, events.PSWeight)
                 if "LHEPdfWeight" in events.fields:
@@ -348,11 +364,8 @@ class VBFProcessor(processor.ProcessorABC):
             genBosonPt = ak.fill_none(ak.firsts(bosons.pt), 0)
             add_VJets_kFactors(weights, events.GenPart, dataset)
 
-            nom = self._btagSF.addBtagWeight(jets, weights)
-#            print(self._btagSF.addBtagWeight(ak4_away, weights))
-
-#            if shift_name is None:
-#                output['btagWeight'].fill(val=self._btagSF.addBtagWeight(ak.flatten(ak4_away), weights))
+            if shift_name is None:
+                output['btagWeight'].fill(val=self._btagSF.addBtagWeight(ak4_away, weights))
 
             add_jetTriggerSF(weights, ak.firsts(fatjets), self._year, selection)
 
@@ -413,13 +426,10 @@ class VBFProcessor(processor.ProcessorABC):
             )
 
         for region in regions:
-            if self._systematics:
-                for systematic in systematics:
-                    if isRealData and systematic is not None:
-                        continue
-                    fill(region, systematic)
-            else:
-                fill(region, None)
+            for systematic in systematics:
+                if isRealData and systematic is not None:
+                    continue
+                fill(region, systematic)
 
         toc = time.time()
         output["filltime"] = toc - tic

@@ -17,7 +17,7 @@ with importlib.resources.path("boostedhiggs.data", "corrections.pkl.gz") as path
 ddt = util.load(f"boostedhiggs/data/ddtmap_n2b1_UL.coffea")
 ddt_dict = {}
 
-for year in ["2016APV", "2016", "2017"]:
+for year in ["2016APV", "2016", "2017","2018"]:
     h = ddt[year].to_hist()
     lookup = dense_lookup(h.view(), (h.axes[0].edges, h.axes[1].edges))
     ddt_dict[year] = lookup
@@ -250,6 +250,10 @@ def add_jetTriggerSF(weights, leadingjet, year, selection):
     def mask(w):
         return np.where(selection.all('noleptons'), w, 1.)
 
+    # Same for 2016 and 2016APV
+    if '2016' in year:
+        year = '2016'
+
     jet_pt = np.array(ak.fill_none(leadingjet.pt, 0.))
     jet_msd = np.array(ak.fill_none(leadingjet.msoftdrop, 0.))  # note: uncorrected
     nom = mask(jet_triggerSF[f'fatjet_triggerSF{year}'].evaluate("nominal", jet_pt, jet_msd))
@@ -264,7 +268,6 @@ with importlib.resources.path("boostedhiggs.data", "jec_compiled.pkl.gz") as pat
 jet_factory = jmestuff["jet_factory"]
 fatjet_factory = jmestuff["fatjet_factory"]
 met_factory = jmestuff["met_factory"]
-
 
 def add_jec_variables(jets, event_rho):
     jets["pt_raw"] = (1 - jets.rawFactor)*jets.pt

@@ -17,14 +17,9 @@ ddbthr = 0.64
 # Main method
 def main():
 
-    raw = False
-
     if len(sys.argv) < 2:
         print("Enter year")
         return 
-    elif len(sys.argv) == 3:
-        if int(sys.argv[2]) > 0:
-            raw = True
     elif len(sys.argv) > 3:
         print("Incorrect number of arguments")
         return
@@ -38,7 +33,7 @@ def main():
         os.remove(year+'/muonCR.root')
     fout = uproot3.create(year+'/muonCR.root')
 
-    # Check if pickle exists                                                                                                                                             
+    # Check if pickle exists                                                                         
     picklename = year+'/templates.pkl'
     if not os.path.isfile(picklename):
         print("You need to create the pickle")
@@ -52,14 +47,6 @@ def main():
 
         hpass = mucr.sum('pt1','genflavor').integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
         hfail = mucr.sum('pt1','genflavor').integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
-
-        if year == '2016' and p == 'ggF' and not raw:
-            print("Taking shape for 2016 ggF from 2017")
-            mucr17 = pickle.load(open('2017/templates.pkl','rb')).integrate('region','muoncontrol').integrate('mjj',overflow='allnan')
-            mucr17.scale(lumis['2016']/lumis['2017'])
-
-            hpass = mucr17.sum('pt1','genflavor').integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
-            hfail = mucr17.sum('pt1','genflavor').integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
 
         for s in hfail.identifiers('systematic'):
 

@@ -9,9 +9,6 @@ import numpy as np
 from coffea import processor, util, hist
 import pickle
 
-with open('lumi.json') as f:
-    lumis = json.load(f)
-
 # Main method
 def main():
 
@@ -28,6 +25,9 @@ def main():
         
     with open('pmap.json') as f:
         pmap = json.load(f)
+
+    with open('lumi.json') as f:
+        lumis = json.load(f)
             
     indir = "outfiles/"
     infiles = subprocess.getoutput("ls "+indir+year+"*.coffea").split()
@@ -56,7 +56,7 @@ def main():
 
             del out
 
-    scale_lumi = {k: xs[k] * 1000 *lumis[year] / w for k, w in outsum['sumw'].items()} 
+    scale_lumi = {k: xs[k] * 1000 * lumis[year] / w for k, w in outsum['sumw'].items()} 
 
     outsum['templates'].scale(scale_lumi, 'dataset')
 
