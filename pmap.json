@@ -25,7 +25,7 @@
         "TTToSemiLeptonic",
         "TTToSemiLeptonic_ext1"
     ],
-    "SingleTop": [
+    "singlet": [
         "ST_t-channel_antitop_4f_InclusiveDecays",
         "ST_t-channel_top_4f_InclusiveDecays",
         "ST_tW_antitop_5f_inclusiveDecays",
@@ -88,6 +88,9 @@
     "VBF": [
         "VBFHToBB"
     ],
+    "VBFDipoleRecoilOn": [
+        "VBFHToBBDipoleRecoilOn"
+    ],
     "WH": [
         "WminusH_HToBB_WToQQ",
         "WplusH_HToBB_WToQQ",
@@ -106,9 +109,13 @@
         "ttHToBB"
     ],
     "data": [
-        "JetHTData"
+        "JetHT_Run2016F",
+        "JetHT_Run2016G",
+        "JetHT_Run2016H"
     ],
     "muondata": [
-        "SingleMuonData"
+        "SingleMuon_Run2016F",
+        "SingleMuon_Run2016G",
+        "SingleMuon_Run2016H"
     ]
 }
