@@ -168,7 +168,7 @@ class VBFProcessor(processor.ProcessorABC):
             selection.add('trigger', np.ones(len(events), dtype='bool'))
 
         if isRealData:
-            selection.add('lumimask', lumiMasks[self._year](events.run, events.luminosityBlock))
+            selection.add('lumimask', lumiMasks[self._year[:4]](events.run, events.luminosityBlock))
         else:
             selection.add('lumimask', np.ones(len(events), dtype='bool'))
 

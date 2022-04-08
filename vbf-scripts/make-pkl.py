@@ -30,7 +30,7 @@ def main():
         lumis = json.load(f)
             
     indir = "outfiles/"
-    infiles = subprocess.getoutput("ls "+indir+year+"*.coffea").split()
+    infiles = subprocess.getoutput("ls "+indir+year+"_dask_*.coffea").split()
     outsum = processor.dict_accumulator()
 
     # Check if pickle exists, remove it if it does
@@ -60,7 +60,7 @@ def main():
 
     outsum['templates'].scale(scale_lumi, 'dataset')
 
-    print(len(outsum['templates'].identifiers('dataset')))
+    print(outsum['templates'].identifiers('dataset'))
 
     templates = outsum['templates'].group('dataset', hist.Cat('process', 'Process'), pmap)
 

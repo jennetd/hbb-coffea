@@ -325,9 +325,19 @@ def add_muonSFs(weights, leadingmuon, year, selection):
     def mask(w):
         return np.where(selection.all('onemuon'), w, 1.)
 
+    yeartag = year
+    if year == '2016':
+        yeartag = '2016postVFP'
+    elif year == '2016APV':
+        yeartag = '2016preVFP'
+
     for sf in lepsf_keys:
+
+        if yeartag not in sf:
+            continue
         if 'muon' not in sf:
             continue
+
         lep_pt = np.array(ak.fill_none(leadingmuon.pt, 0.))
         lep_eta = np.array(ak.fill_none(leadingmuon.eta, 0.))
 

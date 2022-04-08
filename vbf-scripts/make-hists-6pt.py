@@ -30,7 +30,7 @@ def main():
         os.remove(year+'/6pt-signalregion.root')
     fout = uproot3.create(year+'/6pt-signalregion.root')
 
-    samples = ['data','muondata','QCD']#,'ttbar','singlet','VV','ggF','VBF','WH','ZH','ttH']
+    samples = ['data','muondata','QCD','ttbar','singlet','VV','ggF','VBF','WH','ZH','ttH']
 
     print("6 PT BINS ggF SR")
     ptbins = [450, 500, 550, 600, 675, 800, 1200]

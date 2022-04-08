@@ -14,6 +14,8 @@ from lpcjobqueue import LPCCondorCluster
 from dask.distributed import performance_report
 from dask_jobqueue import HTCondorCluster, SLURMCluster
 
+from datetime import datetime
+
 env_extra = [
     f"export PYTHONPATH=$PYTHONPATH:{os.getcwd()}",
 ]
@@ -28,8 +30,10 @@ cluster = LPCCondorCluster(
 cluster.adapt(minimum=1, maximum=50)
 with Client(cluster) as client:
 
+    print(datetime.now())
     print("Waiting for at least one worker...")  # noqa
     client.wait_for_workers(1)
+    print(datetime.now())
 
     year = sys.argv[1]
 
@@ -42,15 +46,19 @@ with Client(cluster) as client:
             index = this_file.split("_")[1].split(".json")[0]
             outfile = 'outfiles/'+str(year)+'_dask_'+index+'.coffea'
 
+            if 'LNu' in index:
+                continue
+
             if os.path.isfile(outfile):
                 print("File " + outfile + " alread exists. Skipping.")
                 continue
             else:
                 print("Begin running " + outfile)
+                print(datetime.now())
 
             uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
-            p = VBFProcessor(year=year,jet_arbitration='ddb',systematics=False)
+            p = VBFProcessor(year=year,jet_arbitration='ddb',systematics=True)
             args = {'savemetrics':True, 'schema':NanoAODSchema}
 
             output = processor.run_uproot_job(
@@ -70,4 +78,4 @@ with Client(cluster) as client:
 
             util.save(output, outfile)
             print("saved " + outfile)
-
+            print(datetime.now())

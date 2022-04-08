@@ -163,60 +163,60 @@ class BTagCorrector:
         # btagSFbc_{year}: btagSFbc_up/down
         # btagSFlight_correlated: btagSFlight_up/down_correlated
         # btagSFbc_correlated:  btagSFbc_up/down_correlated
-        #weights.add(
-        #    'btagSFlight_%s'%self._year,
-        #    np.ones(len(nominal)),
-        #    weightUp=combine(
-        #        lightEff,
-        #        self.lighttagSF(lightJets, "up"),
-        #        lightPass
-        #    ),
-        #    weightDown=combine(
-        #        lightEff,
-        #        self.lighttagSF(lightJets, "down"),
-        #        lightPass
-        #    )
-        #)
-        #weights.add(
-        #    'btagSFbc_%s'%self._year, 
-        #    np.ones(len(nominal)),
-        #    weightUp=combine(
-        #        bcEff,
-        #        self.btagSF(bcJets, "up"),
-        #        bcPass
-        #    ),
-        #    weightDown=combine(
-        #        bcEff,
-        #        self.btagSF(bcJets, "down"),
-        #        bcPass
-        #    )
-        #)
-        #weights.add(
-        #    'btagSFlight_correlated',
-        #    np.ones(len(nominal)),
-        #    weightUp=combine(
-        #        lightEff,
-        #        self.lighttagSF(lightJets, "up_correlated"),
-        #        lightPass
-        #    ),
-        #    weightDown=combine(
-        #        lightEff,
-        #        self.lighttagSF(lightJets, "down_correlated"),
-        #        lightPass
-        #    )
-        #)
-        #weights.add(
-        #    'btagSFbc_correlated',
-        #    np.ones(len(nominal)),
-        #    weightUp=combine(
-        #        bcEff,
-        #        self.btagSF(bcJets, "up_correlated"),
-        #        bcPass
-        #    ),
-        #    weightDown=combine(
-        #        bcEff,
-        #        self.btagSF(bcJets, "down_correlated"),
-        #        bcPass
-        #    )
-        #)
+        weights.add(
+            'btagSFlight_%s'%self._year,
+            np.ones(len(nominal)),
+            weightUp=combine(
+                lightEff,
+                self.lighttagSF(lightJets, "up"),
+                lightPass
+            ),
+            weightDown=combine(
+                lightEff,
+                self.lighttagSF(lightJets, "down"),
+                lightPass
+            )
+        )
+        weights.add(
+            'btagSFbc_%s'%self._year, 
+            np.ones(len(nominal)),
+            weightUp=combine(
+                bcEff,
+                self.btagSF(bcJets, "up"),
+                bcPass
+            ),
+            weightDown=combine(
+                bcEff,
+                self.btagSF(bcJets, "down"),
+                bcPass
+            )
+        )
+        weights.add(
+            'btagSFlight_correlated',
+            np.ones(len(nominal)),
+            weightUp=combine(
+                lightEff,
+                self.lighttagSF(lightJets, "up_correlated"),
+                lightPass
+            ),
+            weightDown=combine(
+                lightEff,
+                self.lighttagSF(lightJets, "down_correlated"),
+                lightPass
+            )
+        )
+        weights.add(
+            'btagSFbc_correlated',
+            np.ones(len(nominal)),
+            weightUp=combine(
+                bcEff,
+                self.btagSF(bcJets, "up_correlated"),
+                bcPass
+            ),
+            weightDown=combine(
+                bcEff,
+                self.btagSF(bcJets, "down_correlated"),
+                bcPass
+            )
+        )
         return nominal
