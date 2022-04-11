@@ -212,34 +212,16 @@ def add_VJets_kFactors(weights, genpart, dataset):
         for syst in systlist:
             weights.add(syst, ones, ewkcorr.evaluate(syst + "_up", vpt) / ewknom, ewkcorr.evaluate(syst + "_down", vpt) / ewknom)
 
-    if "ZJetsToQQ_HT" in dataset and "TuneCUETP8M1" in dataset:
+    if "ZJetsToQQ_HT" in dataset or "DYJetsToLL_M-50" in dataset:
         vpt = get_vpt()
-        qcdcorr = vjets_kfactors["Z_MLM2016toFXFX"].evaluate(vpt)
+        qcdcorr = vjets_kfactors["ULZ_MLMtoFXFX"].evaluate(vpt)
         ewkcorr = vjets_kfactors["Z_FixedOrderComponent"]
         add_systs(zsysts, qcdcorr, ewkcorr, vpt)
-    elif "WJetsToQQ_HT" in dataset and "TuneCUETP8M1" in dataset:
+    elif "WJetsToQQ_HT" in dataset or "WJetsToLNu" in dataset:
         vpt = get_vpt()
-        qcdcorr = vjets_kfactors["W_MLM2016toFXFX"].evaluate(vpt)
+        qcdcorr = vjets_kfactors["ULW_MLMtoFXFX"].evaluate(vpt)
         ewkcorr = vjets_kfactors["W_FixedOrderComponent"]
         add_systs(wsysts, qcdcorr, ewkcorr, vpt)
-    elif "ZJetsToQQ_HT" in dataset and "TuneCP5" in dataset:
-        vpt = get_vpt()
-        qcdcorr = vjets_kfactors["Z_MLM2017toFXFX"].evaluate(vpt)
-        ewkcorr = vjets_kfactors["Z_FixedOrderComponent"]
-        add_systs(zsysts, qcdcorr, ewkcorr, vpt)
-    elif "WJetsToQQ_HT" in dataset and "TuneCP5" in dataset:
-        vpt = get_vpt()
-        qcdcorr = vjets_kfactors["W_MLM2017toFXFX"].evaluate(vpt)
-        ewkcorr = vjets_kfactors["W_FixedOrderComponent"]
-        add_systs(wsysts, qcdcorr, ewkcorr, vpt)
-    elif ("DY1JetsToLL_M-50" in dataset or "DY2JetsToLL_M-50" in dataset) and "amcnloFXFX" in dataset:
-        vpt = get_vpt(check_offshell=True)
-        ewkcorr = vjets_kfactors["Z_FixedOrderComponent"]
-        add_systs(zsysts, None, ewkcorr, vpt)
-    elif ("W1JetsToLNu" in dataset or "W2JetsToLNu" in dataset) and "amcnloFXFX" in dataset:
-        vpt = get_vpt(check_offshell=True)
-        ewkcorr = vjets_kfactors["W_FixedOrderComponent"]
-        add_systs(wsysts, None, ewkcorr, vpt)
 
 
 with importlib.resources.path("boostedhiggs.data", "fatjet_triggerSF.json") as filename:
