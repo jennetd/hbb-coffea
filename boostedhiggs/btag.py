@@ -155,8 +155,6 @@ class BTagCorrector:
         # nominal weight = btagSF (btagSFbc*btagSFlight)
         nominal = lightweight * bcweight
         weights.add('btagSF', nominal )
-        print(lightweight)
-        print(bcweight)
 
         # systematics:
         # btagSFlight_{year}: btagSFlight_up/down

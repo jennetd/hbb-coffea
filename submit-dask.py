@@ -23,11 +23,14 @@ env_extra = [
 cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="6GB",
+    memory="8GB",
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
-cluster.adapt(minimum=1, maximum=50)
+if not os.path.isdir('outfiles/'):
+    os.mkdir('outfiles')
+
+cluster.adapt(minimum=1, maximum=250)
 with Client(cluster) as client:
 
     print(datetime.now())
@@ -45,10 +48,7 @@ with Client(cluster) as client:
 
             index = this_file.split("_")[1].split(".json")[0]
             outfile = 'outfiles/'+str(year)+'_dask_'+index+'.coffea'
-
-            if 'LNu' in index:
-                continue
-
+            
             if os.path.isfile(outfile):
                 print("File " + outfile + " alread exists. Skipping.")
                 continue

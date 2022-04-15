@@ -70,13 +70,6 @@ class VBFProcessor(processor.ProcessorABC):
 
         self._btagSF = BTagCorrector('M', self._ak4tagger, year)
 
-        self._msdSF = {
-            '2016APV': 1.,
-            '2016': 1.,
-            '2017': 1, #0.987,
-            '2018': 1, #0.970,
-        }
-
         with open('muon_triggers.json') as f:
             self._muontriggers = json.load(f)
 
@@ -115,6 +108,9 @@ class VBFProcessor(processor.ProcessorABC):
             # Nominal JEC are already applied in data
             return self.process_shift(events, None)
 
+        if np.sum(ak.num(events.FatJet, axis=1)) < 1:
+            return self.process_shift(events, None)
+
         jec_cache = {}
 
         thekey = f"{self._year}mc"
@@ -123,8 +119,6 @@ class VBFProcessor(processor.ProcessorABC):
         elif self._year == "2016APV":
             thekey = "2016preVFPmc"
 
-        print(len(events))
-            
         fatjets = fatjet_factory[thekey].build(add_jec_variables(events.FatJet, events.fixedGridRhoFastjetAll), jec_cache)
         jets = jet_factory[thekey].build(add_jec_variables(events.Jet, events.fixedGridRhoFastjetAll), jec_cache)
         met = met_factory.build(events.MET, jets, {})
@@ -192,7 +186,6 @@ class VBFProcessor(processor.ProcessorABC):
         fatjets['msdcorr'] = corrected_msoftdrop(fatjets)
         fatjets['qcdrho'] = 2 * np.log(fatjets.msdcorr / fatjets.pt)
         fatjets['n2ddt'] = fatjets.n2b1 - n2ddt_shift(fatjets, year=self._year)
-        fatjets['msdcorr_full'] = fatjets['msdcorr'] * self._msdSF[self._year]
 
         candidatejet = fatjets[
             # https://github.com/DAZSLE/BaconAnalyzer/blob/master/Analyzer/src/VJetLoader.cc#L269
@@ -371,12 +364,12 @@ class VBFProcessor(processor.ProcessorABC):
 
             add_muonSFs(weights, leadingmuon, self._year, selection)
 
-            if self._year in ("2016", "2017"):
+            if self._year in ("2016APV", "2016", "2017"):
                 weights.add("L1Prefiring", events.L1PreFiringWeight.Nom, events.L1PreFiringWeight.Up, events.L1PreFiringWeight.Dn)
 
             logger.debug("Weight statistics: %r" % weights.weightStatistics)
 
-        msd_matched = candidatejet.msdcorr * self._msdSF[self._year] * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
+            msd_matched = candidatejet.msdcorr * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
 
         regions = {
             'signal-ggf': ['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf'],

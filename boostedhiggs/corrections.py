@@ -22,29 +22,27 @@ for year in ["2016APV", "2016", "2017","2018"]:
     lookup = dense_lookup(h.view(), (h.axes[0].edges, h.axes[1].edges))
     ddt_dict[year] = lookup
 
-# UPDATE FOR UL
-class SoftDropWeight(lookup_base):
-    def _evaluate(self, pt, eta):
-        gpar = np.array([1.00626, -1.06161, 0.0799900, 1.20454])
-        cpar = np.array([1.09302, -0.000150068, 3.44866e-07, -2.68100e-10, 8.67440e-14, -1.00114e-17])
-        fpar = np.array([1.27212, -0.000571640, 8.37289e-07, -5.20433e-10, 1.45375e-13, -1.50389e-17])
-        genw = gpar[0] + gpar[1]*np.power(pt*gpar[2], -gpar[3])
-        ptpow = np.power.outer(pt, np.arange(cpar.size))
-        cenweight = np.dot(ptpow, cpar)
-        forweight = np.dot(ptpow, fpar)
-        weight = np.where(np.abs(eta) < 1.3, cenweight, forweight)
-        return genw*weight
+# Updated for UL
+with importlib.resources.path("boostedhiggs.data", "msdcorr.json") as filename:
+    msdcorr = correctionlib.CorrectionSet.from_file(str(filename))
 
-
-_softdrop_weight = SoftDropWeight()
-
-# Needs updated for UL
 def corrected_msoftdrop(fatjets):
-#    sf = _softdrop_weight(fatjets.pt, fatjets.eta)
-#    sf = np.maximum(1e-5, sf)
-#    dazsle_msd = (fatjets.subjets * (1 - fatjets.subjets.rawFactor)).sum()
-#    return dazsle_msd.mass * sf
-    return fatjets.msoftdrop
+    msdraw = np.sqrt(
+        np.maximum(
+            0.0,
+            (fatjets.subjets * (1 - fatjets.subjets.rawFactor)).sum().mass2,
+        )
+    )
+    msoftdrop = fatjets.msoftdrop
+    msdfjcorr = msdraw / (1 - fatjets.rawFactor)
+
+    corr = msdcorr["msdfjcorr"].evaluate(
+        np.array(ak.flatten(msdfjcorr / fatjets.pt)),
+        np.array(ak.flatten(np.log(fatjets.pt))),
+        np.array(ak.flatten(fatjets.eta)),
+    )
+    corr = ak.unflatten(corr, ak.num(fatjets))
+    corrected_mass = msdfjcorr * corr
 
 def n2ddt_shift(fatjets, year='2017'):
     return ddt_dict[year](fatjets.qcdrho, fatjets.pt)
