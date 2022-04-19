@@ -369,7 +369,7 @@ class VBFProcessor(processor.ProcessorABC):
 
             logger.debug("Weight statistics: %r" % weights.weightStatistics)
 
-            msd_matched = candidatejet.msdcorr * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
+        msd_matched = candidatejet.msdcorr * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
 
         regions = {
             'signal-ggf': ['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf'],
