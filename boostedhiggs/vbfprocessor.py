@@ -314,9 +314,6 @@ class VBFProcessor(processor.ProcessorABC):
                 (events.Tau.pt > 20)
                 & (abs(events.Tau.eta) < 2.3)
                 & (events.Tau.rawIso < 5)
-                # https://twiki.cern.ch/CMS/TauIDRecommendationForRun2#Decay_Mode_Reconstruction
-#                & (events.Tau.decayModeFindingNewDMs != 5)
-#                & (events.Tau.decayModeFindingNewDMs != 6)
             ),
             axis=1,
         )

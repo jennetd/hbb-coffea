@@ -27,12 +27,6 @@ from boostedhiggs.corrections import (
     add_jec_variables,
     met_factory,
     lumiMasks,
-
-    # Jennet adds theory variations                                                                                                
-    add_ps_weight,
-    add_scalevar_7pt,
-    add_scalevar_3pt,
-    add_pdf_weight,
 )
 
 
@@ -69,13 +63,6 @@ class WTagProcessor(processor.ProcessorABC):
             raise NotImplementedError()
 
         self._btagSF = BTagCorrector('M', self._ak4tagger, year)
-
-        self._msdSF = {
-            '2016APV': 1.,
-            '2016': 1.,
-            '2017': 1.,
-            '2018': 1.,
-        }
 
         with open('muon_triggers.json') as f:
             self._muontriggers = json.load(f)
@@ -144,6 +131,7 @@ class WTagProcessor(processor.ProcessorABC):
         return processor.accumulate(self.process_shift(update(events, collections), name) for collections, name in shifts)
 
     def process_shift(self, events, shift_name):
+
         dataset = events.metadata['dataset']
         isRealData = not hasattr(events, "genWeight")
         isQCDMC = 'QCD' in dataset
@@ -153,7 +141,10 @@ class WTagProcessor(processor.ProcessorABC):
         if shift_name is None and not isRealData:
             output['sumw'][dataset] = ak.sum(events.genWeight)
 
-        if isRealData or self._newTrigger:
+        if len(events) == 0:
+            return output
+
+        if isRealData:
             trigger = np.zeros(len(events), dtype='bool')
             for t in self._triggers[self._year]:
                 if t in events.HLT.fields:
@@ -308,7 +299,7 @@ class WTagProcessor(processor.ProcessorABC):
         selection.add('tightMuon', (leadingmuon.tightId) & (leadingmuon.pt > 53.))
         selection.add('ptrecoW200', (leadingmuon + met).pt > 200.)
 
-        _bjets = jets[self._ak4tagBranch] > BTagEfficiency.btagWPs[self._ak4tagger][self._year]['medium']
+        _bjets = jets[self._ak4tagBranch] > self._btagSF._btagwp
         _nearAK8 = jets.delta_r(candidatejet)  < 0.8
         _nearMu = jets.delta_r(ak.firsts(events.Muon))  < 0.3
         selection.add('ak4btagTnP', ak.sum(_bjets & ~_nearAK8 & ~_nearMu, axis=1) >= 1)
@@ -324,11 +315,7 @@ class WTagProcessor(processor.ProcessorABC):
             (
                 (events.Tau.pt > 20)
                 & (abs(events.Tau.eta) < 2.3)
-                & events.Tau.idDecayMode
                 & (events.Tau.rawIso < 5)
-                & (events.Tau.idDeepTau2017v2p1VSjet)
-                & ak.all(events.Tau.metric_table(events.Muon[goodmuon]) > 0.4, axis=2)
-                & ak.all(events.Tau.metric_table(events.Electron[goodelectron]) > 0.4, axis=2)
             ),
             axis=1,
         )
@@ -343,21 +330,7 @@ class WTagProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
-            if 'H' in dataset and self._systematics:
-                # Jennet adds theory variations                                                                               
-                add_ps_weight(weights, events.PSWeight)
-                if "LHEPdfWeight" in events.fields:
-                    add_pdf_weight(weights,events.LHEPdfWeight)
-                else:
-                    add_pdf_weight(weights,[])
-                if "LHEScaleWeight" in events.fields:
-                    add_scalevar_7pt(weights, events.LHEScaleWeight)
-                    add_scalevar_3pt(weights, events.LHEScaleWeight)
-                else:
-                    add_scalevar_7pt(weights,[])
-                    add_scalevar_3pt(weights,[])
-
-            add_pileup_weight(weights, events.Pileup.nPU, self._year, dataset)
+            add_pileup_weight(weights, events.Pileup.nPU, self._year)
             bosons = getBosons(events.GenPart)
             matchedBoson = candidatejet.nearest(bosons, axis=None, threshold=0.8)
             if self._tightMatch:
@@ -379,10 +352,9 @@ class WTagProcessor(processor.ProcessorABC):
             if self._year in ("2016APV", "2016", "2017"):
                 weights.add("L1Prefiring", events.L1PreFiringWeight.Nom, events.L1PreFiringWeight.Up, events.L1PreFiringWeight.Dn)
 
-
             logger.debug("Weight statistics: %r" % weights.weightStatistics)
 
-        msd_matched = candidatejet.msdcorr * self._msdSF[self._year] * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
+        msd_matched = candidatejet.msdcorr * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
 
         regions = {
             'tnp': ['muontrigger','lumimask','metfilter','tightMuon', 'onemuon', 'met40p', 'ptrecoW200', 'ak4btagTnP'],
