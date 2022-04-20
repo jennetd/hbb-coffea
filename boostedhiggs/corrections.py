@@ -44,6 +44,8 @@ def corrected_msoftdrop(fatjets):
     corr = ak.unflatten(corr, ak.num(fatjets))
     corrected_mass = msdfjcorr * corr
 
+    return corrected_mass
+
 def n2ddt_shift(fatjets, year='2017'):
     return ddt_dict[year](fatjets.qcdrho, fatjets.pt)
 
