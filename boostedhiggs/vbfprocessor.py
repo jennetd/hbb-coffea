@@ -8,7 +8,7 @@ from coffea import processor, hist
 import hist as hist2
 from coffea.analysis_tools import Weights, PackedSelection
 from coffea.lumi_tools import LumiMask
-from boostedhiggs.btag import BTagEfficiency, BTagCorrector
+from boostedhiggs.btag import BTagCorrector
 from boostedhiggs.common import (
     getBosons,
     bosonFlavor,
@@ -19,6 +19,7 @@ from boostedhiggs.corrections import (
     n2ddt_shift,
     powheg_to_nnlops,
     add_pileup_weight,
+    add_HiggsEW_kFactors,
     add_VJets_kFactors,
     add_jetTriggerSF,
     add_muonSFs,
@@ -50,7 +51,7 @@ def update(events, collections):
 class VBFProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
                  nnlops_rew=False, skipJER=False, tightMatch=False,
-                 ak4tagger='deepJet',systematics=True
+                 ak4tagger='deepJet',ewkHcorr=False,systematics=True
                  ):
         self._year = year
         self._tagger  = tagger
@@ -58,6 +59,7 @@ class VBFProcessor(processor.ProcessorABC):
         self._jet_arbitration = jet_arbitration
         self._skipJER = skipJER
         self._tightMatch = tightMatch
+        self._ewkHcorr = ewkHcorr
         self._systematics = systematics
 
         if self._ak4tagger == 'deepcsv':
@@ -273,7 +275,7 @@ class VBFProcessor(processor.ProcessorABC):
         met = events.MET
         selection.add('met', met.pt < 140.)
 
-        # VBF specific variables                                                                        
+        # VBF specific variables                                                      
         dR = jets.delta_r(candidatejet)
         ak4_outside_ak8 = jets[dR > 0.8]
 
@@ -328,19 +330,24 @@ class VBFProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
-            if 'H' in dataset and self._systematics:
-                # Jennet adds theory variations                                                                               
-                add_ps_weight(weights, events.PSWeight)
-                if "LHEPdfWeight" in events.fields:
-                    add_pdf_weight(weights,events.LHEPdfWeight)
-                else:
-                    add_pdf_weight(weights,[])
-                if "LHEScaleWeight" in events.fields:
-                    add_scalevar_7pt(weights, events.LHEScaleWeight)
-                    add_scalevar_3pt(weights, events.LHEScaleWeight)
-                else:
-                    add_scalevar_7pt(weights,[])
-                    add_scalevar_3pt(weights,[])
+            if 'H' in dataset:
+
+                if self._ewkHcorr:
+                    add_HiggsEW_kFactors(weights, events.GenPart, dataset)
+
+                if self._systematics:
+                    # Jennet adds theory variations                                                                               
+                    add_ps_weight(weights, events.PSWeight)
+                    if "LHEPdfWeight" in events.fields:
+                        add_pdf_weight(weights,events.LHEPdfWeight)
+                    else:
+                        add_pdf_weight(weights,[])
+                    if "LHEScaleWeight" in events.fields:
+                        add_scalevar_7pt(weights, events.LHEScaleWeight)
+                        add_scalevar_3pt(weights, events.LHEScaleWeight)
+                    else:
+                        add_scalevar_7pt(weights,[])
+                        add_scalevar_3pt(weights,[])
 
             add_pileup_weight(weights, events.Pileup.nPU, self._year)
             bosons = getBosons(events.GenPart)

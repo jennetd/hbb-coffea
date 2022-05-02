@@ -8,7 +8,7 @@ from coffea import processor, hist
 import hist as hist2
 from coffea.analysis_tools import Weights, PackedSelection
 from coffea.lumi_tools import LumiMask
-from boostedhiggs.btag import BTagEfficiency, BTagCorrector
+from boostedhiggs.btag import BTagCorrector
 from boostedhiggs.common import (
     getBosons,
     bosonFlavor,
@@ -172,7 +172,7 @@ class VBFPlotProcessor(processor.ProcessorABC):
             selection.add('trigger', np.ones(len(events), dtype='bool'))
 
         if isRealData:
-            selection.add('lumimask', lumiMasks[self._year](events.run, events.luminosityBlock))
+            selection.add('lumimask', lumiMasks[self._year[:4]](events.run, events.luminosityBlock))
         else:
             selection.add('lumimask', np.ones(len(events), dtype='bool'))
 

@@ -167,9 +167,26 @@ def add_pileup_weight(weights, nPU, year='2017'):
             compiled[f'{year}_pileupweight_puDown'](nPU),
         )
 
+with importlib.resources.path("boostedhiggs.data", "EWHiggsCorrections.json") as filename:
+    hew_kfactors = correctionlib.CorrectionSet.from_file(str(filename))
+
+def add_HiggsEW_kFactors(weights, genpart, dataset):
+    """EW Higgs corrections"""
+    def get_hpt():
+        boson = ak.firsts(genpart[
+            (genpart.pdgId == 25)
+            & genpart.hasFlags(["fromHardProcess", "isLastCopy"])
+        ])
+        return np.array(ak.fill_none(boson.pt, 0.))
+
+    if "VBF" in dataset:
+        hpt = get_hpt()
+        ewkcorr = hew_kfactors["VBF_EW"]
+        ewknom = ewkcorr.evaluate(hpt)
+        weights.add("VBF_EW", ewknom)
+
 with importlib.resources.path("boostedhiggs.data", "ULvjets_corrections.json") as filename:
     vjets_kfactors = correctionlib.CorrectionSet.from_file(str(filename))
-
 
 def add_VJets_kFactors(weights, genpart, dataset):
     """Revised version of add_VJets_NLOkFactor, for both NLO EW and ~NNLO QCD"""
