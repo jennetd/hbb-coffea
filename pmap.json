@@ -83,7 +83,7 @@
         "EWKWplus_WToLNu"
     ],
     "ggF": [
-        "GluGluHToBB_MINLO"
+        "GluGluHToBB"
     ],
     "VBF": [
         "VBFHToBB"
@@ -109,13 +109,41 @@
         "ttHToBB"
     ],
     "data": [
+        "JetHT_Run2016B_ver2_HIPM",
+        "JetHT_Run2016C_HIPM",
+        "JetHT_Run2016D_HIPM",
+        "JetHT_Run2016E_HIPM",
+        "JetHT_Run2016F_HIPM",
         "JetHT_Run2016F",
         "JetHT_Run2016G",
-        "JetHT_Run2016H"
+        "JetHT_Run2016H",
+        "JetHT_Run2017B",
+        "JetHT_Run2017C",
+        "JetHT_Run2017D",
+        "JetHT_Run2017E",
+        "JetHT_Run2017F",
+        "JetHT_Run2018A",
+        "JetHT_Run2018B",
+        "JetHT_Run2018C",
+        "JetHT_Run2018D"
     ],
     "muondata": [
+        "SingleMuon_Run2016B_ver2_HIPM",
+        "SingleMuon_Run2016C_HIPM",
+        "SingleMuon_Run2016D_HIPM",
+        "SingleMuon_Run2016E_HIPM",
+        "SingleMuon_Run2016F_HIPM",
         "SingleMuon_Run2016F",
         "SingleMuon_Run2016G",
-        "SingleMuon_Run2016H"
+        "SingleMuon_Run2016H",
+        "SingleMuon_Run2017B",
+        "SingleMuon_Run2017C",
+        "SingleMuon_Run2017D",
+        "SingleMuon_Run2017E",
+        "SingleMuon_Run2017F",
+        "SingleMuon_Run2018A",
+        "SingleMuon_Run2018B",
+        "SingleMuon_Run2018C",
+        "SingleMuon_Run2018D"
     ]
 }
