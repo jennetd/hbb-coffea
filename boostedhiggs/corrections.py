@@ -65,7 +65,7 @@ def add_pdf_weight(weights, pdf_weights):
 
     # NNPDF31_nnlo_hessian_pdfas
     # https://lhapdfsets.web.cern.ch/current/NNPDF31_nnlo_hessian_pdfas/NNPDF31_nnlo_hessian_pdfas.info
-    if "306000 - 306102" in docstring:
+    if True: #"306000 - 306102" in docstring:
 
         # Hessian PDF weights
         # Eq. 21 of https://arxiv.org/pdf/1510.03865v1.pdf                                   
@@ -184,6 +184,18 @@ def add_HiggsEW_kFactors(weights, genpart, dataset):
         ewkcorr = hew_kfactors["VBF_EW"]
         ewknom = ewkcorr.evaluate(hpt)
         weights.add("VBF_EW", ewknom)
+
+    if "WplusH" in dataset or "WminusH" in dataset or "ZH" in dataset:
+        hpt = get_hpt()
+        ewkcorr = hew_kfactors["VH_EW"]
+        ewknom = ewkcorr.evaluate(hpt)
+        weights.add("VH_EW", ewknom)
+
+    if "ttH" in dataset:
+        hpt = get_hpt()
+        ewkcorr = hew_kfactors["ttH_EW"]
+        ewknom = ewkcorr.evaluate(hpt)
+        weights.add("ttH_EW", ewknom)
 
 with importlib.resources.path("boostedhiggs.data", "ULvjets_corrections.json") as filename:
     vjets_kfactors = correctionlib.CorrectionSet.from_file(str(filename))
