@@ -330,7 +330,7 @@ class VBFProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
-            if 'H' in dataset:
+            if 'H' in dataset and 'Had' not in dataset:
 
                 if self._ewkHcorr:
                     add_HiggsEW_kFactors(weights, events.GenPart, dataset)

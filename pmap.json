@@ -85,10 +85,10 @@
     "ggF": [
         "GluGluHToBB"
     ],
-    "VBF": [
+    "VBFDipoleRecoilOff": [
         "VBFHToBB"
     ],
-    "VBFDipoleRecoilOn": [
+    "VBF": [
         "VBFHToBBDipoleRecoilOn"
     ],
     "WH": [

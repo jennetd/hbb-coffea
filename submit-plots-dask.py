@@ -23,7 +23,7 @@ env_extra = [
 cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="8GB",
+    memory="12GB",
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
@@ -50,7 +50,7 @@ with Client(cluster) as client:
             outfile = 'outfiles-plots/'+str(year)+'_dask_'+index+'.coffea'
             
             if os.path.isfile(outfile):
-                print("File " + outfile + " alread exists. Skipping.")
+                print("File " + outfile + " already exists. Skipping.")
                 continue
             else:
                 print("Begin running " + outfile)
