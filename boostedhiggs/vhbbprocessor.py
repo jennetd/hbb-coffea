@@ -94,8 +94,9 @@ class VHbbProcessor(processor.ProcessorABC):
                 hist.Bin('genflavor2', 'Gen. jet 2 flavor', [1, 3, 4]),
                 hist.Bin('msd1', r'Jet 1 $m_{sd}$', 23, 40, 201),
                 hist.Bin('msd2', r'Jet 2 $m_{sd}$', 23, 40, 201),
-                hist.Bin('ddb1', r'Jet 1 ddb score', 25,0,1),
-                hist.Bin('ddc2', r'Jet 2 ddc score', [0,0.01,0.02,0.05,0.1,0.2,0.5,1]),
+                hist.Bin('ddb1', r'Jet 1 ddb score', [0, 0.64, 0.87, 1]),
+                hist.Bin('ddc2', r'Jet 2 ddc score', [0, 0.02, 1]),
+                hist.Bin('j2pt', r'Jet 2 $p_T$', [0, 200, 400, 1200]),
             ),
         }
 
@@ -230,7 +231,7 @@ class VHbbProcessor(processor.ProcessorABC):
             & (abs(candidatejet.eta) < 2.5)
         )
         selection.add('jet2kin',
-            (secondjet.pt >= 400)
+            (secondjet.pt >= 200)
             & (secondjet.msdcorr >= 47.)
             & (abs(secondjet.eta) < 2.5)
         )
@@ -400,6 +401,7 @@ class VHbbProcessor(processor.ProcessorABC):
                 msd2=normalize(msd2_matched, cut),
                 ddb1=normalize(bvl1, cut),
                 ddc2=normalize(cvl2, cut),
+                j2pt=normalize(secondjet.pt, cut),
                 weight=weight,
             )
 

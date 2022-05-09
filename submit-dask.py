@@ -6,7 +6,7 @@ import awkward as ak
 
 from coffea import processor, util, hist
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
-from boostedhiggs import VBFProcessor
+from boostedhiggs import VHbbProcessor
 
 from distributed import Client
 from lpcjobqueue import LPCCondorCluster
@@ -23,7 +23,7 @@ env_extra = [
 cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="8GB",
+    memory="2GB",
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
@@ -58,7 +58,7 @@ with Client(cluster) as client:
 
             uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
-            p = VBFProcessor(year=year,jet_arbitration='ddb',systematics=True)
+            p = VHbbProcessor(year=year,jet_arbitration='ddcvb',systematics=False)
             args = {'savemetrics':True, 'schema':NanoAODSchema}
 
             output = processor.run_uproot_job(
