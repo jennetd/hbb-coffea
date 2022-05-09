@@ -57,7 +57,7 @@ def main():
                 fout["ggf_pass_pt"+str(i+1)+"_"+p+"_"+str(s)] = hist.export1d(hpass.integrate('systematic',s))
                 fout["ggf_fail_pt"+str(i+1)+"_"+p+"_"+str(s)] = hist.export1d(hfail.integrate('systematic',s))
 
-        for p in ['Wjets','Zjets']:
+        for p in ['Wjets','Zjets','EWKW','EWKZ']:
             print(p)
 
             hpass = ggf.integrate('pt1',int_range=slice(ptbins[i],ptbins[i+1])).integrate('genflavor',int_range=slice(1,3)).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)

@@ -17,6 +17,8 @@ color_dict['QCD'] = 'black'
 color_dict['Wjets'] = 'gray'
 color_dict['Zjets'] = 'deepskyblue'
 color_dict['Zjetsbb'] = 'blue'
+color_dict['EWKW'] = 'red'
+color_dict['EWKZ'] = 'black'
 color_dict['ttbar'] = 'purple'
 color_dict['singlet'] = 'hotpink'
 color_dict['VV'] = 'darkorange'
@@ -27,7 +29,7 @@ color_dict['ZH'] = 'gold'
 color_dict['VBF'] = 'green'
 color_dict['ggF'] = 'red'
 
-def plot_systs_sig_bybin(syst,df16,df17,df18):
+def plot_systs_sig_bybin(syst,df16apv,df16,df17,df18):
     
     fig = plt.figure()
     plt.subplots_adjust(hspace=0)
@@ -44,12 +46,13 @@ def plot_systs_sig_bybin(syst,df16,df17,df18):
     
     # PASS
     dfs = {}
+    dfs['2016apv'] = df16apv[(df16apv["syst"]==syst) & (df16apv["region"]=="pass")].drop(columns=["syst","region"])
     dfs['2016'] = df16[(df16["syst"]==syst) & (df16["region"]=="pass")].drop(columns=["syst","region"])
     dfs['2017'] = df17[(df17["syst"]==syst) & (df17["region"]=="pass")].drop(columns=["syst","region"])
     dfs['2018'] = df18[(df18["syst"]==syst) & (df18["region"]=="pass")].drop(columns=["syst","region"])
     
 
-    for i,y in enumerate(['2016','2017','2018']):
+    for i,y in enumerate(['2016apv','2016','2017','2018']):
         up = []
         do = []
         for s in samples:
@@ -67,7 +70,7 @@ def plot_systs_sig_bybin(syst,df16,df17,df18):
             up += [up_samp]
             do += [do_samp]
             
-        ax = fig.add_subplot(3,2,2*i+1)
+        ax = fig.add_subplot(4,2,2*i+1)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=up,histtype='bar',color=colors,label=samples)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=do,histtype='bar',color=colors,label=samples)
         ax.set_xlim(ax.get_xlim())
@@ -81,11 +84,12 @@ def plot_systs_sig_bybin(syst,df16,df17,df18):
     
     # FAIL
     dfs = {}
+    dfs['2016apv'] = df16apv[(df16apv["syst"]==syst) & (df16apv["region"]=="fail")].drop(columns=["syst","region"])
     dfs['2016'] = df16[(df16["syst"]==syst) & (df16["region"]=="fail")].drop(columns=["syst","region"])
     dfs['2017'] = df17[(df17["syst"]==syst) & (df17["region"]=="fail")].drop(columns=["syst","region"])
     dfs['2018'] = df18[(df18["syst"]==syst) & (df18["region"]=="fail")].drop(columns=["syst","region"])
     
-    for i,y in enumerate(['2016','2017','2018']):
+    for i,y in enumerate(['2016apv','2016','2017','2018']):
         up = []
         do = []
         for s in samples:
@@ -103,7 +107,7 @@ def plot_systs_sig_bybin(syst,df16,df17,df18):
             up += [up_samp]
             do += [do_samp]
 
-        ax = fig.add_subplot(3,2,2*i+2)
+        ax = fig.add_subplot(4,2,2*i+2)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=up,histtype='bar',color=colors,label=samples)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=do,histtype='bar',color=colors)
         ax.set_xlim(ax.get_xlim())
@@ -124,7 +128,7 @@ def plot_systs_sig_bybin(syst,df16,df17,df18):
     pdf_name = name+'.pdf'
     fig.savefig(pdf_name,bbox_inches='tight')
     
-def plot_systs_bkg_bybin(syst,df16,df17,df18):
+def plot_systs_bkg_bybin(syst,df16apv,df16,df17,df18):
     
     fig = plt.figure()
     plt.subplots_adjust(hspace=0)
@@ -141,11 +145,12 @@ def plot_systs_bkg_bybin(syst,df16,df17,df18):
     
     # PASS
     dfs = {}
+    dfs['2016apv'] = df16apv[(df16apv["syst"]==syst) & (df16apv["region"]=="pass")].drop(columns=["syst","region"])
     dfs['2016'] = df16[(df16["syst"]==syst) & (df16["region"]=="pass")].drop(columns=["syst","region"])
     dfs['2017'] = df17[(df17["syst"]==syst) & (df17["region"]=="pass")].drop(columns=["syst","region"])
     dfs['2018'] = df18[(df18["syst"]==syst) & (df18["region"]=="pass")].drop(columns=["syst","region"])
     
-    for i,y in enumerate(['2016','2017','2018']):
+    for i,y in enumerate(['2016apv','2016','2017','2018']):
         up = []
         do = []
         for s in samples:
@@ -163,7 +168,7 @@ def plot_systs_bkg_bybin(syst,df16,df17,df18):
             up += [up_samp]
             do += [do_samp]
             
-        ax = fig.add_subplot(3,2,2*i+1)
+        ax = fig.add_subplot(4,2,2*i+1)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=up,histtype='bar',color=colors,label=samples)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=do,histtype='bar',color=colors)
         ax.set_xlim(ax.get_xlim())
@@ -177,11 +182,12 @@ def plot_systs_bkg_bybin(syst,df16,df17,df18):
     
     # FAIL
     dfs = {}
+    dfs['2016apv'] = df16apv[(df16apv["syst"]==syst) & (df16apv["region"]=="fail")].drop(columns=["syst","region"])
     dfs['2016'] = df16[(df16["syst"]==syst) & (df16["region"]=="fail")].drop(columns=["syst","region"])
     dfs['2017'] = df17[(df17["syst"]==syst) & (df17["region"]=="fail")].drop(columns=["syst","region"])
     dfs['2018'] = df18[(df18["syst"]==syst) & (df18["region"]=="fail")].drop(columns=["syst","region"])
     
-    for i,y in enumerate(['2016','2017','2018']):
+    for i,y in enumerate(['2016apv','2016','2017','2018']):
         up = []
         do = []
         for s in samples:
@@ -199,7 +205,7 @@ def plot_systs_bkg_bybin(syst,df16,df17,df18):
             up += [up_samp]
             do += [do_samp]
             
-        ax = fig.add_subplot(3,2,2*i+2)
+        ax = fig.add_subplot(4,2,2*i+2)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=up,histtype='bar',color=colors,label=samples)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=do,histtype='bar',color=colors)
         ax.set_xlim(ax.get_xlim())
@@ -220,7 +226,7 @@ def plot_systs_bkg_bybin(syst,df16,df17,df18):
     pdf_name = name+'.pdf'
     fig.savefig(pdf_name,bbox_inches='tight')
     
-def plot_systs_vjets_bybin(syst,df16,df17,df18):
+def plot_systs_vjets_bybin(syst,df16apv,df16,df17,df18):
     
     fig = plt.figure()
     plt.subplots_adjust(hspace=0)
@@ -247,11 +253,12 @@ def plot_systs_vjets_bybin(syst,df16,df17,df18):
     
     # PASS
     dfs = {}
+    dfs['2016APV'] = df16apv[(df16apv["region"]=="pass")].drop(columns=["region"])
     dfs['2016'] = df16[(df16["region"]=="pass")].drop(columns=["region"])
     dfs['2017'] = df17[(df17["region"]=="pass")].drop(columns=["region"])
     dfs['2018'] = df18[(df18["region"]=="pass")].drop(columns=["region"])
     
-    for i,y in enumerate(['2016','2017','2018']):
+    for i,y in enumerate(['2016APV','2016','2017','2018']):
         up = []
         do = []
         for s in samples:
@@ -269,7 +276,7 @@ def plot_systs_vjets_bybin(syst,df16,df17,df18):
             up += [up_samp]
             do += [do_samp]
             
-        ax = fig.add_subplot(3,2,2*i+1)
+        ax = fig.add_subplot(4,2,2*i+1)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=up,histtype='bar',color=colors,label=samples)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=do,histtype='bar',color=colors)
         ax.set_xlim(ax.get_xlim())
@@ -283,11 +290,12 @@ def plot_systs_vjets_bybin(syst,df16,df17,df18):
     
     # FAIL
     dfs = {}
+    dfs['2016APV'] = df16apv[(df16apv["region"]=="fail")].drop(columns=["region"])
     dfs['2016'] = df16[(df16["region"]=="fail")].drop(columns=["region"])
     dfs['2017'] = df17[(df17["region"]=="fail")].drop(columns=["region"])
     dfs['2018'] = df18[(df18["region"]=="fail")].drop(columns=["region"])
     
-    for i,y in enumerate(['2016','2017','2018']):
+    for i,y in enumerate(['2016APV','2016','2017','2018']):
         up = []
         do = []
         for s in samples:
@@ -305,7 +313,7 @@ def plot_systs_vjets_bybin(syst,df16,df17,df18):
             up += [up_samp]
             do += [do_samp]
             
-        ax = fig.add_subplot(3,2,2*i+2)
+        ax = fig.add_subplot(4,2,2*i+2)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=up,histtype='bar',color=colors,label=samples)
         ax.hist(x=binnames,bins=range(len(thebins)+1),weights=do,histtype='bar',color=colors)
         ax.set_xlim(ax.get_xlim())
@@ -355,9 +363,9 @@ def plot_datamc_ggfvbf(h, name, xtitle, title, xlim=-1, log=True):
     plt.subplots_adjust(hspace=0)
     
     # https://matplotlib.org/stable/gallery/color/named_colors.html                                                             
-    labels = ['QCD','Z+jets','W+jets','tt','single t','VV','bkg H'] #['bkg H', 'VV','single t','tt','W+jets','Z+jets','QCD']
-    mc = ['QCD','Wjets','Zjets','ttbar','singlet','VV', ['ttH','WH','ZH']]
-    colors=['gray','deepskyblue','blue','purple','hotpink','darkorange','gold']
+    labels = ['QCD','Z+jets','W+jets','tt','single t','EWKV','VV','bkg H'] 
+    mc = ['QCD','Wjets','Zjets','ttbar','singlet',['EWKZ','EWKW'],'VV', ['ttH','WH','ZH']]
+    colors=['white','deepskyblue','gray','purple','hotpink','sienna','darkorange','gold']
 
     if log:
         mc = [x for x in reversed(mc)]
@@ -417,10 +425,10 @@ def plot_datamc_muoncr(h, name, xtitle, title, xlim=-1, log=True):
     ax1 = fig.add_subplot(4,1,(1,3))
     plt.subplots_adjust(hspace=0)
 
-    # https://matplotlib.org/stable/gallery/color/named_colors.html                                                       
-    labels = ['tt','single t','QCD','Z+jets','W+jets','VV','Higgs'] #['Higgs','VV','W+jets','Z+jets','QCD','single t','tt']
-    mc = ['ttbar','singlet','QCD','Wjets','Zjets','VV',['ZH','WH','ttH','ggF']]                                                     
-    colors=['purple','hotpink','gray','deepskyblue','blue','darkorange','gold']
+    # https://matplotlib.org/stable/gallery/color/named_colors.html       
+    labels = ['tt','single t','QCD','W+jets','Z+jets','EWKV','VV','bkg H'] 
+    mc = ['ttbar','singlet','QCD','Wjets','Zjets',['EWKZ','EWKW'],'VV',['ZH','WH','ttH','ggF']]    
+    colors=['purple','hotpink','white','gray','deepskyblue','sienna','darkorange','gold']
 
     if log:
         mc = [x for x in reversed(mc)]
@@ -467,9 +475,9 @@ def plot_datamc_muoncr_pf(h, name, title, xlim=-1, log=True):
     plt.subplots_adjust(hspace=0)
     
     # https://matplotlib.org/stable/gallery/color/named_colors.html                                                       
-    labels = ['tt','single t','QCD','Z+jets','W+jets','VV','Higgs'] #['Higgs','VV','W+jets','Z+jets','QCD','single t','tt']
-    mc = ['ttbar','singlet','QCD','Wjets','Zjets','VV',['ZH','WH','ttH','ggF']]                                                     
-    colors=['purple','hotpink','gray','deepskyblue','blue','darkorange','gold']
+    labels = ['tt','single t','QCD','W+jets','Z+jets','EWKV','VV','bkg H'] 
+    mc = ['ttbar','singlet','QCD','Wjets','Zjets',['EWKZ','EWKW'],'VV',['ZH','WH','ttH','ggF']]    
+    colors=['purple','hotpink','white','gray','deepskyblue','sienna','darkorange','gold']
 
     if log:
         mc = [x for x in reversed(mc)]

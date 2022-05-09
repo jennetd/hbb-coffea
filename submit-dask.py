@@ -50,7 +50,7 @@ with Client(cluster) as client:
             outfile = 'outfiles/'+str(year)+'_dask_'+index+'.coffea'
             
             if os.path.isfile(outfile):
-                print("File " + outfile + " alread exists. Skipping.")
+                print("File " + outfile + " already exists. Skipping.")
                 continue
             else:
                 print("Begin running " + outfile)
