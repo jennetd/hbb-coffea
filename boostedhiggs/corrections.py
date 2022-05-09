@@ -47,7 +47,7 @@ def corrected_msoftdrop(fatjets):
     return corrected_mass
 
 def n2ddt_shift(fatjets, year='2017'):
-    return ddt_dict[year](fatjets.qcdrho, fatjets.pt)
+    return ddt_dict[year](fatjets.pt, fatjets.qcdrho)
 
 def powheg_to_nnlops(genpt):
     return compiled['powheg_to_nnlops'](genpt)
