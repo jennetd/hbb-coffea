@@ -1,0 +1,10 @@
+.ipython*
+.local*
+.env*
+.bashrc
+*.ipynb_checkpoints*
+*__pycache__*
+*dask_out.txt
+*notebooks/2017*
+2017*
+dask-report*
