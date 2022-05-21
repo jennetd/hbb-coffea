@@ -21,3 +21,16 @@ python make-pkl.py $year
 ```
 
 Make root histograms to feed into combine using the python scripts in vh-scripts.
+
+---
+## Notes about dask
+
+* Need to install this before submitting jobs:
+```
+pip install git+https://github.com/CoffeaTeam/lpcjobqueue.git@v0.2.5
+```
+
+* Might need to update `correctionlib` library by doing:
+```
+pip install --upgrade --user correctionlib
+```

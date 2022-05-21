@@ -186,7 +186,7 @@ class VHbbProcessor(processor.ProcessorABC):
         fatjets['msdcorr'] = corrected_msoftdrop(fatjets)
         fatjets['qcdrho'] = 2 * np.log(fatjets.msdcorr / fatjets.pt)
         fatjets['n2ddt'] = fatjets.n2b1 - n2ddt_shift(fatjets, year=self._year)
-        fatjets['msdcorr_full'] = fatjets['msdcorr'] * self._msdSF[self._year]
+        fatjets['msdcorr_full'] = fatjets['msdcorr']
 
         candidatejet = fatjets[
             (fatjets.pt > 200)
@@ -217,9 +217,9 @@ class VHbbProcessor(processor.ProcessorABC):
         else:
             raise RuntimeError("Unknown candidate jet arbitration")
 
-        bvl = candidatejet.btagDDBvLV2
-        cvl = candidatejet.btagDDCvLV2
-        cvb = candidatejet.btagDDCvBV2
+        bvl1 = candidatejet.btagDDBvLV2
+        cvl1 = candidatejet.btagDDCvLV2
+        cvb1 = candidatejet.btagDDCvBV2
 
         bvl2 = secondjet.btagDDBvLV2
         cvl2 = secondjet.btagDDCvLV2
