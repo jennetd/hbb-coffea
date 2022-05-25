@@ -12,8 +12,8 @@ import pickle
 with open('lumi.json') as f:
     lumis = json.load(f)
 
-ddbthr = 0.84
-ddcthr = 0.05
+ddbthr = 0.87
+ddcthr = 0.02
 
 # Main method
 def main():
