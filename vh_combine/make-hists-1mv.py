@@ -50,23 +50,23 @@ def main():
         return
 
     # Read the histogram from the pickle file
-    sig = pickle.load(open(picklename,'rb')).integrate('region','signal').sum('ddc2','genflavor2')
+    sig = pickle.load(open(picklename,'rb')).integrate('region','signal').sum('ddc2','genflavor2', overflow='all')
 
     for i,b in enumerate(bins[:-1]):
 
         for p in samples:
             print(p)
 
-            hpass = sig.sum('genflavor1').integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
-            hfail = sig.sum('genflavor1').integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
+            hpass = sig.sum('genflavor1', overflow='all').integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
+            hfail = sig.sum('genflavor1', overflow='all').integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
 
             if year == '2016' and p == 'ggF':
                 print("Taking shape for 2016 ggF from 2017")
                 sig17 = pickle.load(open('2017/templates.pkl','rb')).integrate('region','signal')
                 sig17.scale(lumis['2016']/lumis['2017'])
 
-                hpass = sig17.sum('genflavor1').integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
-                hfail = sig17.sum('genflavor1').integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
+                hpass = sig17.sum('genflavor1', overflow='all').integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
+                hfail = sig17.sum('genflavor1', overflow='all').integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
 
             fout["pass_mv"+str(i+1)+"_"+p+"_nominal"] = hist.export1d(hpass)
             fout["fail_mv"+str(i+1)+"_"+p+"_nominal"] = hist.export1d(hfail)
@@ -74,11 +74,11 @@ def main():
         for p in ['Wjets','Zjets']:
             print(p)
 
-            hpass = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(1,3)).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
-            hfail = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(1,3)).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
+            hpass = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(1,3), overflow='all').integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
+            hfail = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(1,3), overflow='all').integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
 
-            hpass_bb = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(3,4)).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
-            hfail_bb = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(3,4)).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
+            hpass_bb = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(3,4), overflow='all').integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
+            hfail_bb = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(3,4), overflow='all').integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
 
             fout["pass_mv"+str(i+1)+"_"+p+"_nominal"] = hist.export1d(hpass)
             fout["fail_mv"+str(i+1)+"_"+p+"_nominal"] = hist.export1d(hfail)
