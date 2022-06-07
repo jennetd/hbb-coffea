@@ -316,6 +316,9 @@ class VBFProcessor(processor.ProcessorABC):
                 (events.Tau.pt > 20)
                 & (abs(events.Tau.eta) < 2.3)
                 & (events.Tau.rawIso < 5)
+                & (events.Tau.idDeepTau2017v2p1VSjet)
+                & ak.all(events.Tau.metric_table(events.Muon[goodmuon]) > 0.4, axis=2)
+                & ak.all(events.Tau.metric_table(events.Electron[goodelectron]) > 0.4, axis=2)
             ),
             axis=1,
         )
@@ -330,7 +333,7 @@ class VBFProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
-            if 'H' in dataset and 'Had' not in dataset:
+            if 'HToBB' in dataset:
 
                 if self._ewkHcorr:
                     add_HiggsEW_kFactors(weights, events.GenPart, dataset)

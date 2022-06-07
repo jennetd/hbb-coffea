@@ -31,7 +31,7 @@ def main():
         pmap = json.load(f)
             
     indir = "outfiles-plots/"
-    infiles = subprocess.getoutput("ls "+indir+year+"*.coffea").split()
+    infiles = subprocess.getoutput("ls "+indir+year+"_*.coffea").split()
     outsum = processor.dict_accumulator()
 
     # Check if pickle exists, remove it if it does
