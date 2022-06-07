@@ -27,8 +27,8 @@ cluster = LPCCondorCluster(
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
-if not os.path.isdir('outfiles/'):
-    os.mkdir('outfiles')
+out_path = "outfiles/"
+os.system('mkdir -p  %s' %out_path)
 
 cluster.adapt(minimum=1, maximum=250)
 with Client(cluster) as client:
@@ -47,7 +47,7 @@ with Client(cluster) as client:
         for this_file in infiles:
 
             index = this_file.split("_")[1].split(".json")[0]
-            outfile = 'outfiles/'+str(year)+'_dask_'+index+'.coffea'
+            outfile = out_path+str(year)+'_dask_'+index+'.coffea'
             
             if os.path.isfile(outfile):
                 print("File " + outfile + " already exists. Skipping.")
