@@ -19,6 +19,7 @@ from boostedhiggs.corrections import (
     n2ddt_shift,
     powheg_to_nnlops,
     add_pileup_weight,
+    add_HiggsEW_kFactors,
     add_VJets_kFactors,
     add_jetTriggerSF,
     add_muonSFs,
@@ -96,7 +97,6 @@ class VHbbProcessor(processor.ProcessorABC):
                 hist.Bin('msd2', r'Jet 2 $m_{sd}$', 23, 40, 201),
                 hist.Bin('ddb1', r'Jet 1 ddb score', [0, 0.64, 0.87, 1]),
                 hist.Bin('ddc2', r'Jet 2 ddc score', [0, 0.02, 1]),
-                hist.Bin('j2pt', r'Jet 2 $p_T$', [0, 200, 400, 1200]),
             ),
         }
 
@@ -303,6 +303,8 @@ class VHbbProcessor(processor.ProcessorABC):
                 & (abs(events.Tau.eta) < 2.3)
                 & (events.Tau.rawIso < 5)
                 & (events.Tau.idDeepTau2017v2p1VSjet)
+                & ak.all(events.Tau.metric_table(events.Muon[goodmuon]) > 0.4, axis=2)
+                & ak.all(events.Tau.metric_table(events.Electron[goodelectron]) > 0.4, axis=2)
             ),
             axis=1,
         )
@@ -318,20 +320,24 @@ class VHbbProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
-            if 'H' in dataset and self._systematics:
-                # Jennet adds theory variations 
+             if 'HToBB' in dataset:
 
-                add_ps_weight(weights, events.PSWeight)
-                if "LHEPdfWeight" in events.fields:
-                    add_pdf_weight(weights,events.LHEPdfWeight)
-                else:
-                    add_pdf_weight(weights,[])
-                if "LHEScaleWeight" in events.fields:
-                    add_scalevar_7pt(weights, events.LHEScaleWeight)
-                    add_scalevar_3pt(weights, events.LHEScaleWeight)
-                else:
-                    add_scalevar_7pt(weights,[])
-                    add_scalevar_3pt(weights,[])
+                if self._ewkHcorr:
+                    add_HiggsEW_kFactors(weights, events.GenPart, dataset)
+
+                if self._systematics:
+                    # Jennet adds theory variations                                                                               
+                    add_ps_weight(weights, events.PSWeight)
+                    if "LHEPdfWeight" in events.fields:
+                        add_pdf_weight(weights,events.LHEPdfWeight)
+                    else:
+                        add_pdf_weight(weights,[])
+                    if "LHEScaleWeight" in events.fields:
+                        add_scalevar_7pt(weights, events.LHEScaleWeight)
+                        add_scalevar_3pt(weights, events.LHEScaleWeight)
+                    else:
+                        add_scalevar_7pt(weights,[])
+                        add_scalevar_3pt(weights,[])
 
             add_pileup_weight(weights, events.Pileup.nPU, self._year)
             bosons = getBosons(events.GenPart)
@@ -401,7 +407,6 @@ class VHbbProcessor(processor.ProcessorABC):
                 msd2=normalize(msd2_matched, cut),
                 ddb1=normalize(bvl1, cut),
                 ddc2=normalize(cvl2, cut),
-                j2pt=normalize(secondjet.pt, cut),
                 weight=weight,
             )
 
