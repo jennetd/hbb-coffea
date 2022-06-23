@@ -17,7 +17,7 @@ for i in $DdbList; do
 
         cd DDB-$i-DDC-$j/
 
-        ln -s ../*.json .
+        ln -sf ../*.json .
         
         #Replace the threshold in make-hist
         sed -i "s/ddbthr =.*/ddbthr = $i/g" make-hists-1mv-*.py
@@ -31,6 +31,3 @@ for i in $DdbList; do
     done
 done
 
-
-
-# Replace the number in the script

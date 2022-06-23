@@ -15,6 +15,8 @@ cd output/testModel${year}/
 
 text2workspace.py model_combined.txt -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel --PO 'map=.*/ZH:rVH[1,-9,10]' --PO verbose --PO 'map=.*/WH:rVH[1,-9,10]'
 
+cd ../../
+
 #--PO redefining the signal anyways, 
 # map=.*/VBF: evaluate VBF in every category. 
 # rVBF[1,-9,10]: name of para of interest, signal strength of vbf, [initial, min, max]

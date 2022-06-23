@@ -11,21 +11,34 @@ for i in $DdbList; do
 
         cd DDB-$i-DDC-$j/2017
 
-        hadd signalregion.root 1mvc-signalregion.root 1mvl-signalregion.root
+        SignalRootFile=signalregion.root
+        if [ -f "$SignalRootFile" ]; then
+            echo "$SignalRootFile exists."
+        else 
+            hadd signalregion.root 1mvc-signalregion.root 1mvl-signalregion.root
+        fi
 
         cd ..
 
-        ln -s ../make_cards.py .
-        ln -s ../*.sh .
+        ln -sf ../make_cards.py .
         
         #Run make-cards
-        python make_cards.py 2017
+        #python make_cards.py 2017
 
-        source make_workspace.sh
+        #Run combine
+        cd 2017
+        ln -sf ../../make_workspace.sh .
+        ln -sf ../../exp_significance.sh .
 
+        pwd
+        ls 
+
+        #source make_workspace.sh
         source exp_significance.sh > sign.out 2>&1
 
-        cd ../
+        cd ../../
+
+        pwd
     done
 done
 
