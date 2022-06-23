@@ -44,9 +44,10 @@ def get_template(sName, passed, ptbin, cat, obs, syst, muon=False):
     Read msd template from root file
     """
 
-    f = ROOT.TFile.Open('signalregion.root')
+    f = ROOT.TFile.Open('{}/signalregion.root'.format(year))
+
     if muon:
-        f = ROOT.TFile.Open('muonCR.root')
+        f = ROOT.TFile.Open('{}/muonCR.root'.format(year))
 
     #Determind the right branch
     name = 'fail_mv1_'
