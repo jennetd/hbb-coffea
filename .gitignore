@@ -9,6 +9,8 @@ notebooks/2017*
 vh_combine/2017*
 /2017*
 
+*.pkl
+
 *DDB*
 
 dask-report*
