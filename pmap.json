@@ -22,7 +22,6 @@
     "ttbar": [
         "TTTo2L2Nu",
         "TTToHadronic",
-        "TTToSemiLeptonic",
         "TTToSemiLeptonic_ext1"
     ],
     "singlet": [

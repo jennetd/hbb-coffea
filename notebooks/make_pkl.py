@@ -29,12 +29,15 @@ def main():
     with open('../lumi.json') as f:
         lumis = json.load(f)
             
-    indir = "../outfiles/"
+    indir = "../outfiles_sig_scan/"
     infiles = subprocess.getoutput("ls "+indir+year+"_dask_*.coffea").split()
     outsum = processor.dict_accumulator()
 
     # Check if pickle exists, remove it if it does
-    picklename = str(year)+'/templates.pkl'
+    outdir = str(year)+'_sig_scan'
+    os.system('mkdir -p  %s' %outdir)
+
+    picklename = outdir  + '/templates.pkl'
     if os.path.isfile(picklename):
         os.remove(picklename)
 

@@ -92,12 +92,10 @@ class VHbbProcessor(processor.ProcessorABC):
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('region', 'Region'),
-                hist.Bin('genflavor1', 'Gen. jet 1 flavor', [1, 3, 4]),
-                hist.Bin('genflavor2', 'Gen. jet 2 flavor', [1, 3, 4]),
-                hist.Bin('msd1', r'Jet 1 $m_{sd}$', 23, 40, 201),
-                hist.Bin('msd2', r'Jet 2 $m_{sd}$', 23, 40, 201),
-                hist.Bin('ddb1', r'Jet 1 ddb score', [0, 0.64, 0.87, 1]),
-                hist.Bin('ddc2', r'Jet 2 ddc score', [0, 0.02, 1]),
+                hist.Bin('msd1', r'Jet 1 $m_{sd}$', 22, 47, 201),
+                hist.Bin('ddb1', r'Jet 1 ddb score', 100, 0, 1),
+                hist.Bin('ddc2', r'Jet 2 ddc score', [0.] + list(np.logspace(np.log10(0.001),np.log10(1.0), 100))),
+                hist.Bin('j2pt', r'Jet 2 $p_T$', [0, 200, 400, 1200])
             ),
         }
 
@@ -320,7 +318,7 @@ class VHbbProcessor(processor.ProcessorABC):
             genflavor2 = ak.zeros_like(secondjet.pt)
         else:
             weights.add('genweight', events.genWeight)
-
+            
             if 'HToBB' in dataset:
 
                 if self._ewkHcorr:
@@ -402,12 +400,10 @@ class VHbbProcessor(processor.ProcessorABC):
             output['templates'].fill(
                 dataset=dataset,
                 region=region,
-                genflavor1=normalize(genflavor1,cut),
-                genflavor2=normalize(genflavor2,cut),
                 msd1=normalize(msd1_matched, cut),
-                msd2=normalize(msd2_matched, cut),
                 ddb1=normalize(bvl1, cut),
                 ddc2=normalize(cvl2, cut),
+                j2pt=normalize(secondjet.pt, cut),
                 weight=weight,
             )
 

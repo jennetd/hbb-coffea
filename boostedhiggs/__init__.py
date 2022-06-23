@@ -3,7 +3,7 @@ from .vbfprocessor import VBFProcessor
 from .wtagprocessor import WTagProcessor
 from .vbfplots import VBFPlotProcessor
 from .vbftruth import VBFTruthProcessor
-from .vhbbprocessor import VHbbProcessor
+from .vhbbprocessor_sig_scan import VHbbProcessor
 from .btag import BTagEfficiency
 
 __all__ = [

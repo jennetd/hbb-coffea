@@ -19,7 +19,6 @@ from boostedhiggs.corrections import (
     n2ddt_shift,
     powheg_to_nnlops,
     add_pileup_weight,
-    add_HiggsEW_kFactors,
     add_VJets_kFactors,
     add_jetTriggerSF,
     add_muonSFs,
@@ -51,11 +50,10 @@ def update(events, collections):
 class VHbbProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt',
                  nnlops_rew=False, skipJER=False, tightMatch=False,
-                 ak4tagger='deepJet', ewkHcorr=True, systematics=True
+                 ak4tagger='deepJet',systematics=True
                  ):
         self._year = year
         self._ak4tagger = ak4tagger
-        self._ewkHcorr = ewkHcorr
         self._jet_arbitration = jet_arbitration
         self._skipJER = skipJER
         self._tightMatch = tightMatch
@@ -92,12 +90,14 @@ class VHbbProcessor(processor.ProcessorABC):
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('region', 'Region'),
-                hist.Bin('genflavor1', 'Gen. jet 1 flavor', [1, 3, 4]),
-                hist.Bin('genflavor2', 'Gen. jet 2 flavor', [1, 3, 4]),
+                # hist.Bin('genflavor1', 'Gen. jet 1 flavor', [1, 3, 4]),
+                # hist.Bin('genflavor2', 'Gen. jet 2 flavor', [1, 3, 4]),
                 hist.Bin('msd1', r'Jet 1 $m_{sd}$', 23, 40, 201),
                 hist.Bin('msd2', r'Jet 2 $m_{sd}$', 23, 40, 201),
-                hist.Bin('ddb1', r'Jet 1 ddb score', [0, 0.64, 0.87, 1]),
+                hist.Bin('ddb1', r'Jet 1 ddb score', [0, 0.87, 1]),
                 hist.Bin('ddc2', r'Jet 2 ddc score', [0, 0.02, 1]),
+                hist.Bin('j1pt', r'Jet 1 $p_T$', [0, 200, 300, 400, 450, 1200]),
+                hist.Bin('j2pt', r'Jet 2 $p_T$', [0, 200, 300, 400, 450, 1200]),
             ),
         }
 
@@ -227,7 +227,7 @@ class VHbbProcessor(processor.ProcessorABC):
         cvb2 = secondjet.btagDDCvBV2
 
         selection.add('jet1kin',
-            (candidatejet.pt >= 450)
+            (candidatejet.pt >= 200)
             & (candidatejet.msdcorr >= 47.)
             & (abs(candidatejet.eta) < 2.5)
         )
@@ -304,8 +304,6 @@ class VHbbProcessor(processor.ProcessorABC):
                 & (abs(events.Tau.eta) < 2.3)
                 & (events.Tau.rawIso < 5)
                 & (events.Tau.idDeepTau2017v2p1VSjet)
-                & ak.all(events.Tau.metric_table(events.Muon[goodmuon]) > 0.4, axis=2)
-                & ak.all(events.Tau.metric_table(events.Electron[goodelectron]) > 0.4, axis=2)
             ),
             axis=1,
         )
@@ -321,24 +319,20 @@ class VHbbProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
-            if 'HToBB' in dataset:
+            if 'H' in dataset and self._systematics:
+                # Jennet adds theory variations 
 
-                if self._ewkHcorr:
-                    add_HiggsEW_kFactors(weights, events.GenPart, dataset)
-
-                if self._systematics:
-                    # Jennet adds theory variations                                                                               
-                    add_ps_weight(weights, events.PSWeight)
-                    if "LHEPdfWeight" in events.fields:
-                        add_pdf_weight(weights,events.LHEPdfWeight)
-                    else:
-                        add_pdf_weight(weights,[])
-                    if "LHEScaleWeight" in events.fields:
-                        add_scalevar_7pt(weights, events.LHEScaleWeight)
-                        add_scalevar_3pt(weights, events.LHEScaleWeight)
-                    else:
-                        add_scalevar_7pt(weights,[])
-                        add_scalevar_3pt(weights,[])
+                add_ps_weight(weights, events.PSWeight)
+                if "LHEPdfWeight" in events.fields:
+                    add_pdf_weight(weights,events.LHEPdfWeight)
+                else:
+                    add_pdf_weight(weights,[])
+                if "LHEScaleWeight" in events.fields:
+                    add_scalevar_7pt(weights, events.LHEScaleWeight)
+                    add_scalevar_3pt(weights, events.LHEScaleWeight)
+                else:
+                    add_scalevar_7pt(weights,[])
+                    add_scalevar_3pt(weights,[])
 
             add_pileup_weight(weights, events.Pileup.nPU, self._year)
             bosons = getBosons(events.GenPart)
@@ -402,12 +396,14 @@ class VHbbProcessor(processor.ProcessorABC):
             output['templates'].fill(
                 dataset=dataset,
                 region=region,
-                genflavor1=normalize(genflavor1,cut),
-                genflavor2=normalize(genflavor2,cut),
+                # genflavor1=normalize(genflavor1,cut),
+                # genflavor2=normalize(genflavor2,cut),
                 msd1=normalize(msd1_matched, cut),
                 msd2=normalize(msd2_matched, cut),
                 ddb1=normalize(bvl1, cut),
                 ddc2=normalize(cvl2, cut),
+                j1pt=normalize(candidatejet.pt, cut),
+                j2pt=normalize(secondjet.pt, cut),
                 weight=weight,
             )
 
