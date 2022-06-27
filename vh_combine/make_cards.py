@@ -122,7 +122,7 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
 
     validbins = {}
 
-    cats = ['light'] #TODO: Charm and light. Might consider 'ZH', 'WH'
+    cats = ['light', 'charm'] #TODO: Charm and light. Might consider 'ZH', 'WH'
     ncat = len(cats)
 
     # Build qcd MC pass+fail model and fit to polynomial
