@@ -9,7 +9,9 @@ notebooks/2017*
 vh_combine/2017*
 /2017*
 
+#Ignore large file
 *.pkl
+*.tar.gz
 
 *DDB*
 
