@@ -6,7 +6,7 @@ error                   = logs/PREFIX.err
 log                     = logs/PREFIX.log
 
 should_transfer_files   = IF_NEEDED
-transfer_input_files    = logs/tar_ball.tar.gz, logs/CMSSW_10_2_13.tar.gz, logs/PRE_SCAN, logs/MAIN_SCAN
+transfer_input_files    = logs/tar_ball.tar.gz, logs/CMSSW_10_2_13.tar.gz, logs/PRE_SCAN, logs/MAIN_SCAN, logs/make_cards_script.sh
 
 request_memory          = 8000
 

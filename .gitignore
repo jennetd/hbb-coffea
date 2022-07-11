@@ -17,3 +17,4 @@ vh_combine/2017*
 
 dask-report*
 *.out
+*logs*

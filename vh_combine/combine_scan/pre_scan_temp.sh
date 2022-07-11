@@ -25,7 +25,7 @@ do
 
     cd DDB-$i-DDC-$j/
 
-    ln -sf ../*.json .
+    cp ../*.json .
     
     #Replace the threshold in make-hist
     sed -i "s/ddbthr =.*/ddbthr = $i/g" make-hists-1mv-*.py

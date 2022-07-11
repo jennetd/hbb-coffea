@@ -41,7 +41,8 @@ class Found(Exception): pass #for breaking nested loops
 
 os.system("mkdir -p logs")
 os.system("cp tar_ball/tar_ball.tar.gz logs/")
-os.system("cp tar_ball/CMSSW_10_2_13.tar logs/")
+os.system("cp tar_ball/CMSSW_10_2_13.tar.gz logs/")
+os.system("cp make_cards_script.sh logs/")
 current_path =  os.environ['PWD']
 log_dir = "logs"
 
@@ -125,8 +126,8 @@ try:
 
                             os.system('condor_submit {}'.format(condor_local))
 
-                     if chunk_index == n_test:
-                            raise Found
+                     # if chunk_index == n_test:
+                     #        raise Found
 
 except Found:
        print("BREAKING")

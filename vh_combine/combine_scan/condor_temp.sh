@@ -7,13 +7,15 @@ echo "System software: `cat /etc/redhat-release`" #Operating System on that node
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 tar -xzvf CMSSW_10_2_13.tar.gz
 cd CMSSW_10_2_13/src/
-
+scramv1 b ProjectRename
 eval `scramv1 runtime -sh`
+echo $CMSSW_BASE "is the CMSSW we have on the local worker node"
  
 #Move other stuff in
 mv ../../tar_ball.tar.gz .
 mv ../../PRE_SCAN_FILE .
 mv ../../MAIN_SCAN_FILE .
+mv ../../make_cards_script.sh .
 
 #Untar the package
 tar -xzvf tar_ball.tar.gz
