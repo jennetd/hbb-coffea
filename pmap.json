@@ -22,7 +22,6 @@
     "ttbar": [
         "TTTo2L2Nu",
         "TTToHadronic",
-        "TTToSemiLeptonic",
         "TTToSemiLeptonic_ext1"
     ],
     "singlet": [
@@ -70,6 +69,14 @@
         "WW",
         "WZ",
         "ZZ"
+    ],
+    "VVNLO": [
+        "WWTo1L1Nu2Q",
+        "WWTo4Q",
+        "WZ",
+        "ZZTo2Q2L",
+        "ZZTo2Q2Nu",
+        "ZZTo4Q"
     ],
     "EWKZ": [
         "EWKZ_ZToQQ",
