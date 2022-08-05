@@ -26,11 +26,7 @@ do
     cd ..
 
     cp ../make_cards.py .
-    cp ../make_cards_script.sh .
 
-    #Run make-cards within the singularity image
-    #chmod +x make_cards_script.sh
-    #singularity exec -B ${PWD}:/srv --pwd /srv /cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest /srv/./make_cards_script.sh
     python make_cards.py 2017
 
     #Run combine

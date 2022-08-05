@@ -24,10 +24,11 @@ cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
     memory="12GB",
+    shared_temp_directory="/tmp",
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
-out_path = "outfiles_sig_scan/"
+out_path = "outfiles_pt_2017Diboson_NLO/"
 os.system('mkdir -p  %s' %out_path)
 
 cluster.adapt(minimum=1, maximum=250)

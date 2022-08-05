@@ -50,10 +50,10 @@ def get_template(sName, passed, ptbin, cat, obs, syst, muon=False):
         f = ROOT.TFile.Open('{}/muonCR.root'.format(year))
 
     #Determind the right branch
-    name = 'fail_mv1_'
+    name = 'fail_'
 
     if passed:
-        name = 'pass_mv1_'
+        name = 'pass_'
 
     if cat == "charm":
         name = 'c_' + name
@@ -117,7 +117,7 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
     npt['charm'] = len(ptbins['charm']) - 1
     npt['light'] = len(ptbins['light']) - 1
 
-    msdbins = np.linspace(47, 201, 23)
+    msdbins = np.linspace(47, 201, 22)
     msd = rl.Observable('msd', msdbins)
 
     validbins = {}
@@ -282,7 +282,7 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
     model = rl.Model('testModel_'+year)
 
     # exclude QCD from MC samps
-    samps = ['ggF','VBF','WH','ZH','ttH','ttbar','singlet','Zjets','Zjetsbb','Wjets','VV']
+    samps = ['ggF','VBF','WH','ZH','ttH','ttbar','singlet','Zjets','EWKW', 'EWKZ','Wjets','VV'] #Excluded 'Zjetsbb'
     sigs = ['ZH','WH']
 
     #Fill actual fit model with the expected fit value for every process except for QCD

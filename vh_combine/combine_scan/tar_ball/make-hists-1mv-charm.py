@@ -39,7 +39,7 @@ def main():
     samples = ['data','muondata','EWKW', 'EWKZ', 'Wjets', 'Zjets', 'QCD','ttbar','singlet','VV','ggF','VBF','WH','ZH','ttH']
 
     print("1 V MASS BINS, CHARM CAT")
-    bins = [40,201]
+    #bins = [40,201]
 
     # Check if pickle exists     
     picklename = year+'/templates.pkl'
@@ -48,33 +48,32 @@ def main():
         return
 
     # Read the histogram from the pickle file
-    sig = pickle.load(open(picklename,'rb')).integrate('region','signal').sum('genflavor2', overflow='all').integrate('ddc2',int_range=slice(ddcthr,1))
+    sig = pickle.load(open(picklename,'rb')).integrate('region','signal').integrate('ddc2',int_range=slice(ddcthr,1))
 
-    for i,b in enumerate(bins[:-1]):
 
-        for p in samples:
-            print(p)
+    for p in samples:
+        print(p)
 
-            hpass = sig.sum('genflavor1', overflow='all').integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
-            hfail = sig.sum('genflavor1', overflow='all').integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
+        hpass = sig.sum('j2pt', overflow ='all').integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
+        hfail = sig.sum('j2pt', overflow ='all').integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
 
-            fout["c_pass_mv"+str(i+1)+"_"+p+"_nominal"] = hist.export1d(hpass)
-            fout["c_fail_mv"+str(i+1)+"_"+p+"_nominal"] = hist.export1d(hfail)
+        fout["c_pass_"+p+"_nominal"] = hist.export1d(hpass)
+        fout["c_fail_"+p+"_nominal"] = hist.export1d(hfail)
 
-        for p in ['Wjets','Zjets']:
-            print(p)
+        # for p in ['Wjets','Zjets']:
+        #     print(p)
 
-            hpass = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(1,3)).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
-            hfail = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(1,3)).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
+        #     hpass = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(1,3)).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
+        #     hfail = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(1,3)).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
 
-            hpass_bb = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(3,4)).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
-            hfail_bb = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(3,4)).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
+        #     hpass_bb = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(3,4)).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)
+        #     hfail_bb = sig.integrate('msd2',int_range=slice(bins[i],bins[i+1])).integrate('genflavor1',int_range=slice(3,4)).integrate('ddb1',int_range=slice(0,ddbthr)).integrate('process',p)
 
-            fout["c_pass_mv"+str(i+1)+"_"+p+"_nominal"] = hist.export1d(hpass)
-            fout["c_fail_mv"+str(i+1)+"_"+p+"_nominal"] = hist.export1d(hfail)
+        #     fout["c_pass_mv"+str(i+1)+"_"+p+"_nominal"] = hist.export1d(hpass)
+        #     fout["c_fail_mv"+str(i+1)+"_"+p+"_nominal"] = hist.export1d(hfail)
 
-            fout["c_pass_mv"+str(i+1)+"_"+p+"bb_nominal"] = hist.export1d(hpass_bb)
-            fout["c_fail_mv"+str(i+1)+"_"+p+"bb_nominal"] = hist.export1d(hfail_bb)
+        #     fout["c_pass_mv"+str(i+1)+"_"+p+"bb_nominal"] = hist.export1d(hpass_bb)
+        #     fout["c_fail_mv"+str(i+1)+"_"+p+"bb_nominal"] = hist.export1d(hfail_bb)
 
     return
 
