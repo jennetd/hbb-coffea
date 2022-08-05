@@ -48,7 +48,7 @@ def update(events, collections):
     return out
 
 
-class VBFProcessor(processor.ProcessorABC):
+class VBFSTXSProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
                  nnlops_rew=False, skipJER=False, tightMatch=False,
                  ak4tagger='deepJet',ewkHcorr=False,systematics=True
@@ -92,13 +92,12 @@ class VBFProcessor(processor.ProcessorABC):
             'templates': hist.Hist(
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
-                hist.Cat('region', 'Region'),
+                hist.Cat('category', 'Category'),
                 hist.Cat('systematic', 'Systematic'),
+                hist.Bin('stxs', 'STXS bin',101,-1,100),
                 hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 3, 4]),
-                hist.Bin('pt1', r'Jet $p_{T}$ [GeV]', [400, 450, 500, 550, 600, 675, 800, 1200]),
                 hist.Bin('msd1', r'Jet $m_{sd}$', 23, 40, 201),
                 hist.Bin('ddb1', r'Jet ddb score', [0, 0.4, 0.5, 0.64, 1]),
-                hist.Bin('mjj', r'$m_{jj}$ [GeV]',[1000,2000,13000]),
             ),
         }
 
@@ -259,6 +258,13 @@ class VBFProcessor(processor.ProcessorABC):
         else:
             selection.add('ddbpass', (bvl >= 0.64))
 
+        selection.add('pt1', (candidatejet.pt>450.) & (candidatejet.pt<500.))
+        selection.add('pt2', (candidatejet.pt>500.) & (candidatejet.pt<550.))
+        selection.add('pt3', (candidatejet.pt>550.) & (candidatejet.pt<600.))
+        selection.add('pt4', (candidatejet.pt>600.) & (candidatejet.pt<675.))
+        selection.add('pt5', (candidatejet.pt>675.) & (candidatejet.pt<800.))
+        selection.add('pt6', (candidatejet.pt>800.) & (candidatejet.pt<1200.))
+
         jets = events.Jet
         jets = jets[
             (jets.pt > 30.)
@@ -293,6 +299,9 @@ class VBFProcessor(processor.ProcessorABC):
 
         deta = abs(ak.firsts(jet1).eta - ak.firsts(jet2).eta)
         mjj = ( ak.firsts(jet1) + ak.firsts(jet2) ).mass
+
+        selection.add('mjj1', (mjj>1000.) & (mjj<2000.))
+        selection.add('mjj2', mjj>2000.)
 
         qgl1 = ak.firsts(jet1.qgl)                                                                                            
         qgl2 = ak.firsts(jet2.qgl)  
@@ -337,12 +346,15 @@ class VBFProcessor(processor.ProcessorABC):
         selection.add('muonkin', (leadingmuon.pt > 55.) & (abs(leadingmuon.eta) < 2.1))
         selection.add('muonDphiAK8', abs(leadingmuon.delta_phi(candidatejet)) > 2*np.pi/3)
 
+        stxs = ak.zeros_like(candidatejet.pt)
         if isRealData :
             genflavor = ak.zeros_like(candidatejet.pt)
         else:
             weights.add('genweight', events.genWeight)
 
             if 'HToBB' in dataset:
+
+                stxs = events.HTXS.stage1_2_cat_pTjet30GeV
 
                 if self._ewkHcorr:
                     add_HiggsEW_kFactors(weights, events.GenPart, dataset)
@@ -388,8 +400,14 @@ class VBFProcessor(processor.ProcessorABC):
         msd_matched = candidatejet.msdcorr * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
 
         regions = {
-            'signal-ggf': ['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf'],
-            'signal-vbf': ['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','isvbf'],
+            'ggf-pt1':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt1'],
+            'ggf-pt2':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt2'],
+            'ggf-pt3':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt3'],
+            'ggf-pt4':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt4'],
+            'ggf-pt5':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt5'],
+            'ggf-pt6':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt6'],
+            'vbf-mjj1':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','isvbf','mjj1'],
+            'vbf-mjj2':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','isvbf','mjj2'],
             'muoncontrol': ['muontrigger','lumimask','metfilter','minjetkinmu', 'jetid', 'n2ddt', 'ak4btagMedium08', 'onemuon', 'muonkin', 'muonDphiAK8'],
 #            'noselection': [],
         }
@@ -424,13 +442,12 @@ class VBFProcessor(processor.ProcessorABC):
 
             output['templates'].fill(
                 dataset=dataset,
-                region=region,
+                category=region,
+                stxs=normalize(stxs,cut),
                 systematic=sname,
                 genflavor=normalize(genflavor,cut),
-                pt1=normalize(candidatejet.pt, cut),
                 msd1=normalize(msd_matched, cut),
                 ddb1=normalize(bvl, cut),
-                mjj=normalize(mjj, cut),
                 weight=weight,
             )
 

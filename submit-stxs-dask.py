@@ -6,7 +6,7 @@ import awkward as ak
 
 from coffea import processor, util, hist
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
-from boostedhiggs import WTagProcessor
+from boostedhiggs import VBFSTXSProcessor
 
 from distributed import Client
 from lpcjobqueue import LPCCondorCluster
@@ -21,14 +21,15 @@ env_extra = [
 ]
 
 cluster = LPCCondorCluster(
+    shared_temp_directory="/tmp",
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="14GB",
-#    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
+    memory="12GB",
+    image="coffeateam/coffea-dask:0.7.16-fastjet-3.3.4.0rc9-gc4ca259"
 )
 
-if not os.path.isdir('outfiles-tnp/'):
-    os.mkdir('outfiles-tnp')
+if not os.path.isdir('outfiles-stxs/'):
+    os.mkdir('outfiles-stxs')
 
 cluster.adapt(minimum=1, maximum=250)
 with Client(cluster) as client:
@@ -47,14 +48,7 @@ with Client(cluster) as client:
         for this_file in infiles:
 
             index = this_file.split("_")[1].split(".json")[0]
-
-            if 'GluGluH' in index or 'VBF' in index or 'WH' in index or 'ZH' in index or 'ttH' in index:
-                continue
-
-            if 'JetHTData' in index:
-                continue
-
-            outfile = 'outfiles-tnp/'+str(year)+'_dask_'+index+'.coffea'
+            outfile = 'outfiles-stxs/'+str(year)+'_dask_'+index+'.coffea'
             
             if os.path.isfile(outfile):
                 print("File " + outfile + " already exists. Skipping.")
@@ -65,7 +59,7 @@ with Client(cluster) as client:
 
             uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
-            p = WTagProcessor(year=year,jet_arbitration='ddb')
+            p = VBFSTXSProcessor(year=year,jet_arbitration='ddb',ewkHcorr=True,systematics=True,skipJER=False)
             args = {'savemetrics':True, 'schema':NanoAODSchema}
 
             output = processor.run_uproot_job(

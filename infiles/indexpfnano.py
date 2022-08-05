@@ -141,12 +141,7 @@ folders_to_index = [
 
 ]
 
-skip_list = [
-    "/store/group/lpcpfnano/jdickins/v2_2/2016APV/ttHToBB/ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/ttHToBB/220221_155934",
-    "/store/group/lpcpfnano/jdickins/v2_2/2016/ttHToBB/ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/ttHToBB/220217_210545",
-    "/store/group/lpcpfnano/jdickins/v2_2/2017/ttHToBB/ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/ttHToBB/220221_160323",
-    "/store/group/lpcpfnano/jdickins/v2_2/2018/ttHToBB/ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/ttHToBB/220221_160545",
-]
+skip_list = []
 skip_list = [os.path.normpath(x) for x in skip_list]
 
 # Data path:

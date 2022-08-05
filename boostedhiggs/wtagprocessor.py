@@ -43,16 +43,13 @@ def update(events, collections):
 
 class WTagProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
-                 nnlops_rew=False, skipJER=False, tightMatch=False,
-                 ak4tagger='deepJet',systematics=False
+                 tightMatch=False, ak4tagger='deepJet'
                  ):
         self._year = year
         self._tagger  = tagger
         self._ak4tagger = ak4tagger
         self._jet_arbitration = jet_arbitration
-        self._skipJER = skipJER
         self._tightMatch = tightMatch
-        self._systematics = systematics
 
         if self._ak4tagger == 'deepcsv':
             raise NotImplementedError()
@@ -85,7 +82,6 @@ class WTagProcessor(processor.ProcessorABC):
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('region', 'Region'),
-                hist.Cat('systematic', 'Systematic'),
                 hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 4]),
                 hist.Bin('msd1', r'Jet $m_{sd}$', 46, 40, 201),
                 hist.Bin('n2ddt', r'Jet N2DDT', [-1, 0, 1]),
@@ -117,16 +113,6 @@ class WTagProcessor(processor.ProcessorABC):
         met = met_factory.build(events.MET, jets, {})
 
         shifts = [({"Jet": jets, "FatJet": fatjets, "MET": met}, None)]
-        if self._systematics:
-            shifts = [
-                ({"Jet": jets, "FatJet": fatjets, "MET": met}, None),
-                ({"Jet": jets.JES_jes.up, "FatJet": fatjets.JES_jes.up, "MET": met.JES_jes.up}, "JESUp"),
-                ({"Jet": jets.JES_jes.down, "FatJet": fatjets.JES_jes.down, "MET": met.JES_jes.down}, "JESDown"),
-                ({"Jet": jets, "FatJet": fatjets, "MET": met.MET_UnclusteredEnergy.up}, "UESUp"),
-                ({"Jet": jets, "FatJet": fatjets, "MET": met.MET_UnclusteredEnergy.down}, "UESDown"),
-                ({"Jet": jets.JER.up, "FatJet": fatjets.JER.up, "MET": met.JER.up}, "JERUp"),
-                ({"Jet": jets.JER.down, "FatJet": fatjets.JER.down, "MET": met.JER.down}, "JERDown"),
-            ]
 
         return processor.accumulate(self.process_shift(update(events, collections), name) for collections, name in shifts)
 
@@ -146,21 +132,6 @@ class WTagProcessor(processor.ProcessorABC):
 
         if isRealData:
             trigger = np.zeros(len(events), dtype='bool')
-            for t in self._triggers[self._year]:
-                if t in events.HLT.fields:
-                    trigger |= np.array(events.HLT[t])
-            selection.add('trigger', trigger)
-            del trigger
-        else:
-            selection.add('trigger', np.ones(len(events), dtype='bool'))
-
-        if isRealData:
-            selection.add('lumimask', lumiMasks[self._year[:4]](events.run, events.luminosityBlock))
-        else:
-            selection.add('lumimask', np.ones(len(events), dtype='bool'))
-
-        if isRealData:
-            trigger = np.zeros(len(events), dtype='bool')
             for t in self._muontriggers[self._year]:
                 if t in events.HLT.fields:
                     trigger = trigger | events.HLT[t]
@@ -168,6 +139,11 @@ class WTagProcessor(processor.ProcessorABC):
             del trigger
         else:
             selection.add('muontrigger', np.ones(len(events), dtype='bool'))
+
+        if isRealData:
+            selection.add('lumimask', lumiMasks[self._year[:4]](events.run, events.luminosityBlock))
+        else:
+            selection.add('lumimask', np.ones(len(events), dtype='bool'))
 
         metfilter = np.ones(len(events), dtype='bool')
         for flag in self._met_filters[self._year]['data' if isRealData else 'mc']:
@@ -220,13 +196,6 @@ class WTagProcessor(processor.ProcessorABC):
         else:
             raise ValueError("Not an option")
 
-        selection.add('minjetkin',
-            (candidatejet.pt >= 450)
-            & (candidatejet.pt < 1200)
-            & (candidatejet.msdcorr >= 40.)
-            & (candidatejet.msdcorr < 201.)
-            & (abs(candidatejet.eta) < 2.5)
-        )
         selection.add('minjetkinmu',
             (candidatejet.pt >= 400)
             & (candidatejet.pt < 1200)
@@ -266,26 +235,6 @@ class WTagProcessor(processor.ProcessorABC):
         met = events.MET
         selection.add('met', met.pt < 140.)
         selection.add('met40p', met.pt > 40.)
-
-        # VBF specific variables                                                                        
-        dR = jets.delta_r(candidatejet)
-        ak4_outside_ak8 = jets[dR > 0.8]
-
-        jet1 = ak4_outside_ak8[:, 0:1]
-        jet2 = ak4_outside_ak8[:, 1:2]
-
-        deta = abs(ak.firsts(jet1).eta - ak.firsts(jet2).eta)
-        mjj = ( ak.firsts(jet1) + ak.firsts(jet2) ).mass
-
-        qgl1 = ak.firsts(jet1.qgl)                                                                                            
-        qgl2 = ak.firsts(jet2.qgl)  
-
-        isvbf = ((deta > 3.5) & (mjj > 1000))
-        isvbf = ak.fill_none(isvbf,False)
-        selection.add('isvbf', isvbf)
-
-        isnotvbf = ak.fill_none(~isvbf,True)
-        selection.add('notvbf', isnotvbf)
 
         goodmuon = (
             (events.Muon.pt > 10)
@@ -361,7 +310,6 @@ class WTagProcessor(processor.ProcessorABC):
 
         regions = {
             'tnp': ['muontrigger','lumimask','metfilter','tightMuon', 'onemuon', 'met40p', 'ptrecoW200', 'ak4btagTnP'],
-#            'noselection': [],
         }
 
         def normalize(val, cut):
@@ -375,27 +323,17 @@ class WTagProcessor(processor.ProcessorABC):
         import time
         tic = time.time()
 
-        if shift_name is None:
-            systematics = [None] + list(weights.variations)
-        else:
-            systematics = [shift_name]
-
-        def fill(region, systematic, wmod=None):
+        def fill(region, systematic='nominal', wmod=None):
             selections = regions[region]
             cut = selection.all(*selections)
-            sname = 'nominal' if systematic is None else systematic
             if wmod is None:
-                if systematic in weights.variations:
-                    weight = weights.weight(modifier=systematic)[cut]
-                else:
-                    weight = weights.weight()[cut]
+                weight = weights.weight()[cut]
             else:
                 weight = weights.weight()[cut] * wmod[cut]
 
             output['templates'].fill(
                 dataset=dataset,
                 region=region,
-                systematic=sname,
                 genflavor=normalize(genflavor,cut),
                 msd1=normalize(msd_matched, cut),
                 n2ddt=normalize(candidatejet.n2ddt, cut),
@@ -404,10 +342,7 @@ class WTagProcessor(processor.ProcessorABC):
             )
 
         for region in regions:
-            for systematic in systematics:
-                if isRealData and systematic is not None:
-                    continue
-                fill(region, systematic)
+            fill(region)
 
         toc = time.time()
         output["filltime"] = toc - tic

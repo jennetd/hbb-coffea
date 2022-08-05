@@ -120,6 +120,12 @@ class VBFPlotProcessor(processor.ProcessorABC):
                 hist.Bin('qgl2', r'Jet 2 QGL',25,0,1),
                 hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 1])
             ),
+            'met': hist.Hist(
+                'Events',
+                hist.Cat('dataset', 'Dataset'),
+                hist.Cat('region', 'Region'),
+                hist.Bin('met', r'MET',50,0,500)
+            ),
         }
 
     def process(self, events):
@@ -457,6 +463,13 @@ class VBFPlotProcessor(processor.ProcessorABC):
                     ddb1=normalize(bvl, cut),
                     weight=weight,
                 )
+                output['met'].fill(
+                    dataset=dataset,
+                    region=region,
+                    met=normalize(met.pt,cut),
+                    weight=weight,
+                )
+
 
         for region in regions:
             for systematic in systematics:

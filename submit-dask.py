@@ -59,7 +59,11 @@ with Client(cluster) as client:
 
             uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
+<<<<<<< HEAD
             p = VHbbProcessor(year=year,jet_arbitration='ddcvb',systematics=False)
+=======
+            p = VBFProcessor(year=year,jet_arbitration='ddb',ewkHcorr=True,systematics=True,skipJER=False)
+>>>>>>> 835078b96cd8b0fd1a72f9eb489fc3dfce182e6d
             args = {'savemetrics':True, 'schema':NanoAODSchema}
 
             output = processor.run_uproot_job(

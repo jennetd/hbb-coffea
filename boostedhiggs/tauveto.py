@@ -48,7 +48,7 @@ def update(events, collections):
     return out
 
 
-class VBFProcessor(processor.ProcessorABC):
+class TauVetoProcessor(processor.ProcessorABC):
     def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
                  nnlops_rew=False, skipJER=False, tightMatch=False,
                  ak4tagger='deepJet',ewkHcorr=False,systematics=True
@@ -94,11 +94,12 @@ class VBFProcessor(processor.ProcessorABC):
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('region', 'Region'),
                 hist.Cat('systematic', 'Systematic'),
-                hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 3, 4]),
+                hist.Bin('truthtau', r'Tau GenPartFlav', [0,1,2,3,4,5,6]),
+#                hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 3, 4]),
                 hist.Bin('pt1', r'Jet $p_{T}$ [GeV]', [400, 450, 500, 550, 600, 675, 800, 1200]),
                 hist.Bin('msd1', r'Jet $m_{sd}$', 23, 40, 201),
                 hist.Bin('ddb1', r'Jet ddb score', [0, 0.4, 0.5, 0.64, 1]),
-                hist.Bin('mjj', r'$m_{jj}$ [GeV]',[1000,2000,13000]),
+#                hist.Bin('mjj', r'$m_{jj}$ [GeV]',[1000,2000,13000]),
             ),
         }
 
@@ -332,10 +333,13 @@ class VBFProcessor(processor.ProcessorABC):
             axis=1,
         )
 
+        truthtau = ak.firsts(events.Tau.genPartFlav)
+
         selection.add('noleptons', (nmuons == 0) & (nelectrons == 0) & (ntaus == 0))
         selection.add('onemuon', (nmuons == 1) & (nelectrons == 0) & (ntaus == 0))
         selection.add('muonkin', (leadingmuon.pt > 55.) & (abs(leadingmuon.eta) < 2.1))
         selection.add('muonDphiAK8', abs(leadingmuon.delta_phi(candidatejet)) > 2*np.pi/3)
+        selection.add('hastau', (ntaus > 0) & (nmuons == 0) & (nelectrons == 0))
 
         if isRealData :
             genflavor = ak.zeros_like(candidatejet.pt)
@@ -388,10 +392,7 @@ class VBFProcessor(processor.ProcessorABC):
         msd_matched = candidatejet.msdcorr * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
 
         regions = {
-            'signal-ggf': ['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf'],
-            'signal-vbf': ['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','isvbf'],
-            'muoncontrol': ['muontrigger','lumimask','metfilter','minjetkinmu', 'jetid', 'n2ddt', 'ak4btagMedium08', 'onemuon', 'muonkin', 'muonDphiAK8'],
-#            'noselection': [],
+            'rev-tau': ['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','hastau'],
         }
 
         def normalize(val, cut):
@@ -426,11 +427,12 @@ class VBFProcessor(processor.ProcessorABC):
                 dataset=dataset,
                 region=region,
                 systematic=sname,
-                genflavor=normalize(genflavor,cut),
+                truthtau=normalize(truthtau,cut),
+#                genflavor=normalize(genflavor,cut),
                 pt1=normalize(candidatejet.pt, cut),
                 msd1=normalize(msd_matched, cut),
                 ddb1=normalize(bvl, cut),
-                mjj=normalize(mjj, cut),
+#                mjj=normalize(mjj, cut),
                 weight=weight,
             )
 

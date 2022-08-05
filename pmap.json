@@ -70,6 +70,14 @@
         "WZ",
         "ZZ"
     ],
+    "VVNLO": [
+        "WWTo1L1Nu2Q",
+        "WWTo4Q",
+        "WZ",
+        "ZZTo2Q2L",
+        "ZZTo2Q2Nu",
+        "ZZTo4Q"
+    ],
     "EWKZ": [
         "EWKZ_ZToQQ",
         "EWKZ_ZToLL",
