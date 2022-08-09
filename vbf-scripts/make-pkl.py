@@ -12,8 +12,6 @@ import pickle
 # Main method
 def main():
 
-    raw = False
-
     if len(sys.argv) < 2:
         print("Enter year")
         return 
