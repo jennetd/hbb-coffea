@@ -92,12 +92,13 @@ class VHbbProcessor(processor.ProcessorABC):
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('region', 'Region'),
-                hist.Bin('genflavor1', 'Gen. jet 1 flavor', [1, 3, 4]),
-                hist.Bin('genflavor2', 'Gen. jet 2 flavor', [1, 3, 4]),
+                hist.Cat('systematic', 'Systematic'),
+                hist.Bin('genflavor1', 'Gen. jet 1 flavor', [0, 1, 3, 4]),
+                hist.Bin('genflavor2', 'Gen. jet 2 flavor', [0, 1, 3, 4]),
                 hist.Bin('msd1', r'Jet 1 $m_{sd}$', 23, 40, 201),
                 hist.Bin('msd2', r'Jet 2 $m_{sd}$', 23, 40, 201),
-                hist.Bin('ddb1', r'Jet 1 ddb score', [0, 0.64, 0.87, 1]),
-                hist.Bin('ddc2', r'Jet 2 ddc score', [0, 0.02, 1]),
+                hist.Bin('ddb1', r'Jet 1 ddb score', [0, 0.79, 1]),
+                hist.Bin('ddc2', r'Jet 2 ddc score', [0, 0.15, 1]),
             ),
         }
 
@@ -402,6 +403,7 @@ class VHbbProcessor(processor.ProcessorABC):
             output['templates'].fill(
                 dataset=dataset,
                 region=region,
+                systematic=sname,
                 genflavor1=normalize(genflavor1,cut),
                 genflavor2=normalize(genflavor2,cut),
                 msd1=normalize(msd1_matched, cut),

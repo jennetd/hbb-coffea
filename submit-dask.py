@@ -28,7 +28,7 @@ cluster = LPCCondorCluster(
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
-out_path = "outfiles_pt_2017Diboson_NLO/"
+out_path = "outfiles_allyearsRun_{}/".format(year)
 os.system('mkdir -p  %s' %out_path)
 
 cluster.adapt(minimum=1, maximum=250)
@@ -59,11 +59,8 @@ with Client(cluster) as client:
 
             uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
-<<<<<<< HEAD
-            p = VHbbProcessor(year=year,jet_arbitration='ddcvb',systematics=False)
-=======
-            p = VBFProcessor(year=year,jet_arbitration='ddb',ewkHcorr=True,systematics=True,skipJER=False)
->>>>>>> 835078b96cd8b0fd1a72f9eb489fc3dfce182e6d
+            #RUN MAIN PROCESSOR
+            p = VHbbProcessor(year=year, jet_arbitration='ddcvb', systematics=True)
             args = {'savemetrics':True, 'schema':NanoAODSchema}
 
             output = processor.run_uproot_job(
