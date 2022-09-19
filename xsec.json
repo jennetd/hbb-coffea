@@ -19,6 +19,8 @@
     "TTToHadronic": 303.8527975,
     "TTToSemiLeptonic": 306.137405,
     "TTToSemiLeptonic_ext1": 306.137405,
+    "TT_MTT1000ToInf": 16.45,
+    "TT_MTT700To1000": 64.55,
     "ST_s-channel_4f_leptonDecays": 1.188915,
     "ST_t-channel_antitop_4f_InclusiveDecays": 67.93,
     "ST_t-channel_antitop_5f_InclusiveDecays": 71.74,

@@ -24,6 +24,10 @@
         "TTToHadronic",
         "TTToSemiLeptonic_ext1"
     ],
+    "ttbarBoosted": [
+        "TT_MTT700To1000",
+        "TT_MTT1000ToInf"
+    ],
     "singlet": [
         "ST_t-channel_antitop_4f_InclusiveDecays",
         "ST_t-channel_top_4f_InclusiveDecays",
@@ -65,18 +69,27 @@
         "DYJetsToLL_HT-1200to2500",
         "DYJetsToLL_HT-2500toInf"
     ],
-    "VV": [
-        "WW",
-        "WZ",
+    "WW": [
+        "WW"
+    ],
+    "ZZ": [
         "ZZ"
     ],
-    "VVNLO": [
-        "WWTo1L1Nu2Q",
-        "WWTo4Q",
-        "WZ",
-        "ZZTo2Q2L",
-        "ZZTo2Q2Nu",
-        "ZZTo4Q"
+    "WZ": [
+        "WZ"
+    ],
+    "WW_NLO": [
+        "WWTo1L1Nu2Q_NLO",
+        "WWTo4Q_NLO"
+    ],
+    "WZ_NLO": [
+        "WZTo1L1Nu2Q_4f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
+        "WZTo2Q2L_mllmin4p0_TuneCP5_13TeV-amcatnloFXFX-pythia8"
+    ],
+    "ZZ_NLO": [
+        "ZZTo2Q2L_NLO",
+        "ZZTo2Q2Nu_NLO",
+        "ZZTo4Q_NLO"
     ],
     "EWKZ": [
         "EWKZ_ZToQQ",
