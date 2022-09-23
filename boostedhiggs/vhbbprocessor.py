@@ -164,7 +164,7 @@ class VHbbProcessor(processor.ProcessorABC):
             selection.add('trigger', np.ones(len(events), dtype='bool'))
 
         if isRealData:
-            selection.add('lumimask', lumiMasks[self._year](events.run, events.luminosityBlock))
+            selection.add('lumimask', lumiMasks[self._year[:4]](events.run, events.luminosityBlock))
         else:
             selection.add('lumimask', np.ones(len(events), dtype='bool'))
 
@@ -229,12 +229,10 @@ class VHbbProcessor(processor.ProcessorABC):
 
         selection.add('jet1kin',
             (candidatejet.pt >= 450)
-            & (candidatejet.msdcorr >= 47.)
             & (abs(candidatejet.eta) < 2.5)
         )
         selection.add('jet2kin',
             (secondjet.pt >= 200)
-            & (secondjet.msdcorr >= 47.)
             & (abs(secondjet.eta) < 2.5)
         )
 

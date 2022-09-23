@@ -92,10 +92,9 @@ class VHbbProcessor(processor.ProcessorABC):
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('region', 'Region'),
-                hist.Bin('msd1', r'Jet 1 $m_{sd}$', 22, 47, 201),
+                hist.Bin('msd1', r'Jet 1 $m_{sd}$', 23, 40, 201),
                 hist.Bin('ddb1', r'Jet 1 ddb score', 100, 0, 1),
                 hist.Bin('ddc2', r'Jet 2 ddc score', [0.] + list(np.logspace(np.log10(0.001),np.log10(1.0), 100))),
-                hist.Bin('j2pt', r'Jet 2 $p_T$', [0, 200, 400, 1200])
             ),
         }
 
@@ -226,12 +225,10 @@ class VHbbProcessor(processor.ProcessorABC):
 
         selection.add('jet1kin',
             (candidatejet.pt >= 450)
-            & (candidatejet.msdcorr >= 47.)
             & (abs(candidatejet.eta) < 2.5)
         )
         selection.add('jet2kin',
             (secondjet.pt >= 200)
-            & (secondjet.msdcorr >= 47.)
             & (abs(secondjet.eta) < 2.5)
         )
 
@@ -403,7 +400,6 @@ class VHbbProcessor(processor.ProcessorABC):
                 msd1=normalize(msd1_matched, cut),
                 ddb1=normalize(bvl1, cut),
                 ddc2=normalize(cvl2, cut),
-                j2pt=normalize(secondjet.pt, cut),
                 weight=weight,
             )
 
