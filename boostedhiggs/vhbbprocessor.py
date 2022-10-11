@@ -97,7 +97,7 @@ class VHbbProcessor(processor.ProcessorABC):
                 hist.Bin('genflavor2', 'Gen. jet 2 flavor', [0, 1, 3, 4]),
                 hist.Bin('msd1', r'Jet 1 $m_{sd}$', 23, 40, 201),
                 hist.Bin('msd2', r'Jet 2 $m_{sd}$', 23, 40, 201),
-                hist.Bin('ddb1', r'Jet 1 ddb score', [0, 0.79, 1]),
+                hist.Bin('ddb1', r'Jet 1 ddb score', [0, 0.72, 1]),
                 hist.Bin('ddc2', r'Jet 2 ddc score', [0, 0.15, 1]),
             ),
         }

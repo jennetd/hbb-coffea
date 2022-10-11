@@ -28,7 +28,10 @@ cluster = LPCCondorCluster(
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
-out_path = "outfiles_allyearsRun_{}/".format(year)
+year = sys.argv[1]
+tag = "allyearsRun_Oct112022" 
+
+out_path = "outfiles_{}_{}/".format(tag,year)
 os.system('mkdir -p  %s' %out_path)
 
 cluster.adapt(minimum=1, maximum=250)
@@ -38,8 +41,6 @@ with Client(cluster) as client:
     print("Waiting for at least one worker...")  # noqa
     client.wait_for_workers(1)
     print(datetime.now())
-
-    year = sys.argv[1]
 
     with performance_report(filename="dask-report.html"):
 

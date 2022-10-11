@@ -69,15 +69,13 @@
         "DYJetsToLL_HT-1200to2500",
         "DYJetsToLL_HT-2500toInf"
     ],
-    "WW": [
-        "WW"
-    ],
-    "ZZ": [
+    
+    "VV": [
+        "WW",
+        "WZ",
         "ZZ"
     ],
-    "WZ": [
-        "WZ"
-    ],
+
     "WW_NLO": [
         "WWTo1L1Nu2Q_NLO",
         "WWTo4Q_NLO"
