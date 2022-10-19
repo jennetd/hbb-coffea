@@ -234,6 +234,7 @@ class VHbbProcessor(processor.ProcessorABC):
         selection.add('jet2kin',
             (secondjet.pt >= 200)
             & (abs(secondjet.eta) < 2.5)
+            & (secondjet.msdcorr < 150) 
         )
 
         selection.add('jetacceptance',
@@ -273,10 +274,9 @@ class VHbbProcessor(processor.ProcessorABC):
 
         # only consider first 4 jets to be consistent with old framework  
         jets = jets[:, :4]
-        dphi = abs(jets.delta_phi(candidatejet))
-        selection.add('antiak4btagMediumOppHem', ak.max(jets[dphi > np.pi / 2].btagDeepB, axis=1, mask_identity=False) < self._btagSF._btagwp)
-        ak4_away = jets[dphi > 0.8]
-        selection.add('ak4btagMedium08', ak.max(ak4_away.btagDeepB, axis=1, mask_identity=False) > self._btagSF._btagwp)
+        dR = abs(jets.delta_r(candidatejet))
+        ak4_away = jets[dR > 0.8]
+#        selection.add('noExtraBJets', ak.max(ak4_away.btagDeepB, axis=1, mask_identity=False) < self._btagSF._btagwp)
 
         met = events.MET
         selection.add('met', met.pt < 140.)
