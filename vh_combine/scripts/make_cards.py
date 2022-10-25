@@ -44,16 +44,21 @@ def get_template(sName, passed, ptbin, cat, obs, syst, muon=False):
     Read msd template from root file
     """
 
-    f = ROOT.TFile.Open('{}/1mv-signalregion.root'.format(year))
+    f = ROOT.TFile.Open('{}/signalregion.root'.format(year))
 
     if muon:
-        f = ROOT.TFile.Open('{}/1mv-signalregion.root'.format(year))
+        f = ROOT.TFile.Open('{}/muonCR.root'.format(year))
 
     #Determind the right branch
-    name = 'fail_mv1_'
+    name = 'fail_'
 
     if passed:
-        name = 'pass_mv1_'
+        name = 'pass_'
+
+    if cat == "charm":
+        name = 'c_' + name
+    elif cat == 'light':
+        name = 'l_' + name
 
     name += sName+'_'+syst
 
@@ -77,7 +82,6 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
     2. Fill in actual fit model to every thing except for QCD
     3. Fill QCD in the actual fit model
     """
-
     with open('lumi.json') as f:
         lumi = json.load(f)
 
@@ -106,17 +110,19 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
     # Within each can have bins in pt and other variables like mass
     # Start with two category and no differential bins.
     ptbins = {}
-    ptbins['vh'] = np.array([450,1200])
+    ptbins['charm'] = np.array([450,1200])
+    ptbins['light'] = np.array([450,1200])
 
     npt = {}
-    npt['vh'] = len(ptbins['vh']) - 1
+    npt['charm'] = len(ptbins['charm']) - 1
+    npt['light'] = len(ptbins['light']) - 1
 
-    msdbins = np.linspace(47, 201, 23)
+    msdbins = np.linspace(40, 201, 23)
     msd = rl.Observable('msd', msdbins)
 
     validbins = {}
 
-    cats = ['vh'] #TODO: Charm and light. Might consider 'ZH', 'WH'
+    cats = ['light', 'charm'] #TODO: Charm and light. Might consider 'ZH', 'WH'
     ncat = len(cats)
 
     # Build qcd MC pass+fail model and fit to polynomial
@@ -170,7 +176,7 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
             # Want to make an zeroth order in pt
             # {"initial_vals":[[1,1]]} in json file (0th pt and 1st in rho)                                                               
             print('Initial fit values read from file initial_vals*')
-            with open('initial_vals_all.json') as f:
+            with open('initial_vals_'+cat+'.json') as f:
                 initial_vals = np.array(json.load(f)['initial_vals'])
             print(initial_vals)
 
@@ -235,7 +241,7 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
                 fitfailed_qcd += 1
 
                 new_values = np.array(pvalues).reshape(tf_MCtempl.parameters.shape)
-                with open("initial_vals_all.json", "w") as outfile:
+                with open("initial_vals_"+cat+".json", "w") as outfile:
                     json.dump({"initial_vals":new_values.tolist()},outfile)
 
             else:
@@ -256,7 +262,7 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
 
         # initial values                                                                                                            # for a different tf, can just copy the other ones in a
         # different file                        
-        with open('initial_vals_data_all.json') as f:
+        with open('initial_vals_data_'+cat+'.json') as f:
             initial_vals_data = np.array(json.load(f)['initial_vals'])
 
         # Fitting ratio of the data and the MC prediction
@@ -276,7 +282,7 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
     model = rl.Model('testModel_'+year)
 
     # exclude QCD from MC samps
-    samps = ['ggF','VBF','WH','ZH','ttH','ttbar','singlet','Zjets','Zjetsbb','Wjets','VV']
+    samps = ['ggF','VBF','WH','ZH','ttH','ttbarBoosted','singlet','Zjets','EWKW', 'EWKZ','Wjets','VV'] #Excluded 'Zjetsbb'
     sigs = ['ZH','WH']
 
     #Fill actual fit model with the expected fit value for every process except for QCD

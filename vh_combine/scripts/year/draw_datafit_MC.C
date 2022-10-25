@@ -10,7 +10,7 @@ using namespace RooStats;
 
 bool blind = true;
 
-void draw(int index, bool pass, bool log=true){
+void draw(int index, bool pass, bool charm, bool log=true){
 
   // Get the year and prefit/postfit/obs from the running directory
   string thisdir = gSystem->pwd();
@@ -23,10 +23,15 @@ void draw(int index, bool pass, bool log=true){
   string asimov = "MC only";
 
   // Dummy variable to select the data branch
-  string leading_name  = (pass) ? "pass_mv1_": "fail_mv1_";
-  string name = (pass) ? "data_pass_2017": "data_fail_2017";
+  string leading_name  = (pass) ? "_pass_": "_fail_";
+  if (charm) leading_name =  "c" + leading_name;
+  else leading_name =  "l" + leading_name;
 
-  string filename = "2017/1mv-signalregion.root";
+  string name  = (pass) ? "_pass": "_fail";
+  if (charm) name =  "charm" + name;
+  else name =  "light" + name;
+
+  string filename = "signalregion.root";
   TFile *f = new TFile(filename.c_str()); // Can use dataf and read all the distributions from there
 
   // Root specific stuff (can copy these for later use)
@@ -119,7 +124,7 @@ void draw(int index, bool pass, bool log=true){
   singlet->SetFillColor(kPink+6);
 
   /* ttbar */
-  TH1D* ttbar = (TH1D*)f->Get((leading_name+"ttbar"+"_nominal").c_str());
+  TH1D* ttbar = (TH1D*)f->Get((leading_name+"ttbarBoosted"+"_nominal").c_str());
   ttbar->SetLineColor(kBlack);
   ttbar->SetFillColor(kViolet-5);
 
@@ -129,15 +134,24 @@ void draw(int index, bool pass, bool log=true){
   Zjets->SetFillColor(kAzure+8);
 
   /* Z(bb) + jets */
-  TH1D* Zjetsbb = (TH1D*)f->Get((leading_name+"Zjetsbb"+"_nominal").c_str());
-  Zjetsbb->Scale(rZbb);
-  Zjetsbb->SetLineColor(kBlack);
-  Zjetsbb->SetFillColor(kAzure-1);
+  // TH1D* Zjetsbb = (TH1D*)f->Get((leading_name+"Zjetsbb"+"_nominal").c_str());
+  // Zjetsbb->Scale(rZbb);
+  // Zjetsbb->SetLineColor(kBlack);
+  // Zjetsbb->SetFillColor(kAzure-1);
 
   /* W + jets */
   TH1D* Wjets = (TH1D*)f->Get((leading_name+"Wjets"+"_nominal").c_str());
   Wjets->SetLineColor(kBlack);
   Wjets->SetFillColor(kGray);
+
+  /* EWK */
+  TH1D* EWK = (TH1D*)WH->Clone("VV");
+  EWK->Reset();
+  EWK->Add((TH1D*)f->Get((leading_name+"EWKW"+"_nominal").c_str()));
+  EWK->Add((TH1D*)f->Get((leading_name+"EWKZ"+"_nominal").c_str()));
+  EWK->SetLineWidth(1);
+  EWK->SetLineColor(kBlack);
+  EWK->SetFillColor(kPink-5);
   
   
   /* QCD */
@@ -151,14 +165,16 @@ void draw(int index, bool pass, bool log=true){
     bkg->Add(singlet);
     bkg->Add(ttbar);
     bkg->Add(Zjets);
-    bkg->Add(Zjetsbb);
+    bkg->Add(EWK);
+    // bkg->Add(Zjetsbb);
     bkg->Add(Wjets);
     bkg->Add(qcd);
   }
   else{
     bkg->Add(qcd);
     bkg->Add(Wjets);
-    bkg->Add(Zjetsbb);
+    bkg->Add(EWK);
+    // bkg->Add(Zjetsbb);
     bkg->Add(Zjets);
     bkg->Add(ttbar);
     bkg->Add(singlet);
@@ -173,6 +189,9 @@ void draw(int index, bool pass, bool log=true){
   cout << "singlet: " << singlet->Integral() << endl;
   cout << "VV: "      << VV->Integral()      << endl;
   cout << "bkgHiggs: " << bkgHiggs->Integral() << endl;
+  cout << "EWK V: " << EWK->Integral() << endl;
+  cout << "ZH: " << ZH->Integral() << endl;
+  cout << "WH: " << WH->Integral() << endl;
 
   bkg->Draw("hist");
   WH->Draw("histsame");
@@ -191,7 +210,8 @@ void draw(int index, bool pass, bool log=true){
   leg->AddEntry(qcd,"QCD","f");
   leg->AddEntry(Wjets,"W","f");
   leg->AddEntry(Zjets,"Z(qq)","f");
-  leg->AddEntry(Zjetsbb,"Z(bb)","f");
+  leg->AddEntry(EWK,"EWK V","f");
+  // leg->AddEntry(Zjetsbb,"Z(bb)","f");
   leg->AddEntry(ttbar,"t#bar{t}","f");
   leg->AddEntry(singlet,"Single t","f");
   leg->AddEntry(VV,"VV","f");
@@ -219,9 +239,12 @@ void draw(int index, bool pass, bool log=true){
   l3.SetTextFont(42);
   l3.SetTextSize(textsize1);
 
-  string text = "DDB fail";
+  string text = "DDB fail; ";
   if( pass )
-    text = "DDB pass";
+    text = "DDB pass; ";
+
+  if(charm) text += "DDC pass";
+  else text += "DDC fail";
 
   l3.DrawLatex(0.2,.82,text.c_str());
 
@@ -242,20 +265,19 @@ void draw(int index, bool pass, bool log=true){
   WH_sub->Draw("histsame");                                                                                                
   ZH_sub->Draw("histsame");                                                                                                
 
-  if( !log ) name += "_lin";
-
-  
-  c->SaveAs((year + "/plots/"+name+".png").c_str());
-  c->SaveAs((year + "/plots/"+name+".pdf").c_str());
+  c->SaveAs(("plots/"+name+".png").c_str());
+  c->SaveAs(("plots/"+name+".pdf").c_str());
 
   return;
 
 }
 
-void draw_datafit_1(){
+void draw_datafit_MC(){
 
-  draw(0,0,0);
-  draw(0,1,0);
+  draw(0,0,0,0); //ddb fail light
+  draw(0,1,0,0); //ddb pass light
+  draw(0,0,1,0); //ddb fail charm
+  draw(0,1,1,0); //ddb pass charm
 
   return 0;
 
