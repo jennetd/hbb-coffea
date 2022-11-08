@@ -29,7 +29,7 @@ def main():
     with open('../lumi.json') as f:
         lumis = json.load(f)
 
-    tag = 'pt_2017Diboson_NLO'
+    tag = 'allyearsRun_Oct192022_{}'.format(year)
             
     indir = "../outfiles_{}/".format(tag)
     infiles = subprocess.getoutput("ls "+indir+year+"_dask_*.coffea").split()

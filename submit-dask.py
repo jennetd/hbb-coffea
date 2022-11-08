@@ -29,7 +29,7 @@ cluster = LPCCondorCluster(
 )
 
 year = sys.argv[1]
-tag = "allyearsRun_Oct112022" 
+tag = "allyearsRun_Oct192022" 
 
 out_path = "outfiles_{}_{}/".format(tag,year)
 os.system('mkdir -p  %s' %out_path)

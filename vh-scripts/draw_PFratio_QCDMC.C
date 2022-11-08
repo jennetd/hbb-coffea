@@ -29,7 +29,7 @@ void draw_PFratio_QCDMC(){
   for(int j=0; j<procs.size(); j++){
     for(int i=0; i<nptbins.at(j); i++){
 	
-	TFile* f = new TFile(("../2017/output/testModel_qcdfit_"+procs.at(j)+"_"+year+".root").c_str());
+	TFile* f = new TFile(("output/testModel_qcdfit_"+procs.at(j)+"_"+year+".root").c_str());
 	RooWorkspace* w = (RooWorkspace*)(f->Get("w"));
 	RooStats::ModelConfig* mc = (RooStats::ModelConfig*)(w->obj("ModelConfig"));
 	
