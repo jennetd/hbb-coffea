@@ -388,8 +388,8 @@ class VBFCPProcessor(processor.ProcessorABC):
                     region=region,
                     msd1=normalize(msd_matched,cut),
                     pt1=normalize(candidatejet.pt,cut),
-                    deta=normalize(deta,cut),
-                    dphi=normalize(dphi,cut),
+                    detajj=normalize(deta,cut),
+                    dphijj=normalize(dphi,cut),
                     ddb1=normalize(bvl, cut),
                     weight=weight,
                 )
