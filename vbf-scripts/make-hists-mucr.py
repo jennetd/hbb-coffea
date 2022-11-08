@@ -26,7 +26,7 @@ def main():
 
     year = sys.argv[1]
 
-    samples = ['data','muondata','QCD','ttbar','singlet','VV','ggF','VBF','WH','ZH','ttH']
+    samples = ['data','muondata','QCD','ttbar','singlet','VV','EWKW','EWKZ','ggF','VBF','WH','ZH','ttH']
 
     print("MUON CR")
     if os.path.isfile(year+'/muonCR.root'):
@@ -53,7 +53,7 @@ def main():
             fout["pass_"+p+"_"+str(s)] = hist.export1d(hpass.integrate('systematic',s))
             fout["fail_"+p+"_"+str(s)] = hist.export1d(hfail.integrate('systematic',s))
 
-    for p in ['Wjets','Zjets','EWKW','EWKZ']:
+    for p in ['Wjets','Zjets']:
         print(p)
 
         hpass = mucr.sum('pt1').integrate('genflavor',int_range=slice(1,3)).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)

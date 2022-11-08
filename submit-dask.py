@@ -21,6 +21,7 @@ env_extra = [
 ]
 
 cluster = LPCCondorCluster(
+    shared_temp_directory="/tmp",
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
     memory="12GB",
@@ -75,7 +76,7 @@ with Client(cluster) as client:
                     "schema": processor.NanoAODSchema,
                     "treereduction": 2,
                 },
-                chunksize=100000,
+                chunksize=50000,
                 #        maxchunks=args.max,
             )
 

@@ -30,7 +30,7 @@ def main():
         os.remove(year+'/6pt-signalregion.root')
     fout = uproot3.create(year+'/6pt-signalregion.root')
 
-    samples = ['data','muondata','QCD','ttbar','singlet','VV','ggF','VBF','WH','ZH','ttH']
+    samples = ['data','muondata','QCD','ttbar','singlet','VV','EWKW','EWKZ','ggF','VBF','WH','ZH','ttH']
 
     print("6 PT BINS ggF SR")
     ptbins = [450, 500, 550, 600, 675, 800, 1200]
@@ -57,7 +57,7 @@ def main():
                 fout["ggf_pass_pt"+str(i+1)+"_"+p+"_"+str(s)] = hist.export1d(hpass.integrate('systematic',s))
                 fout["ggf_fail_pt"+str(i+1)+"_"+p+"_"+str(s)] = hist.export1d(hfail.integrate('systematic',s))
 
-        for p in ['Wjets','Zjets','EWKW','EWKZ']:
+        for p in ['Wjets','Zjets']:
             print(p)
 
             hpass = ggf.integrate('pt1',int_range=slice(ptbins[i],ptbins[i+1])).integrate('genflavor',int_range=slice(1,3)).integrate('ddb1',int_range=slice(ddbthr,1)).integrate('process',p)

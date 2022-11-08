@@ -241,6 +241,8 @@ class VBFProcessor(processor.ProcessorABC):
         selection.add('minjetkin',
             (candidatejet.pt >= 450)
             & (candidatejet.pt < 1200)
+            & (candidatejet.qcdrho < -2.1)
+            & (candidatejet.qcdrho > -6.0)
             & (candidatejet.msdcorr >= 40.)
             & (candidatejet.msdcorr < 201.)
             & (abs(candidatejet.eta) < 2.5)
@@ -248,6 +250,8 @@ class VBFProcessor(processor.ProcessorABC):
         selection.add('minjetkinmu',
             (candidatejet.pt >= 400)
             & (candidatejet.pt < 1200)
+            & (candidatejet.qcdrho < -2.1)
+            & (candidatejet.qcdrho > -6.0)
             & (candidatejet.msdcorr >= 40.)
             & (candidatejet.msdcorr < 201.)
             & (abs(candidatejet.eta) < 2.5)

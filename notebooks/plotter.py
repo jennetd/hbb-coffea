@@ -11,24 +11,6 @@ import matplotlib.pyplot as plt
 import mplhep as hep
 plt.style.use([hep.style.CMS])
 
-global color_dict 
-color_dict = {}
-color_dict['QCD'] = 'black'
-color_dict['Wjets'] = 'gray'
-color_dict['Zjets'] = 'deepskyblue'
-color_dict['Zjetsbb'] = 'blue'
-color_dict['EWKW'] = 'red'
-color_dict['EWKZ'] = 'black'
-color_dict['ttbar'] = 'purple'
-color_dict['singlet'] = 'hotpink'
-color_dict['VV'] = 'darkorange'
-
-color_dict['ttH'] = 'purple'
-color_dict['WH'] = 'blue'
-color_dict['ZH'] = 'gold'
-color_dict['VBF'] = 'green'
-color_dict['ggF'] = 'red'
-
 def plot_systs_sig_bybin(syst,df16apv,df16,df17,df18):
     
     fig = plt.figure()
@@ -354,6 +336,7 @@ def plot_compare_years(h16, h17, h18, name, title, log=True):
 def plot_datamc_ggfvbf(h, name, xtitle, title, xlim=-1, log=True):
         
     # make sure you sum over ddb1
+    #if 'ddb1' in [x.label for x in h.axes()]:
     h = h.sum('ddb1')
     
     fig = plt.figure()
@@ -363,9 +346,9 @@ def plot_datamc_ggfvbf(h, name, xtitle, title, xlim=-1, log=True):
     plt.subplots_adjust(hspace=0)
     
     # https://matplotlib.org/stable/gallery/color/named_colors.html                                                             
-    labels = ['QCD','Z+jets','W+jets','tt','single t','EWKV','VV','bkg H'] 
-    mc = ['QCD','Wjets','Zjets','ttbar','singlet',['EWKZ','EWKW'],'VV', ['ttH','WH','ZH']]
-    colors=['white','deepskyblue','gray','purple','hotpink','sienna','darkorange','gold']
+    labels = ['QCD','Z+jets','W+jets','tt','EWKV','single t','VV','bkg H'] 
+    mc = ['QCD','Wjets','Zjets','ttbar',['EWKZ','EWKW'],'singlet','VV', ['ttH','WH','ZH']]
+    colors=['white','deepskyblue','gray','purple','thistle','hotpink','darkorange','gold']
 
     if log:
         mc = [x for x in reversed(mc)]
@@ -373,7 +356,7 @@ def plot_datamc_ggfvbf(h, name, xtitle, title, xlim=-1, log=True):
         labels = [x for x in reversed(labels)]
 
     # Plot stacked hist                                                                                                         
-    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black'})
+    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black','linewidth':1})  
     sig1 = h.integrate('process','ggF')
     sig2 = h.integrate('process','VBF')
     hist.plot1d(sig1,stack=False,line_opts={'color':'red','linestyle':'dashed'})
@@ -388,6 +371,8 @@ def plot_datamc_ggfvbf(h, name, xtitle, title, xlim=-1, log=True):
         ax1.set_xlim(xlim,10000)
     if 'n2' in name:
         ax1.set_xlim(-0.5,0)
+    if 'met' in name:
+        ax1.set_xlim(0,xlim)
     ax1.get_xaxis().set_visible(False)                                                                                           
     
     labels = labels + ['ggF','VBF','Data']
@@ -426,9 +411,9 @@ def plot_datamc_muoncr(h, name, xtitle, title, xlim=-1, log=True):
     plt.subplots_adjust(hspace=0)
 
     # https://matplotlib.org/stable/gallery/color/named_colors.html       
-    labels = ['tt','single t','QCD','W+jets','Z+jets','EWKV','VV','bkg H'] 
-    mc = ['ttbar','singlet','QCD','Wjets','Zjets',['EWKZ','EWKW'],'VV',['ZH','WH','ttH','ggF']]    
-    colors=['purple','hotpink','white','gray','deepskyblue','sienna','darkorange','gold']
+    labels = ['tt','EWKV','single t','QCD','W+jets','Z+jets','VV','bkg H'] 
+    mc = ['ttbar',['EWKZ','EWKW'],'singlet','QCD','Wjets','Zjets','VV',['ZH','WH','ttH','ggF']]    
+    colors=['purple','thistle','hotpink','white','gray','deepskyblue','darkorange','gold']
 
     if log:
         mc = [x for x in reversed(mc)]
@@ -439,7 +424,7 @@ def plot_datamc_muoncr(h, name, xtitle, title, xlim=-1, log=True):
         h = h.rebin("ddb1", hist.Bin("ddb1new", "rebinned ddb1", 25,0,1))
         
     # Plot stacked hist                                                                                                   
-    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black'})                              
+    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black','linewidth':1})                              
     # Overlay data                                                                                                            
     hist.plot1d(h.integrate('process','muondata'),error_opts={'marker':'o','color':'k','markersize':5}) 
     labels = labels + ['Data']
@@ -475,9 +460,9 @@ def plot_datamc_muoncr_pf(h, name, title, xlim=-1, log=True):
     plt.subplots_adjust(hspace=0)
     
     # https://matplotlib.org/stable/gallery/color/named_colors.html                                                       
-    labels = ['tt','single t','QCD','W+jets','Z+jets','EWKV','VV','bkg H'] 
-    mc = ['ttbar','singlet','QCD','Wjets','Zjets',['EWKZ','EWKW'],'VV',['ZH','WH','ttH','ggF']]    
-    colors=['purple','hotpink','white','gray','deepskyblue','sienna','darkorange','gold']
+    labels = ['tt','EWKV','single t','QCD','W+jets','Z+jets','VV','bkg H'] 
+    mc = ['ttbar',['EWKZ','EWKW'],'singlet','QCD','Wjets','Zjets','VV',['ZH','WH','ttH','ggF']]    
+    colors=['purple','thistle','hotpink','white','gray','deepskyblue','darkorange','gold']
 
     if log:
         mc = [x for x in reversed(mc)]
@@ -487,7 +472,7 @@ def plot_datamc_muoncr_pf(h, name, title, xlim=-1, log=True):
     hpass = h.integrate('ddb1',int_range=slice(0.64,1))
     hfail = h.integrate('ddb1',int_range=slice(0,0.64))
                            
-    hist.plot1d(hfail,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black'},ax=ax1)
+    hist.plot1d(hfail,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black','linewidth':1},ax=ax1)
     ax1.get_legend().remove()
     muondata = hfail.integrate('process','muondata')
     x=muondata.axes()[0].centers()
@@ -515,7 +500,7 @@ def plot_datamc_muoncr_pf(h, name, title, xlim=-1, log=True):
     ax3.set_xlabel(title) 
     ax3.set_xlim(ax1.get_xlim())
                                                                                         
-    hist.plot1d(hpass,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black'},ax=ax2,legend_opts={'labels':labels,'bbox_to_anchor':(1.05, 1),'loc':'upper left'})
+    hist.plot1d(hpass,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black','linewidth':1},ax=ax2,legend_opts={'labels':labels,'bbox_to_anchor':(1.05, 1),'loc':'upper left'})
     muondata = hpass.integrate('process','muondata')
     x=muondata.axes()[0].centers()
     bins=muondata.axes()[0].edges()
@@ -1181,7 +1166,7 @@ def plot_mconly_inc(h, name, title, log=True):
         labels = [x for x in reversed(labels)]
 
     # Plot stacked hist                                                                                                                
-    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black'})
+    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black','linewidth':1})  
 
     sig = h.integrate('process',['ggF','VBF','WH','ZH','ttH'])
     hist.plot1d(sig,stack=False,line_opts={'color':'green'})
@@ -1217,7 +1202,7 @@ def plot_mconly_ggfvbf(h, name, title, log=True):
         labels = [x for x in reversed(labels)]
 
     # Plot stacked hist                                                                                                         
-    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black'})
+    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black','linewidth':1})  
 
     sig1 = h.integrate('process','ggF')
     sig2 = h.integrate('process','VBF')
@@ -1257,7 +1242,7 @@ def plot_mconly_vbf(h, name, title, log=True):
         labels = [x for x in reversed(labels)]
 
     # Plot stacked hist                                                                                                         
-    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black'})
+    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black','linewidth':1})  
 
     sig = h.integrate('process','VBF')
     hist.plot1d(sig,stack=False,line_opts={'color':'green'})
@@ -1292,7 +1277,7 @@ def plot_mconly_vh(h, name, title, log=True):
         labels = [x for x in reversed(labels)]
 
     # https://matplotlib.org/stable/gallery/color/named_colors.html                             
-    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black'})
+    hist.plot1d(h,order=mc,stack=True,fill_opts={'color':colors,'edgecolor':'black','linewidth':1})  
 
     sig = h.integrate('process',['WH','ZH'])
     hist.plot1d(sig,stack=False,line_opts={'color':'green'})
@@ -1327,7 +1312,7 @@ def plot_overlay(h, name, title, log=True):
         labels = [x for x in reversed(labels)]
 
     # https://matplotlib.org/stable/gallery/color/named_colors.html                                
-    hist.plot1d(h,order=mc,stack=False,fill_opts={'color':colors,'edgecolor':'black'})
+    hist.plot1d(h,order=mc,stack=False,fill_opts={'color':colors,'edgecolor':'black','linewidth':1})  
 
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
     ax.set_ylim(0,1000000)

@@ -48,6 +48,9 @@ with Client(cluster) as client:
 
             index = this_file.split("_")[1].split(".json")[0]
             outfile = 'outfiles-plots/'+str(year)+'_dask_'+index+'.coffea'
+
+            if 'JetHT' not in index:
+                continue
             
             if os.path.isfile(outfile):
                 print("File " + outfile + " already exists. Skipping.")
