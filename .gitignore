@@ -8,11 +8,14 @@
 notebooks/2017*
 vh_combine/2017*
 vh_combine/allyears*
-/2017*
 
 #Ignore large file
 *.pkl
 *.tar.gz
+
+#Ignore Output files
+Archive*
+OutFiles*
 
 *DDB*
 

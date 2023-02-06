@@ -24,13 +24,12 @@ cluster = LPCCondorCluster(
     shared_temp_directory="/tmp",
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="12GB",
-    shared_temp_directory="/tmp",
+    memory="12GB"
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
 year = sys.argv[1]
-tag = "allyearsRun_Oct192022" 
+tag = "NoN2DDT_Dec152022" 
 
 out_path = "outfiles_{}_{}/".format(tag,year)
 os.system('mkdir -p  %s' %out_path)
