@@ -225,10 +225,6 @@ def get_initial_QCD(sName, passed, ptbin, cat, obs, syst, muon=False):
 
     return np.array(sumw)[1:]
 
-
-
-
-
 def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
     """ 
     Create the data cards!

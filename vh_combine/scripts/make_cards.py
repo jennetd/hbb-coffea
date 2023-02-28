@@ -109,8 +109,6 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
     # Charm category and light category
     # Within each can have bins in pt and other variables like mass
     # Start with two category and no differential bins.
-
-    #JD - indeed we can remove all reference to the pt bins, since we won't use them
     ptbins = {}
     ptbins['charm'] = np.array([450,1200])
     ptbins['light'] = np.array([450,1200])
@@ -146,7 +144,7 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
 
         while fitfailed_qcd < 5: #Fail if choose bad initial values, start from where the fits fail. 
         
-            qcdmodel = rl.Model('qcdmodel_'+cat+'_'+year)
+            qcdmodel = rl.Model('qcdmodel_'+cat)
             qcdpass, qcdfail = 0., 0.
 
             ##>>>>>>>!!!Cut out this for loop?
@@ -202,7 +200,7 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
                     failObs = failCh.getObservation()
                     passObs = passCh.getObservation()
                 
-                    qcdparams = np.array([rl.IndependentParameter('qcdparam_'+cat+'_'+year, 0)])
+                    qcdparams = np.array([rl.IndependentParameter('qcdparam_'+cat+'_ptbin%d' % ptbin, 0)])
                     sigmascale = 10.
                     scaledparams = failObs * (1 + sigmascale/np.maximum(1., np.sqrt(failObs)))**qcdparams
                 
@@ -284,7 +282,7 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
     model = rl.Model('testModel_'+year)
 
     # exclude QCD from MC samps
-    samps = ['ggF','VBF','WH','ZH','ttH','ttbarBoosted','singlet','Zjets','EWKW', 'EWKZ','Wjets','VV'] #Excluded 'Zjetsbb'
+    samps = ['ggF','VBF','WH','ZH','ttH','ttbarBoosted','singlet','Zjets','Wjets','VV'] #Excluded 'Zjetsbb', 'EWKW', 'EWKZ'
     sigs = ['ZH','WH']
 
     #Fill actual fit model with the expected fit value for every process except for QCD
@@ -350,12 +348,16 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
                 failCh = model['ptbin%d%sfail%s' % (ptbin, cat, year)]
                 passCh = model['ptbin%d%spass%s' % (ptbin, cat, year)]
 
-                qcdparams = np.array([rl.IndependentParameter('qcdparam_'+cat+'_'+year %, 0)])
-                initial_qcd = failCh.getObservation()[0].astype(float)  # was integer, and numpy complained about subtracting float from it
+                qcdparams = np.array([rl.IndependentParameter('qcdparam_'+cat+'_ptbin%d' % (ptbin), 0)])
+                
+                initial_qcd = get_template('QCD', 0, 1, cat, obs=msd, syst='nominal')[0]
 
-                for sample in failCh:
-                    #Subtract away from data all mc processes except for QCD
-                    initial_qcd -= sample.getExpectation(nominal=True)
+                # The other way to set initial guess.
+                # Take data and subtract all other background samples from it. 
+                # initial_qcd = failCh.getObservation()[0].astype(float)  # was integer, and numpy complained about subtracting float from it
+                # for sample in failCh:
+                #     #Subtract away from data all mc processes except for QCD
+                #     initial_qcd -= sample.getExpectation(nominal=True)
 
                 if np.any(initial_qcd < 0.):
                     raise ValueError('initial_qcd negative for some bins..', initial_qcd)
