@@ -13,14 +13,25 @@ void draw_PFratio_QCDMC(){
   // Get the year from the running directory                                     
   string thisdir = gSystem->pwd();
 
-  string year = "2017";
+	string year = "";
+	string year_string = "137/fb, Run 2";
 
-  if(thisdir.find("2016") != std::string::npos){
-    year = "2016";
-  }
-  if(thisdir.find("2018") != std::string::npos){
-    year = "2018";
-  }
+	if(thisdir.find("2016APV") != std::string::npos){
+		year = "2016APV";
+		year_string = "19.5/fb, 2016 APV";
+	}
+	else if(thisdir.find("2016") != std::string::npos){
+		year = "2016";
+		year_string = "16.8/fb, 2016";
+	}
+	else if(thisdir.find("2017") != std::string::npos){
+		year = "2017";
+		year_string = "41.5/fb, 2017";
+	}
+	else if(thisdir.find("2018") != std::string::npos){
+		year = "2018";
+		year_string = "59.2/fb, 2018";
+	}
 
 
   vector<string> procs = {"charm","light"};
@@ -38,6 +49,7 @@ void draw_PFratio_QCDMC(){
 	
 	TCanvas *c1 = new TCanvas(("c_"+procs.at(j)+"_"+to_string(i)).c_str(), 
 				  ("c_"+procs.at(j)+"_"+to_string(i)).c_str(), 600, 600);
+	
 	RooPlot* frame1 = (*w->var("msd")).frame(23);
 
 	string bin = "ptbin"+to_string(i)+procs.at(j);
@@ -93,8 +105,12 @@ void draw_PFratio_QCDMC(){
 	
 	//h_ratio->Scale(1.0/h_ratio->Integral());
 	//h_ratio->Draw("same");
+
+	//Print the integrals
+	TH1D* h_fail = (TH1D*)data_fail->createHistogram("data_fail",*w->var("msd"));
+
+	cout << "QCD: "     << h_fail->Integral()     << endl;
 	
-	//    cout << (*w->pdf(("ptbin"+to_string(i)+"pass_qcd").c_str())).getNorm() << endl;
 	c1->SaveAs(("plots/"+bin+".png").c_str());
 	c1->SaveAs(("plots/"+bin+".pdf").c_str());
     }

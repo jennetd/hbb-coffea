@@ -10,7 +10,7 @@ using namespace RooStats;
 
 bool blind = true;
 
-void draw(int pt_index, bool charm, bool pass,  bool log=true){
+void draw(int index, bool pass, bool charm, bool log=true){
 
   // Get the year and prefit/postfit/obs from the running directory
   string thisdir = gSystem->pwd();
@@ -38,23 +38,16 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
   // MC only in my case
   string asimov = "MC only";
 
-  //Fit root file
-  string filename = "fitDiagnostics.root";
-
-  // branch name
-  string name = "ptbin" + to_string(pt_index);
-  //Category
-  if (charm) name = name + "charm";
-  else name = name + "light";
-  //Pass fail
-  if (pass) name = name + "pass" + year;
-  else name = name + "fail" + year;
-
-  //Fit directory
-  string hist_dir = "shapes_fit_s/" + name+ "/";
-  cout << hist_dir << endl;
-
   // Dummy variable to select the data branch
+  string leading_name  = (pass) ? "_pass_": "_fail_";
+  if (charm) leading_name =  "c" + leading_name;
+  else leading_name =  "l" + leading_name;
+
+  string name  = (pass) ? "_pass": "_fail";
+  if (charm) name =  "charm" + name;
+  else name =  "light" + name;
+
+  string filename = "signalregion.root";
   TFile *f = new TFile(filename.c_str()); // Can use dataf and read all the distributions from there
 
   // Root specific stuff (can copy these for later use)
@@ -63,12 +56,11 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
 
   TCanvas* c = new TCanvas(name.c_str(),name.c_str(),600,600);
   TPad *pad1 = new TPad("pad1","pad1",0,0,1,1); //pad = python subplot
-  // TPad *pad2 = new TPad("pad2","pad2",0,0,1,.33);
-  // pad1->GetXaxis()->SetTitle("X axis");
+  //TPad *pad2 = new TPad("pad2","pad2",0,0,1,.33);
 
   // pad1->SetBottomMargin(0.00001);
   pad1->SetTopMargin(0.1);
-  // pad1->SetBorderMode(0);
+  pad1->SetBorderMode(0);
   // pad2->SetTopMargin(0.00001);
   // pad2->SetBottomMargin(0.3);
   // pad2->SetBorderMode(0);
@@ -84,27 +76,27 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
   pad1->cd();
   if( log ) pad1->SetLogy();
 
-  // /*DATA*/
-  // TFile* dataf = new TFile(filename.c_str());
-  // TH1D* data_obs;
-  // data_obs = (TH1D*)f->Get((leading_name+"data_nominal").c_str());
+  /*DATA*/
+  //TFile* dataf = new TFile(filename.c_str());
+  TH1D* data_obs;
+  data_obs = (TH1D*)f->Get((leading_name+"data_nominal").c_str());
 
-  // // blind data!
-  // if( blind && pass ){                                                                                        
-  //   for(int i=10; i<15; i++){
-  //     data_obs->SetBinContent(i,0);
-  //     data_obs->SetBinError(i,0);
-  //   }                            
-  // } 
+  // blind data!
+  if( blind && pass ){                                                                                        
+    for(int i=10; i<15; i++){
+      data_obs->SetBinContent(i,0);
+      data_obs->SetBinError(i,0);
+    }                            
+  } 
 
-  // // Plot data
-  // data_obs->SetLineColor(kBlack);
-  // data_obs->SetMarkerColor(kBlack);
-  // data_obs->SetMarkerStyle(20);    
+  // Plot data
+  data_obs->SetLineColor(kBlack);
+  data_obs->SetMarkerColor(kBlack);
+  data_obs->SetMarkerStyle(20);    
 
   // >>>>>>>>>>>Signal<<<<<<<<<<<<
   /* WH */
-  TH1D* WH = (TH1D*)f->Get((hist_dir+"WH").c_str()); // Reformat to get from the right file. 
+  TH1D* WH = (TH1D*)f->Get((leading_name+"WH"+"_nominal").c_str()); // Reformat to get from the right file. 
   WH->SetLineColor(kGreen+1);
   WH->SetMarkerColor(kGreen+1);
   WH->SetLineWidth(3);
@@ -112,7 +104,7 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
   /* ZH */
   TH1D* ZH = (TH1D*)WH->Clone("ZH"); // Copy WH and give it ZH name and empty it. 
   ZH->Reset();
-  ZH->Add((TH1D*)f->Get((hist_dir+"ZH").c_str()));
+  ZH->Add((TH1D*)f->Get((leading_name+"ZH"+"_nominal").c_str()));
   ZH->SetLineColor(kRed+1);
   ZH->SetMarkerColor(kRed+1);
   ZH->SetLineStyle(2);
@@ -122,9 +114,9 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
   /* bkg Higgs */
   TH1D* bkgHiggs = (TH1D*)WH->Clone("bkgHiggs");
   bkgHiggs->Reset();
-  bkgHiggs->Add((TH1D*)f->Get((hist_dir+"ggF").c_str())); // Is this right?
-  bkgHiggs->Add((TH1D*)f->Get((hist_dir+"VBF").c_str()));
-  bkgHiggs->Add((TH1D*)f->Get((hist_dir+"ttH").c_str()));
+  bkgHiggs->Add((TH1D*)f->Get((leading_name+"ggF"+"_nominal").c_str())); // Is this right?
+  bkgHiggs->Add((TH1D*)f->Get((leading_name+"VBF"+"_nominal").c_str()));
+  bkgHiggs->Add((TH1D*)f->Get((leading_name+"ttH"+"_nominal").c_str()));
   bkgHiggs->SetLineWidth(1);
   bkgHiggs->SetLineColor(kBlack);
   bkgHiggs->SetFillColor(kOrange);
@@ -134,7 +126,7 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
   /* VV */
   TH1D* VV = (TH1D*)WH->Clone("VV");
   VV->Reset();
-  VV->Add((TH1D*)f->Get((hist_dir+"VV").c_str())); 
+  VV->Add((TH1D*)f->Get((leading_name+"VV"+"_nominal").c_str())); 
   VV->SetLineWidth(1);
   VV->SetLineColor(kBlack);
   VV->SetFillColor(kOrange-3);
@@ -142,44 +134,44 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
   /* single t */
   TH1D* singlet = (TH1D*)WH->Clone("singlet");
   singlet->Reset();
-  singlet->Add((TH1D*)f->Get((hist_dir+"singlet").c_str()));
+  singlet->Add((TH1D*)f->Get((leading_name+"singlet"+"_nominal").c_str()));
   singlet->SetLineWidth(1);
   singlet->SetLineColor(kBlack);
   singlet->SetFillColor(kPink+6);
 
-  /* Z + jets */
-  TH1D* Zjets = (TH1D*)f->Get((hist_dir+"Zjets").c_str());
-  Zjets->SetLineColor(kBlack);
-  Zjets->SetFillColor(kAzure+8);
-
   /* ttbar */
-  TH1D* ttbar = (TH1D*)f->Get((hist_dir+"ttbarBoosted").c_str());
+  TH1D* ttbar = (TH1D*)f->Get((leading_name+"ttbarBoosted"+"_nominal").c_str());
   ttbar->SetLineColor(kBlack);
   ttbar->SetFillColor(kViolet-5);
 
+  /* Z + jets */
+  TH1D* Zjets = (TH1D*)f->Get((leading_name+"Zjets"+"_nominal").c_str());
+  Zjets->SetLineColor(kBlack);
+  Zjets->SetFillColor(kAzure+8);
+
   /* Z(bb) + jets */
-  // TH1D* Zjetsbb = (TH1D*)f->Get((hist_dir+"Zjetsbb").c_str());
+  // TH1D* Zjetsbb = (TH1D*)f->Get((leading_name+"Zjetsbb"+"_nominal").c_str());
   // Zjetsbb->Scale(rZbb);
   // Zjetsbb->SetLineColor(kBlack);
   // Zjetsbb->SetFillColor(kAzure-1);
 
-  /* EWK */
-  // TH1D* EWK = (TH1D*)WH->Clone("VV");
-  // EWK->Reset();
-  // EWK->Add((TH1D*)f->Get((hist_dir+"EWKW").c_str()));
-  // EWK->Add((TH1D*)f->Get((hist_dir+"EWKZ").c_str()));
-  // EWK->SetLineWidth(1);
-  // EWK->SetLineColor(kBlack);
-  // EWK->SetFillColor(kPink-5);
-
   /* W + jets */
-  // TH1D* Wjets = (TH1D*)f->Get((hist_dir+"Wjets").c_str());
-  // Wjets->SetLineColor(kBlack);
-  // Wjets->SetFillColor(kGray);
+  TH1D* Wjets = (TH1D*)f->Get((leading_name+"Wjets"+"_nominal").c_str());
+  Wjets->SetLineColor(kBlack);
+  Wjets->SetFillColor(kGray);
+
+  /* EWK */
+  TH1D* EWK = (TH1D*)WH->Clone("VV");
+  EWK->Reset();
+  EWK->Add((TH1D*)f->Get((leading_name+"EWKW"+"_nominal").c_str()));
+  EWK->Add((TH1D*)f->Get((leading_name+"EWKZ"+"_nominal").c_str()));
+  EWK->SetLineWidth(1);
+  EWK->SetLineColor(kBlack);
+  EWK->SetFillColor(kPink-5);
   
   
   /* QCD */
-  TH1D* qcd = (TH1D*)f->Get((hist_dir+"qcd").c_str());
+  TH1D* qcd = (TH1D*)f->Get((leading_name+"QCD"+"_nominal").c_str());
   qcd->SetLineColor(kBlack);
   qcd->SetFillColor(kWhite);
 
@@ -187,57 +179,41 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
     bkg->Add(bkgHiggs);
     bkg->Add(VV);
     bkg->Add(singlet);
-    bkg->Add(Zjets);
     bkg->Add(ttbar);
-    // bkg->Add(EWK);
+    bkg->Add(Zjets);
+    bkg->Add(EWK);
     // bkg->Add(Zjetsbb);
-    // bkg->Add(Wjets);
+    bkg->Add(Wjets);
     bkg->Add(qcd);
   }
   else{
     bkg->Add(qcd);
-    bkg->Add(ttbar);
-    // bkg->Add(Wjets);
+    bkg->Add(Wjets);
+    bkg->Add(EWK);
     // bkg->Add(Zjetsbb);
     bkg->Add(Zjets);
-    // bkg->Add(EWK);
+    bkg->Add(ttbar);
     bkg->Add(singlet);
     bkg->Add(VV);
     bkg->Add(bkgHiggs);
   }
 
   cout << "QCD: "     << qcd->Integral()     << endl;
-  // cout << "Wjets: "   << Wjets->Integral()   << endl;
+  cout << "Wjets: "   << Wjets->Integral()   << endl;
   cout << "Zjets: "   << Zjets->Integral()   << endl;
   cout << "ttbar: "   << ttbar->Integral()   << endl;
   cout << "singlet: " << singlet->Integral() << endl;
   cout << "VV: "      << VV->Integral()      << endl;
   cout << "bkgHiggs: " << bkgHiggs->Integral() << endl;
-  // cout << "EWK V: " << EWK->Integral() << endl;
-
-  /* total background */
-  TH1D* TotalBkg = (TH1D*)f->Get((hist_dir + "total_background").c_str());
-  TotalBkg->Scale(7.0);
-  TotalBkg->SetMarkerColor(kRed);
-  TotalBkg->SetLineColor(kRed);
-  TotalBkg->SetFillColor(kRed);
-  TotalBkg->SetFillStyle(3001);
-  double max = TotalBkg->GetMaximum();
-  TotalBkg->GetYaxis()->SetRangeUser(0.1,1000*max);
-  if( !log ) TotalBkg->GetYaxis()->SetRangeUser(0,1.3*max);
-  TotalBkg->GetYaxis()->SetTitleSize(textsize1);
-  TotalBkg->GetYaxis()->SetLabelSize(textsize1);
-
-
+  cout << "EWK V: " << EWK->Integral() << endl;
+  cout << "ZH: " << ZH->Integral() << endl;
+  cout << "WH: " << WH->Integral() << endl;
 
   bkg->Draw("hist");
   WH->Draw("histsame");
   ZH->Draw("histsame");
-  bkg->GetYaxis()->SetTitle("Events / 7.3 GeV");
-  bkg->GetXaxis()->SetTitle("m_{sd} [GeV]");
-
-  //data_obs->Draw("pesame");
-  //data_obs->Draw("axissame");
+  data_obs->Draw("pesame");
+  data_obs->Draw("axissame");
   
   double x1=.6, y1=.88;
   TLegend* leg = new TLegend(x1,y1,x1+.3,y1-.3);
@@ -246,19 +222,19 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
   leg->SetNColumns(2);
   leg->SetTextSize(textsize1);
 
-  //leg->AddEntry(data_obs,"Data","p");
-  leg->AddEntry(TotalBkg,"Bkg. Unc.","f");
+  leg->AddEntry(data_obs,"Data","p");
   leg->AddEntry(qcd,"QCD","f");
-  // leg->AddEntry(Wjets,"W","f");
-  leg->AddEntry(ttbar,"t#bar{t}","f");
+  leg->AddEntry(Wjets,"W","f");
   leg->AddEntry(Zjets,"Z","f");
+  leg->AddEntry(EWK,"EWK V","f");
   // leg->AddEntry(Zjetsbb,"Z(bb)","f");
+  leg->AddEntry(ttbar,"t#bar{t}","f");
   leg->AddEntry(singlet,"Single t","f");
   leg->AddEntry(VV,"VV","f");
   leg->AddEntry(bkgHiggs,"Bkg. H","f");
   leg->AddEntry(ZH,"ZH","l");
   leg->AddEntry(WH,"WH","l");
-  // leg->AddEntry(EWK,"EWK V","f");
+
 
   leg->Draw();
 
@@ -305,8 +281,6 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
   WH_sub->Draw("histsame");                                                                                                
   ZH_sub->Draw("histsame");                                                                                                
 
-  if( !log ) name += "_lin";
-
   c->SaveAs(("plots/"+name+".png").c_str());
   c->SaveAs(("plots/"+name+".pdf").c_str());
 
@@ -314,15 +288,12 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
 
 }
 
-void draw_datafit_fitD_v2(){
+void draw_MC(){
 
-  //Loop over pt bins
-  for(int i=0; i<1; i++){
-    draw(i,1,0,0); //charm fail
-    draw(i,0,1,0); //charm pass
-    draw(i,0,0,0); //light fail 
-    draw(i,1,1,0); //light pass
-  }
+  draw(0,0,0,0); //ddb fail light
+  draw(0,1,0,0); //ddb pass light
+  draw(0,0,1,0); //ddb fail charm
+  draw(0,1,1,0); //ddb pass charm
 
   return 0;
 
