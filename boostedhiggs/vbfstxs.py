@@ -94,8 +94,8 @@ class VBFSTXSProcessor(processor.ProcessorABC):
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('category', 'Category'),
                 hist.Cat('systematic', 'Systematic'),
-                hist.Bin('stxs', 'STXS bin',101,-1,100),
-                hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 3, 4]),
+                hist.Bin('mode', 'Mode', 9,0,9),
+                hist.Bin('stxs', 'STXS bin',17,0,17),
                 hist.Bin('msd1', r'Jet $m_{sd}$', 23, 40, 201),
                 hist.Bin('ddb1', r'Jet ddb score', [0, 0.4, 0.5, 0.64, 1]),
             ),
@@ -347,6 +347,7 @@ class VBFSTXSProcessor(processor.ProcessorABC):
         selection.add('muonDphiAK8', abs(leadingmuon.delta_phi(candidatejet)) > 2*np.pi/3)
 
         stxs = ak.zeros_like(candidatejet.pt)
+        mode = ak.zeros_like(candidatejet.pt)
         if isRealData :
             genflavor = ak.zeros_like(candidatejet.pt)
         else:
@@ -354,7 +355,8 @@ class VBFSTXSProcessor(processor.ProcessorABC):
 
             if 'HToBB' in dataset:
 
-                stxs = events.HTXS.stage1_2_cat_pTjet30GeV
+                stxs = events.HTXS.stage1_2_cat_pTjet30GeV%100
+                mode = events.HTXS.stage1_2_cat_pTjet30GeV/100
 
                 if self._ewkHcorr:
                     add_HiggsEW_kFactors(weights, events.GenPart, dataset)
@@ -400,7 +402,7 @@ class VBFSTXSProcessor(processor.ProcessorABC):
         msd_matched = candidatejet.msdcorr * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
 
         regions = {
-            'ggf-pt1':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt1'],
+            'ggf-pt1':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons'],
             'ggf-pt2':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt2'],
             'ggf-pt3':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt3'],
             'ggf-pt4':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt4'],
@@ -444,8 +446,8 @@ class VBFSTXSProcessor(processor.ProcessorABC):
                 dataset=dataset,
                 category=region,
                 stxs=normalize(stxs,cut),
+                mode=normalize(mode,cut),
                 systematic=sname,
-                genflavor=normalize(genflavor,cut),
                 msd1=normalize(msd_matched, cut),
                 ddb1=normalize(bvl, cut),
                 weight=weight,
