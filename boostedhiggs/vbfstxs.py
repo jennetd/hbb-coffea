@@ -95,9 +95,10 @@ class VBFSTXSProcessor(processor.ProcessorABC):
                 hist.Cat('category', 'Category'),
                 hist.Cat('systematic', 'Systematic'),
                 hist.Bin('mode', 'Mode', 9,0,9),
-                hist.Bin('stxs', 'STXS bin',17,0,17),
+                hist.Bin('stxs', 'STXS bin', 17,0,17),
+                hist.Bin('pth', 'Higgs $p_T$', [350, 400, 450]), 
                 hist.Bin('msd1', r'Jet $m_{sd}$', 23, 40, 201),
-                hist.Bin('ddb1', r'Jet ddb score', [0, 0.4, 0.5, 0.64, 1]),
+                hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 1]),
             ),
         }
 
@@ -353,6 +354,8 @@ class VBFSTXSProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
+            higgs = ak.firsts(events.GenPart[(events.GenPart.pdgId == 25) & events.GenPart.hasFlags(["fromHardProcess", "isLastCopy"])])
+
             if 'HToBB' in dataset:
 
                 stxs = events.HTXS.stage1_2_cat_pTjet30GeV%100
@@ -448,6 +451,7 @@ class VBFSTXSProcessor(processor.ProcessorABC):
                 stxs=normalize(stxs,cut),
                 mode=normalize(mode,cut),
                 systematic=sname,
+                pth=normalize(higgs.pt,cut),
                 msd1=normalize(msd_matched, cut),
                 ddb1=normalize(bvl, cut),
                 weight=weight,

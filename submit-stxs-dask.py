@@ -24,14 +24,13 @@ cluster = LPCCondorCluster(
     shared_temp_directory="/tmp",
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="12GB",
-    image="coffeateam/coffea-dask:0.7.16-fastjet-3.3.4.0rc9-gc4ca259"
+    memory="10GB",
 )
 
 if not os.path.isdir('outfiles-stxs/'):
     os.mkdir('outfiles-stxs')
 
-cluster.adapt(minimum=1, maximum=250)
+cluster.adapt(minimum=1, maximum=500)
 with Client(cluster) as client:
 
     print(datetime.now())
@@ -49,7 +48,7 @@ with Client(cluster) as client:
 
             index = this_file.split("_")[1].split(".json")[0]
             outfile = 'outfiles-stxs/'+str(year)+'_dask_'+index+'.coffea'
-            
+
             if os.path.isfile(outfile):
                 print("File " + outfile + " already exists. Skipping.")
                 continue
