@@ -1,0 +1,15 @@
+# Datacard for <Channel (ptbin0lightfail2017) instance at 0x7f3fb6bde290> generated on 2023-02-10 10:59:08.116329
+imax 1 # number of categories ('bins' but here we are using shape templates)
+jmax 12 # number of samples minus 1
+kmax 3 # number of nuisance parameters
+shapes * ptbin0lightfail2017 testModel_2017.root testModel_2017:ptbin0lightfail2017_$PROCESS testModel_2017:ptbin0lightfail2017_$PROCESS_$SYSTEMATIC
+bin ptbin0lightfail2017
+observation 4802017.000
+bin                                     ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017  ptbin0lightfail2017
+process                                                  WH                   ZH                  ggF                  VBF                  ttH         ttbarBoosted              singlet                Zjets                 EWKW                 EWKZ                Wjets                   VV                  qcd
+process                                                  -1                    0                    1                    2                    3                    4                    5                    6                    7                    8                    9                   10                   11
+rate                                                 29.747               20.135               74.519               14.509               53.302            27547.473             2985.582            36830.034             4368.952              536.676            85935.216             1209.157                1.000
+CMS_lumi_13TeV_2017 lnN                               1.020                1.020                1.020                1.020                1.020                1.020                1.020                1.020                1.020                1.020                1.020                1.020                    -
+CMS_lumi_13TeV_correlated_ lnN                        1.009                1.009                1.009                1.009                1.009                1.009                1.009                1.009                1.009                1.009                1.009                1.009                    -
+CMS_lumi_13TeV_correlated_20172018 lnN                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                    -
+qcdparam_light_ptbin0 extArg testModel_2017.root:testModel_2017

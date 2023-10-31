@@ -233,7 +233,7 @@ void draw(int pt_index, bool charm, bool pass,  bool log=true){
   bkg->Draw("hist");
   WH->Draw("histsame");
   ZH->Draw("histsame");
-  bkg->GetYaxis()->SetTitle("Events / 7.3 GeV");
+  bkg->GetYaxis()->SetTitle("Events / 7 GeV");
   bkg->GetXaxis()->SetTitle("m_{sd} [GeV]");
 
   //data_obs->Draw("pesame");

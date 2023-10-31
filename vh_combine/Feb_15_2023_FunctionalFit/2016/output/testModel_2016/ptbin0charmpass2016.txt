@@ -1,0 +1,18 @@
+# Datacard for <Channel (ptbin0charmpass2016) instance at 0x7fb7850da790> generated on 2023-02-28 14:12:54.098488
+imax 1 # number of categories ('bins' but here we are using shape templates)
+jmax 8 # number of samples minus 1
+kmax 4 # number of nuisance parameters
+shapes * ptbin0charmpass2016 testModel_2016.root testModel_2016:ptbin0charmpass2016_$PROCESS testModel_2016:ptbin0charmpass2016_$PROCESS_$SYSTEMATIC
+bin ptbin0charmpass2016
+observation 5.000
+bin                             ptbin0charmpass2016  ptbin0charmpass2016  ptbin0charmpass2016  ptbin0charmpass2016  ptbin0charmpass2016  ptbin0charmpass2016  ptbin0charmpass2016  ptbin0charmpass2016  ptbin0charmpass2016
+process                                          WH                   ZH                  ttH         ttbarBoosted                Zjets                 EWKW                Wjets                   VV                  qcd
+process                                          -1                    0                    1                    2                    3                    4                    5                    6                    7
+rate                                          0.245                0.155                0.020                1.065                1.250                0.183                0.488                0.401                1.000
+CMS_lumi_13TeV_2016 lnN                       1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                    -
+CMS_lumi_13TeV_correlated_ lnN                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                    -
+tf_MCtempl_charm2016_deco0 param 0 1
+tf_MCtempl_charm2016_deco1 param 0 1
+qcdparam_charm_ptbin0 extArg testModel_2016.root:testModel_2016
+tf_dataResidual_2016charm_pt_par0_rho_par0 extArg testModel_2016.root:testModel_2016
+tf_dataResidual_2016charm_pt_par0_rho_par1 extArg testModel_2016.root:testModel_2016

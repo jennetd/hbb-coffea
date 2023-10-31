@@ -20,7 +20,7 @@ def main():
 
     year = sys.argv[1]
 
-    with open('../xsec.json') as f:
+    with open('xsec.json') as f:
         xs = json.load(f)
         
     with open('../pmap.json') as f:
@@ -29,9 +29,9 @@ def main():
     with open('../lumi.json') as f:
         lumis = json.load(f)
 
-    tag = 'allyearsRun_Oct192022_{}'.format(year)
+    tag = 'Feb6_2023_NoN2Cut/'
             
-    indir = "../outfiles_{}/".format(tag)
+    indir = "../OutFiles/{}".format(tag)
     infiles = subprocess.getoutput("ls "+indir+year+"_dask_*.coffea").split()
     outsum = processor.dict_accumulator()
 

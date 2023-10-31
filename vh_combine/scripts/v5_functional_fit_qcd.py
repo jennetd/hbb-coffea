@@ -578,7 +578,6 @@ def vh_rhalphabet(tmpdir, throwPoisson = True, fast=0):
 
     model.renderCombine(os.path.join(str(tmpdir), 'testModel_'+year))
 
-
 def main():
 
     #Setting different years depending on 

@@ -1,0 +1,18 @@
+# Datacard for <Channel (ptbin0lightpass2016) instance at 0x7fb7850defd0> generated on 2023-02-28 14:12:54.089745
+imax 1 # number of categories ('bins' but here we are using shape templates)
+jmax 12 # number of samples minus 1
+kmax 4 # number of nuisance parameters
+shapes * ptbin0lightpass2016 testModel_2016.root testModel_2016:ptbin0lightpass2016_$PROCESS testModel_2016:ptbin0lightpass2016_$PROCESS_$SYSTEMATIC
+bin ptbin0lightpass2016
+observation 130.000
+bin                             ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016  ptbin0lightpass2016
+process                                          WH                   ZH                  ggF                  VBF                  ttH         ttbarBoosted              singlet                Zjets                 EWKW                 EWKZ                Wjets                   VV                  qcd
+process                                          -1                    0                    1                    2                    3                    4                    5                    6                    7                    8                    9                   10                   11
+rate                                          0.839                0.599                0.612                0.255                0.141                9.338                0.868               34.999                1.661                1.412                5.529                2.595                1.000
+CMS_lumi_13TeV_2016 lnN                       1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                    -
+CMS_lumi_13TeV_correlated_ lnN                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                    -
+tf_MCtempl_light2016_deco0 param 0 1
+tf_MCtempl_light2016_deco1 param 0 1
+qcdparam_light_ptbin0 extArg testModel_2016.root:testModel_2016
+tf_dataResidual_2016light_pt_par0_rho_par0 extArg testModel_2016.root:testModel_2016
+tf_dataResidual_2016light_pt_par0_rho_par1 extArg testModel_2016.root:testModel_2016

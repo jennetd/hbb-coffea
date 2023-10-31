@@ -8,6 +8,7 @@
 notebooks/2017*
 vh_combine/2017*
 vh_combine/allyears*
+vh_combine/*.root
 
 #Ignore large file
 *.pkl

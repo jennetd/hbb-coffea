@@ -1,0 +1,14 @@
+# Datacard for <Channel (ptbin0lightfail2016) instance at 0x7fd9f6100290> generated on 2023-02-15 10:41:22.666282
+imax 1 # number of categories ('bins' but here we are using shape templates)
+jmax 10 # number of samples minus 1
+kmax 2 # number of nuisance parameters
+shapes * ptbin0lightfail2016 testModel_2016.root testModel_2016:ptbin0lightfail2016_$PROCESS testModel_2016:ptbin0lightfail2016_$PROCESS_$SYSTEMATIC
+bin ptbin0lightfail2016
+observation 58395.000
+bin                             ptbin0lightfail2016  ptbin0lightfail2016  ptbin0lightfail2016  ptbin0lightfail2016  ptbin0lightfail2016  ptbin0lightfail2016  ptbin0lightfail2016  ptbin0lightfail2016  ptbin0lightfail2016  ptbin0lightfail2016  ptbin0lightfail2016
+process                                          WH                   ZH                  ggF                  VBF                  ttH         ttbarBoosted              singlet                Zjets                Wjets                   VV                  qcd
+process                                          -1                    0                    1                    2                    3                    4                    5                    6                    7                    8                    9
+rate                                          3.356                1.942                2.523                0.838                1.670             1248.156              217.986             1228.579             2995.013              115.566                1.000
+CMS_lumi_13TeV_2016 lnN                       1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                    -
+CMS_lumi_13TeV_correlated_ lnN                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                    -
+qcdparam_light_ptbin0 extArg testModel_2016.root:testModel_2016

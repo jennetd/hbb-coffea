@@ -181,18 +181,18 @@ void draw(int index, bool pass, bool charm, bool log=true){
     bkg->Add(singlet);
     bkg->Add(ttbar);
     bkg->Add(Zjets);
-    bkg->Add(EWK);
+    // bkg->Add(EWK);
     // bkg->Add(Zjetsbb);
     bkg->Add(Wjets);
     bkg->Add(qcd);
   }
   else{
     bkg->Add(qcd);
+    bkg->Add(ttbar);
     bkg->Add(Wjets);
-    bkg->Add(EWK);
+    // bkg->Add(EWK);
     // bkg->Add(Zjetsbb);
     bkg->Add(Zjets);
-    bkg->Add(ttbar);
     bkg->Add(singlet);
     bkg->Add(VV);
     bkg->Add(bkgHiggs);
@@ -214,6 +214,9 @@ void draw(int index, bool pass, bool charm, bool log=true){
   ZH->Draw("histsame");
   data_obs->Draw("pesame");
   data_obs->Draw("axissame");
+
+  bkg->GetYaxis()->SetTitle("Events");
+  bkg->GetXaxis()->SetTitle("m_{sd} [GeV]");
   
   double x1=.6, y1=.88;
   TLegend* leg = new TLegend(x1,y1,x1+.3,y1-.3);
@@ -226,7 +229,7 @@ void draw(int index, bool pass, bool charm, bool log=true){
   leg->AddEntry(qcd,"QCD","f");
   leg->AddEntry(Wjets,"W","f");
   leg->AddEntry(Zjets,"Z","f");
-  leg->AddEntry(EWK,"EWK V","f");
+  // leg->AddEntry(EWK,"EWK V","f");
   // leg->AddEntry(Zjetsbb,"Z(bb)","f");
   leg->AddEntry(ttbar,"t#bar{t}","f");
   leg->AddEntry(singlet,"Single t","f");

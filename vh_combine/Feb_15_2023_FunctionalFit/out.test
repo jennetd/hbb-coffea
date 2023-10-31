@@ -1,0 +1,258 @@
+Running for 2016
+Extracting ...  l_fail_QCD_nominal
+fit results:  <Double_t buffer, size 2147483647>
+msd bin center 43.5
+OG bin value: 7367.32749038
+Fitted bin value: 7054.70384859
+msd bin center 50.5
+OG bin value: 6391.42353065
+Fitted bin value: 6385.49404452
+msd bin center 57.5
+OG bin value: 5757.68750206
+Fitted bin value: 5790.49922993
+msd bin center 64.5
+OG bin value: 5068.21381305
+Fitted bin value: 5264.19418572
+msd bin center 71.5
+OG bin value: 4583.22749394
+Fitted bin value: 4801.05369282
+msd bin center 78.5
+OG bin value: 4245.47883009
+Fitted bin value: 4395.55253214
+msd bin center 85.5
+OG bin value: 3914.36100009
+Fitted bin value: 4042.1654846
+msd bin center 92.5
+OG bin value: 3770.53312395
+Fitted bin value: 3735.36733112
+msd bin center 99.5
+OG bin value: 3557.9198114
+Fitted bin value: 3469.63285263
+msd bin center 106.5
+OG bin value: 3238.19427513
+Fitted bin value: 3239.43683003
+msd bin center 113.5
+OG bin value: 3160.5619443
+Fitted bin value: 3039.25404424
+msd bin center 120.5
+OG bin value: 3007.40926459
+Fitted bin value: 2863.5592762
+msd bin center 127.5
+OG bin value: 2871.45911158
+Fitted bin value: 2706.8273068
+msd bin center 134.5
+OG bin value: 2597.42880325
+Fitted bin value: 2563.53291698
+msd bin center 141.5
+OG bin value: 2446.99112203
+Fitted bin value: 2428.15088766
+msd bin center 148.5
+OG bin value: 2237.44151023
+Fitted bin value: 2295.15599974
+msd bin center 155.5
+OG bin value: 2222.43597474
+Fitted bin value: 2159.02303415
+msd bin center 162.5
+OG bin value: 1892.37489965
+Fitted bin value: 2014.22677181
+msd bin center 169.5
+OG bin value: 1830.08455407
+Fitted bin value: 1855.24199363
+msd bin center 176.5
+OG bin value: 1601.87595155
+Fitted bin value: 1676.54348055
+msd bin center 183.5
+OG bin value: 1466.6113057
+Fitted bin value: 1472.60601346
+msd bin center 190.5
+OG bin value: 1161.36227462
+Fitted bin value: 1237.9043733
+msd bin center 197.5
+OG bin value: 1052.07167424
+Fitted bin value: 966.913340977
+OG integral:  75442.4752613
+Fitted integral:  75457.0394716
+Extracting ...  l_pass_QCD_nominal
+Inclusive P/F from Monte Carlo = 0.0018899830813410175
+Initial fit values read from file initial_vals*
+[[1 1]]
+Minuit2Minimizer: Minimize with max-calls 1500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -305250.4539542
+MnSeedGenerator: Initial state:   - FCN =  -305250.4539542 Edm =     0.221197 NCalls =     19
+MnSeedGenerator: run Hesse - new state:   - FCN =  -305250.4539542 Edm =     0.588625 NCalls =     35
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -305250.4539542 Edm =     0.588625 NCalls =     35
+VariableMetric: Iteration #   0 - FCN =  -305250.4539542 Edm =     0.588625 NCalls =     35
+VariableMetric: Iteration #   1 - FCN =  -305251.0991199 Edm =   0.00865419 NCalls =     43
+VariableMetric: Iteration #   2 - FCN =  -305251.1062256 Edm =  0.000146655 NCalls =     51
+VariableMetric: After Hessian   - FCN =  -305251.1062256 Edm =   0.00010695 NCalls =     75
+VariableMetric: Iteration #   3 - FCN =  -305251.1062256 Edm =   0.00010695 NCalls =     75
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -305251.10622556525
+Edm   = 0.000106949564879991885
+Nfcn  = 75
+qcdparam_light_ptbin0	  = -2.52382e-05	 +/-  0.0233263	(limited)
+tf_MCtempl_light2016_pt_par0_rho_par0	  = 1.22091	 +/-  0.212919	(limited)
+tf_MCtempl_light2016_pt_par0_rho_par1	  = 0.782735	 +/-  0.193988	(limited)
+Fitted qcd for category light
+Extracting ...  c_fail_QCD_nominal
+fit results:  <Double_t buffer, size 2147483647>
+msd bin center 43.5
+OG bin value: 128.354500146
+Fitted bin value: 134.048935626
+msd bin center 50.5
+OG bin value: 126.794171672
+Fitted bin value: 118.909084505
+msd bin center 57.5
+OG bin value: 113.992847204
+Fitted bin value: 105.56738304
+msd bin center 64.5
+OG bin value: 91.9219658567
+Fitted bin value: 93.8888727103
+msd bin center 71.5
+OG bin value: 92.474081407
+Fitted bin value: 83.738594991
+msd bin center 78.5
+OG bin value: 67.9293639864
+Fitted bin value: 74.9815913594
+msd bin center 85.5
+OG bin value: 60.8001863942
+Fitted bin value: 67.4829032921
+msd bin center 92.5
+OG bin value: 65.2678282467
+Fitted bin value: 61.107572266
+msd bin center 99.5
+OG bin value: 53.6638197672
+Fitted bin value: 55.7206397578
+msd bin center 106.5
+OG bin value: 69.0868495594
+Fitted bin value: 51.1871472443
+msd bin center 113.5
+OG bin value: 57.8375360994
+Fitted bin value: 47.3721362023
+msd bin center 120.5
+OG bin value: 44.805018505
+Fitted bin value: 44.1406481084
+msd bin center 127.5
+OG bin value: 49.7624621738
+Fitted bin value: 41.3577244396
+msd bin center 134.5
+OG bin value: 38.9346559628
+Fitted bin value: 38.8884066725
+msd bin center 141.5
+OG bin value: 30.8643125095
+Fitted bin value: 36.5977362839
+msd bin center 148.5
+OG bin value: 30.6905002988
+Fitted bin value: 34.3507547506
+msd bin center 155.5
+OG bin value: 35.9373050318
+Fitted bin value: 32.0125035494
+msd bin center 162.5
+OG bin value: 23.3470340088
+Fitted bin value: 29.4480241569
+msd bin center 169.5
+OG bin value: 30.710711155
+Fitted bin value: 26.5223580501
+msd bin center 176.5
+OG bin value: 26.725011516
+Fitted bin value: 23.1005467057
+msd bin center 183.5
+OG bin value: 29.7062502709
+Fitted bin value: 19.0476316003
+msd bin center 190.5
+OG bin value: 21.2839870447
+Fitted bin value: 14.2286542109
+msd bin center 197.5
+OG bin value: 8.07468525406
+Fitted bin value: 8.50865601411
+OG integral:  1298.96508407
+Fitted integral:  1242.20850554
+Extracting ...  c_pass_QCD_nominal
+Inclusive P/F from Monte Carlo = 0.0037767955019306926
+Initial fit values read from file initial_vals*
+[[1. 1.]]
+Minuit2Minimizer: Minimize with max-calls 1500 convergence for edm < 1 strategy 2
+MnSeedGenerator: for initial parameters FCN = -419.8147442351
+MnSeedGenerator: Initial state:   - FCN =  -419.8147442351 Edm =     0.016231 NCalls =     15
+MnSeedGenerator: run Hesse - new state:   - FCN =  -419.8147442351 Edm =    0.0548618 NCalls =     31
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =  -419.8147442351 Edm =    0.0548618 NCalls =     31
+VariableMetric: Iteration #   0 - FCN =  -419.8147442351 Edm =    0.0548618 NCalls =     31
+VariableMetric: Iteration #   1 - FCN =  -419.8667343129 Edm =   0.00263235 NCalls =     40
+VariableMetric: Iteration #   2 - FCN =  -419.8685748869 Edm =  3.90709e-05 NCalls =     48
+VariableMetric: After Hessian   - FCN =  -419.8685748869 Edm =  4.27119e-05 NCalls =     66
+VariableMetric: Iteration #   3 - FCN =  -419.8685748869 Edm =  4.27119e-05 NCalls =     66
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = -419.868574886914416
+Edm   = 4.27118515968811661e-05
+Nfcn  = 66
+qcdparam_charm_ptbin0	  = -3.98273e-05	 +/-  0.0351088	(limited)
+tf_MCtempl_charm2016_pt_par0_rho_par0	  = 0.64556	 +/-  1.09599	(limited)
+tf_MCtempl_charm2016_pt_par0_rho_par1	  = 1.37596	 +/-  1.30773	(limited)
+Fitted qcd for category charm
+Bin: light bin 0 pass
+Extracting ...  l_pass_ggF_nominal
+Extracting ...  l_pass_VBF_nominal
+Extracting ...  l_pass_WH_nominal
+Extracting ...  l_pass_ZH_nominal
+Extracting ...  l_pass_ttH_nominal
+Extracting ...  l_pass_ttbarBoosted_nominal
+Extracting ...  l_pass_singlet_nominal
+Extracting ...  l_pass_Zjets_nominal
+Extracting ...  l_pass_EWKW_nominal
+Extracting ...  l_pass_EWKZ_nominal
+Extracting ...  l_pass_Wjets_nominal
+Extracting ...  l_pass_VV_nominal
+Extracting ...  l_pass_data_nominal
+Bin: light bin 0 fail
+Extracting ...  l_fail_ggF_nominal
+Extracting ...  l_fail_VBF_nominal
+Extracting ...  l_fail_WH_nominal
+Extracting ...  l_fail_ZH_nominal
+Extracting ...  l_fail_ttH_nominal
+Extracting ...  l_fail_ttbarBoosted_nominal
+Extracting ...  l_fail_singlet_nominal
+Extracting ...  l_fail_Zjets_nominal
+Extracting ...  l_fail_EWKW_nominal
+Extracting ...  l_fail_EWKZ_nominal
+Extracting ...  l_fail_Wjets_nominal
+Extracting ...  l_fail_VV_nominal
+Extracting ...  l_fail_data_nominal
+Bin: charm bin 0 pass
+Extracting ...  c_pass_ggF_nominal
+Sample ggF is too small, skipping
+Extracting ...  c_pass_VBF_nominal
+Sample VBF is too small, skipping
+Extracting ...  c_pass_WH_nominal
+Extracting ...  c_pass_ZH_nominal
+Extracting ...  c_pass_ttH_nominal
+Extracting ...  c_pass_ttbarBoosted_nominal
+Extracting ...  c_pass_singlet_nominal
+Sample singlet is too small, skipping
+Extracting ...  c_pass_Zjets_nominal
+Extracting ...  c_pass_EWKW_nominal
+Extracting ...  c_pass_EWKZ_nominal
+Sample EWKZ is too small, skipping
+Extracting ...  c_pass_Wjets_nominal
+Extracting ...  c_pass_VV_nominal
+Extracting ...  c_pass_data_nominal
+Bin: charm bin 0 fail
+Extracting ...  c_fail_ggF_nominal
+Extracting ...  c_fail_VBF_nominal
+Sample VBF is too small, skipping
+Extracting ...  c_fail_WH_nominal
+Extracting ...  c_fail_ZH_nominal
+Extracting ...  c_fail_ttH_nominal
+Extracting ...  c_fail_ttbarBoosted_nominal
+Extracting ...  c_fail_singlet_nominal
+Extracting ...  c_fail_Zjets_nominal
+Extracting ...  c_fail_EWKW_nominal
+Extracting ...  c_fail_EWKZ_nominal
+Extracting ...  c_fail_Wjets_nominal
+Extracting ...  c_fail_VV_nominal
+Extracting ...  c_fail_data_nominal
+Extracting ...  l_fail_QCD_nominal
+fit results:  <Double_t buffer, size 2147483647>
+Extracting ...  c_fail_QCD_nominal
+fit results:  <Double_t buffer, size 2147483647>

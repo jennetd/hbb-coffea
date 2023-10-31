@@ -1,0 +1,2 @@
+combineCards.py ptbin0lightpass2017=ptbin0lightpass2017.txt ptbin0lightfail2017=ptbin0lightfail2017.txt ptbin0charmpass2017=ptbin0charmpass2017.txt ptbin0charmfail2017=ptbin0charmfail2017.txt > model_combined.txt
+text2workspace.py model_combined.txt

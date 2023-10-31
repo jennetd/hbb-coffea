@@ -1,0 +1,14 @@
+# Datacard for <Channel (ptbin0charmfail2016) instance at 0x7fb7850db490> generated on 2023-02-28 14:12:54.102198
+imax 1 # number of categories ('bins' but here we are using shape templates)
+jmax 11 # number of samples minus 1
+kmax 2 # number of nuisance parameters
+shapes * ptbin0charmfail2016 testModel_2016.root testModel_2016:ptbin0charmfail2016_$PROCESS testModel_2016:ptbin0charmfail2016_$PROCESS_$SYSTEMATIC
+bin ptbin0charmfail2016
+observation 1214.000
+bin                             ptbin0charmfail2016  ptbin0charmfail2016  ptbin0charmfail2016  ptbin0charmfail2016  ptbin0charmfail2016  ptbin0charmfail2016  ptbin0charmfail2016  ptbin0charmfail2016  ptbin0charmfail2016  ptbin0charmfail2016  ptbin0charmfail2016  ptbin0charmfail2016
+process                                          WH                   ZH                  ggF                  ttH         ttbarBoosted              singlet                Zjets                 EWKW                 EWKZ                Wjets                   VV                  qcd
+process                                          -1                    0                    1                    2                    3                    4                    5                    6                    7                    8                    9                   10
+rate                                          0.851                0.492                0.087                0.175              159.386               36.329               68.005               72.154                1.658              213.845               17.633                1.000
+CMS_lumi_13TeV_2016 lnN                       1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                1.010                    -
+CMS_lumi_13TeV_correlated_ lnN                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                1.006                    -
+qcdparam_charm_ptbin0 extArg testModel_2016.root:testModel_2016
