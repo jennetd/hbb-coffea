@@ -13,6 +13,9 @@
         "QCD_PT3200toInf"
     ],
     "QCDHT": [
+        "QCD_HT100to200",
+        "QCD_HT200to300",
+        "QCD_HT300to500",
         "QCD_HT500to700",
         "QCD_HT700to1000",
         "QCD_HT1000to1500",
@@ -35,6 +38,7 @@
         "ST_tW_top"
     ],
     "Wjets": [
+        "WJetsToQQ_HT200to400",
         "WJetsToQQ_HT400to600",
         "WJetsToQQ_HT600to800",
         "WJetsToQQ_HT800toInf",
