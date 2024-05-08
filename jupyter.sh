@@ -1,1 +1,1 @@
-jupyter notebook --no-browser --port 8765
+jupyter lab --no-browser --port 8765

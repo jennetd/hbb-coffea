@@ -1,16 +1,16 @@
 {
     "QCD": [
-        "QCD_Pt_120to170",
-        "QCD_Pt_170to300",
-        "QCD_Pt_300to470",
-        "QCD_Pt_470to600",
-        "QCD_Pt_600to800",
-        "QCD_Pt_800to1000",
-        "QCD_Pt_1000to1400",
-        "QCD_Pt_1400to1800",
-        "QCD_Pt_1800to2400",
-        "QCD_Pt_2400to3200",
-        "QCD_Pt_3200toInf"
+        "QCD_PT120to170",
+        "QCD_PT170to300",
+        "QCD_PT300to470",
+        "QCD_PT470to600",
+        "QCD_PT600to800",
+        "QCD_PT800to1000",
+        "QCD_PT1000to1400",
+        "QCD_PT1400to1800",
+        "QCD_PT1800to2400",
+        "QCD_PT2400to3200",
+        "QCD_PT3200toInf"
     ],
     "QCDHT": [
         "QCD_HT500to700",
@@ -22,52 +22,40 @@
     "ttbar": [
         "TTTo2L2Nu",
         "TTToHadronic",
-        "TTToSemiLeptonic_ext1"
+        "TTToSemiLeptonic"
     ],
     "ttbarBoosted": [
         "TT_MTT700To1000",
         "TT_MTT1000ToInf"
     ],
     "singlet": [
-        "ST_t-channel_antitop_4f_InclusiveDecays",
-        "ST_t-channel_top_4f_InclusiveDecays",
-        "ST_tW_antitop_5f_inclusiveDecays",
-        "ST_tW_top_5f_inclusiveDecays"
+        "ST_t-channel_antitop",
+        "ST_t-channel_top",
+        "ST_tW_antitop",
+        "ST_tW_top"
     ],
     "Wjets": [
-        "WJetsToQQ_HT-400to600",
-        "WJetsToQQ_HT-600to800",
-        "WJetsToQQ_HT-800toInf",
-        "WJetsToLNu_HT-70To100",
-        "WJetsToLNu_HT-100To200",
-        "WJetsToLNu_HT-200To400",
-        "WJetsToLNu_HT-400To600",
-        "WJetsToLNu_HT-600To800",
-        "WJetsToLNu_HT-800To1200WJetsToLNu_HT-1200To2500",
-        "WJetsToLNu_HT-2500ToInf"
+        "WJetsToQQ_HT400to600",
+        "WJetsToQQ_HT600to800",
+        "WJetsToQQ_HT800toInf",
+        "WJetsToLNu_HT200to400",
+        "WJetsToLNu_HT400to600",
+        "WJetsToLNu_HT600to800",
+        "WJetsToLNu_HT800to1200",
+        "WJetsToLNu_HT1200to2500",
+        "WJetsToLNu_HT2500toInf"
     ],
     "Zjets": [
-        "ZJetsToQQ_HT-400to600",
-        "ZJetsToQQ_HT-600to800",
-        "ZJetsToQQ_HT-800toInf",
-        "DYJetsToLL_Pt-50To100",
-        "DYJetsToLL_Pt-100To250",
-        "DYJetsToLL_Pt-250To400",
-        "DYJetsToLL_Pt-400To650",
-        "DYJetsToLL_Pt-650ToInf"
-    ],
-    "ZjetsHT": [
-        "ZJetsToQQ_HT-400to600",
-        "ZJetsToQQ_HT-600to800",
-        "ZJetsToQQ_HT-800toInf",
-        "DYJetsToLL_HT-70to100",
-        "DYJetsToLL_HT-100to200",
-        "DYJetsToLL_HT-200to400",
-        "DYJetsToLL_HT-400to600",
-        "DYJetsToLL_HT-600to800",
-        "DYJetsToLL_HT-800to1200",
-        "DYJetsToLL_HT-1200to2500",
-        "DYJetsToLL_HT-2500toInf"
+        "ZJetsToQQ_HT200to400",
+        "ZJetsToQQ_HT400to600",
+        "ZJetsToQQ_HT600to800",
+        "ZJetsToQQ_HT800toInf",
+        "DYJetsToLL_HT200to400",
+        "DYJetsToLL_HT400to600",
+        "DYJetsToLL_HT600to800",
+        "DYJetsToLL_HT800to1200",
+        "DYJetsToLL_HT1200to2500",
+        "DYJetsToLL_HT2500toInf"
     ],
     "WW": [
         "WW"
@@ -78,23 +66,10 @@
     "WZ": [
         "WZ"
     ],
-    "WW_NLO": [
-        "WWTo1L1Nu2Q_NLO",
-        "WWTo4Q_NLO"
-    ],
-    "WZ_NLO": [
-        "WZTo1L1Nu2Q_4f_TuneCP5_13TeV-amcatnloFXFX-pythia8",
-        "WZTo2Q2L_mllmin4p0_TuneCP5_13TeV-amcatnloFXFX-pythia8"
-    ],
-    "ZZ_NLO": [
-        "ZZTo2Q2L_NLO",
-        "ZZTo2Q2Nu_NLO",
-        "ZZTo4Q_NLO"
-    ],
     "EWKZ": [
         "EWKZ_ZToQQ",
         "EWKZ_ZToLL",
-        "EWKZ_ZtoNuNu"
+        "EWKZ_ZToNuNu"
     ],
     "EWKW": [
         "EWKWminus_WToQQ",
@@ -105,11 +80,8 @@
     "ggF": [
         "GluGluHToBB"
     ],
-    "VBFDipoleRecoilOff": [
-        "VBFHToBB"
-    ],
     "VBF": [
-        "VBFHToBBDipoleRecoilOn"
+        "VBFHToBB"
     ],
     "WH": [
         "WminusH_HToBB_WToQQ",
