@@ -14,6 +14,21 @@
     "JetHT_Run2017F": [
         "/JetHT/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD"
     ],
+    "SingleMuon_Run2017B": [
+        "/SingleMuon/Run2017B-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD"
+    ],
+    "SingleMuon_Run2017C": [
+        "/SingleMuon/Run2017C-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD"
+    ],
+    "SingleMuon_Run2017D": [
+        "/SingleMuon/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD"
+    ],
+    "SingleMuon_Run2017E": [
+        "/SingleMuon/Run2017E-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD"
+    ],
+    "SingleMuon_Run2017F": [
+        "/SingleMuon/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD"
+    ],
     "GluGluHToBB": [
         "/GluGluHToBB_Pt-200ToInf_M-125_TuneCP5_MINLO_13TeV-powheg-pythia8/RunIISummer20UL17NanoAODv9-106X_mc2017_realistic_v9-v1/NANOAODSIM"
     ],

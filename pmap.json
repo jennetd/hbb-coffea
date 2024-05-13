@@ -12,16 +12,6 @@
         "QCD_PT2400to3200",
         "QCD_PT3200toInf"
     ],
-    "QCDHT": [
-        "QCD_HT100to200",
-        "QCD_HT200to300",
-        "QCD_HT300to500",
-        "QCD_HT500to700",
-        "QCD_HT700to1000",
-        "QCD_HT1000to1500",
-        "QCD_HT1500to2000",
-        "QCD_HT2000toInf"
-    ],
     "ttbar": [
         "TTTo2L2Nu",
         "TTToHadronic",
@@ -61,21 +51,15 @@
         "DYJetsToLL_HT1200to2500",
         "DYJetsToLL_HT2500toInf"
     ],
-    "WW": [
-        "WW"
-    ],
-    "ZZ": [
-        "ZZ"
-    ],
-    "WZ": [
+    "VV": [
+        "WW",
+        "ZZ",
         "WZ"
     ],
-    "EWKZ": [
+    "EWKV": [
         "EWKZ_ZToQQ",
         "EWKZ_ZToLL",
-        "EWKZ_ZToNuNu"
-    ],
-    "EWKW": [
+        "EWKZ_ZToNuNu",
         "EWKWminus_WToQQ",
         "EWKWplus_WToQQ",
         "EWKWminus_WToLNu",
@@ -110,7 +94,6 @@
         "JetHT_Run2016D_HIPM",
         "JetHT_Run2016E_HIPM",
         "JetHT_Run2016F_HIPM",
-        "JetHT_Run2016F",
         "JetHT_Run2016G",
         "JetHT_Run2016H",
         "JetHT_Run2017B",
@@ -129,7 +112,6 @@
         "SingleMuon_Run2016D_HIPM",
         "SingleMuon_Run2016E_HIPM",
         "SingleMuon_Run2016F_HIPM",
-        "SingleMuon_Run2016F",
         "SingleMuon_Run2016G",
         "SingleMuon_Run2016H",
         "SingleMuon_Run2017B",
