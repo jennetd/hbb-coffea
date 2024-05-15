@@ -28,7 +28,6 @@
         "ST_tW_top"
     ],
     "Wjets": [
-        "WJetsToQQ_HT200to400",
         "WJetsToQQ_HT400to600",
         "WJetsToQQ_HT600to800",
         "WJetsToQQ_HT800toInf",
@@ -40,7 +39,6 @@
         "WJetsToLNu_HT2500toInf"
     ],
     "Zjets": [
-        "ZJetsToQQ_HT200to400",
         "ZJetsToQQ_HT400to600",
         "ZJetsToQQ_HT600to800",
         "ZJetsToQQ_HT800toInf",
@@ -89,6 +87,7 @@
         "ttHToBB"
     ],
     "data": [
+        "JetHT_Run2016B_ver1_HIPM",
         "JetHT_Run2016B_ver2_HIPM",
         "JetHT_Run2016C_HIPM",
         "JetHT_Run2016D_HIPM",
@@ -107,6 +106,7 @@
         "JetHT_Run2018D"
     ],
     "muondata": [
+        "SingleMuon_Run2016B_ver1_HIPM",
         "SingleMuon_Run2016B_ver2_HIPM",
         "SingleMuon_Run2016C_HIPM",
         "SingleMuon_Run2016D_HIPM",

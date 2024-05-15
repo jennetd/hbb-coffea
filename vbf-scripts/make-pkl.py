@@ -27,7 +27,7 @@ def main():
     with open('lumi.json') as f:
         lumis = json.load(f)
             
-    indir = "outfiles/"
+    indir = "outfiles-nano/"
     infiles = subprocess.getoutput("ls "+indir+year+"_dask_*.coffea").split()
     outsum = processor.dict_accumulator()
 
