@@ -27,6 +27,12 @@ from boostedhiggs.corrections import (
     add_jec_variables,
     met_factory,
     lumiMasks,
+
+    # Jennet adds theory variations                                                                                                
+    add_ps_weight,
+    add_scalevar_7pt,
+    add_scalevar_3pt,
+    add_pdf_weight,
 )
 
 
@@ -41,19 +47,21 @@ def update(events, collections):
     return out
 
 
-class WTagProcessor(processor.ProcessorABC):
-    def __init__(self, year='2017', jet_arbitration='pt', tagger='v2',
-                 tightMatch=False, ak4tagger='deepJet'
+class VHbbProcessor(processor.ProcessorABC):
+    def __init__(self, year='2017', jet_arbitration='pt',
+                 nnlops_rew=False, skipJER=False, tightMatch=False,
+                 ak4tagger='deepJet',systematics=True
                  ):
         self._year = year
-        self._tagger  = tagger
         self._ak4tagger = ak4tagger
         self._jet_arbitration = jet_arbitration
+        self._skipJER = skipJER
         self._tightMatch = tightMatch
+        self._systematics = systematics
 
         if self._ak4tagger == 'deepcsv':
             raise NotImplementedError()
-#            self._ak4tagBranch = 'btagDeepB'                                                                    
+#            self._ak4tagBranch = 'btagDeepB'
         elif self._ak4tagger == 'deepJet':
             self._ak4tagBranch = 'btagDeepFlavB'
         else:
@@ -67,7 +75,7 @@ class WTagProcessor(processor.ProcessorABC):
         with open('triggers.json') as f:
             self._triggers = json.load(f)
 
-        # https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2                            
+        # https://twiki.cern.ch/twiki/bin/view/CMS/MissingETOptionalFiltersRun2
         with open('metfilters.json') as f:
             self._met_filters = json.load(f)
 
@@ -82,10 +90,12 @@ class WTagProcessor(processor.ProcessorABC):
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('region', 'Region'),
-                hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 4]),
-                hist.Bin('msd1', r'Jet $m_{sd}$', 46, 40, 201),
-                hist.Bin('n2ddt', r'Jet N2DDT', [-1, 0, 1]),
-                hist.Bin('ddb1', r'Jet ddb score', [0,0.64,1])
+                hist.Bin('genflavor1', 'Gen. jet 1 flavor', [1, 3, 4]),
+                hist.Bin('genflavor2', 'Gen. jet 2 flavor', [1, 3, 4]),
+                hist.Bin('msd1', r'Jet 1 $m_{sd}$', 23, 40, 201),
+                hist.Bin('msd2', r'Jet 2 $m_{sd}$', 23, 40, 201),
+                hist.Bin('ddb1', r'Jet 1 ddb score', 25,0,1),
+                hist.Bin('ddc2', r'Jet 2 ddc score', [0,0.01,0.02,0.05,0.1,0.2,0.5,1]),
             ),
         }
 
@@ -94,7 +104,7 @@ class WTagProcessor(processor.ProcessorABC):
         isQCDMC = 'QCD' in events.metadata['dataset']
 
         if isRealData or isQCDMC:
-            # Nominal JEC are already applied in data                                                      
+            # Nominal JEC are already applied in data
             return self.process_shift(events, None)
 
         if np.sum(ak.num(events.FatJet, axis=1)) < 1:
@@ -113,6 +123,16 @@ class WTagProcessor(processor.ProcessorABC):
         met = met_factory.build(events.MET, jets, {})
 
         shifts = [({"Jet": jets, "FatJet": fatjets, "MET": met}, None)]
+        if self._systematics:
+            shifts = [
+                ({"Jet": jets, "FatJet": fatjets, "MET": met}, None),
+                ({"Jet": jets.JES_jes.up, "FatJet": fatjets.JES_jes.up, "MET": met.JES_jes.up}, "JESUp"),
+                ({"Jet": jets.JES_jes.down, "FatJet": fatjets.JES_jes.down, "MET": met.JES_jes.down}, "JESDown"),
+                ({"Jet": jets, "FatJet": fatjets, "MET": met.MET_UnclusteredEnergy.up}, "UESUp"),
+                ({"Jet": jets, "FatJet": fatjets, "MET": met.MET_UnclusteredEnergy.down}, "UESDown"),
+                ({"Jet": jets.JER.up, "FatJet": fatjets.JER.up, "MET": met.JER.up}, "JERUp"),
+                ({"Jet": jets.JER.down, "FatJet": fatjets.JER.down, "MET": met.JER.down}, "JERDown"),
+            ]
 
         return processor.accumulate(self.process_shift(update(events, collections), name) for collections, name in shifts)
 
@@ -132,6 +152,21 @@ class WTagProcessor(processor.ProcessorABC):
 
         if isRealData:
             trigger = np.zeros(len(events), dtype='bool')
+            for t in self._triggers[self._year]:
+                if t in events.HLT.fields:
+                    trigger |= np.array(events.HLT[t])
+            selection.add('trigger', trigger)
+            del trigger
+        else:
+            selection.add('trigger', np.ones(len(events), dtype='bool'))
+
+        if isRealData:
+            selection.add('lumimask', lumiMasks[self._year](events.run, events.luminosityBlock))
+        else:
+            selection.add('lumimask', np.ones(len(events), dtype='bool'))
+
+        if isRealData:
+            trigger = np.zeros(len(events), dtype='bool')
             for t in self._muontriggers[self._year]:
                 if t in events.HLT.fields:
                     trigger = trigger | events.HLT[t]
@@ -139,11 +174,6 @@ class WTagProcessor(processor.ProcessorABC):
             del trigger
         else:
             selection.add('muontrigger', np.ones(len(events), dtype='bool'))
-
-        if isRealData:
-            selection.add('lumimask', lumiMasks[self._year[:4]](events.run, events.luminosityBlock))
-        else:
-            selection.add('lumimask', np.ones(len(events), dtype='bool'))
 
         metfilter = np.ones(len(events), dtype='bool')
         for flag in self._met_filters[self._year]['data' if isRealData else 'mc']:
@@ -155,9 +185,9 @@ class WTagProcessor(processor.ProcessorABC):
         fatjets['msdcorr'] = corrected_msoftdrop(fatjets)
         fatjets['qcdrho'] = 2 * np.log(fatjets.msdcorr / fatjets.pt)
         fatjets['n2ddt'] = fatjets.n2b1 - n2ddt_shift(fatjets, year=self._year)
+        fatjets['msdcorr_full'] = fatjets['msdcorr'] * self._msdSF[self._year]
 
         candidatejet = fatjets[
-            # https://github.com/DAZSLE/BaconAnalyzer/blob/master/Analyzer/src/VJetLoader.cc#L269
             (fatjets.pt > 200)
             & (abs(fatjets.eta) < 2.5)
             & fatjets.isTight  # this is loose in sampleContainer
@@ -174,41 +204,56 @@ class WTagProcessor(processor.ProcessorABC):
             candidatejet = ak.firsts(candidatejet[ak.argmax(candidatejet.btagDDBvLV2, axis=1, keepdims=True)])
         elif self._jet_arbitration == 'ddc':
             candidatejet = ak.firsts(candidatejet[ak.argmax(candidatejet.btagDDCvLV2, axis=1, keepdims=True)])
+        elif self._jet_arbitration == 'ddcvb':
+            leadingjets = candidatejet[:, 0:2]
+            # ascending = true                                                                                                                                
+            indices = ak.argsort(leadingjets.btagDDCvBV2,axis=1)
+
+            # candidate jet is more b-like                                                                                                               
+            candidatejet = ak.firsts(leadingjets[indices[:, 0:1]])
+            # second jet is more charm-like                                                                                                              
+            secondjet = ak.firsts(leadingjets[indices[:, 1:2]])
         else:
             raise RuntimeError("Unknown candidate jet arbitration")
 
-        if self._tagger == 'v1':
-            bvl = candidatejet.btagDDBvL
-            cvl = candidatejet.btagDDCvL
-            cvb = candidatejet.btagDDCvB
-        elif self._tagger == 'v2':
-            bvl = candidatejet.btagDDBvLV2
-            cvl = candidatejet.btagDDCvLV2
-            cvb = candidatejet.btagDDCvBV2
-        elif self._tagger == 'v3':
-            bvl = candidatejet.particleNetMD_Xbb
-            cvl = candidatejet.particleNetMD_Xcc / (1 - candidatejet.particleNetMD_Xbb)
-            cvb = candidatejet.particleNetMD_Xcc / (candidatejet.particleNetMD_Xcc + candidatejet.particleNetMD_Xbb)
-        elif self._tagger == 'v4':
-            bvl = candidatejet.particleNetMD_Xbb
-            cvl = candidatejet.btagDDCvLV2
-            cvb = candidatejet.particleNetMD_Xcc / (candidatejet.particleNetMD_Xcc + candidatejet.particleNetMD_Xbb)
-        else:
-            raise ValueError("Not an option")
+        bvl = candidatejet.btagDDBvLV2
+        cvl = candidatejet.btagDDCvLV2
+        cvb = candidatejet.btagDDCvBV2
 
-        selection.add('minjetkinmu',
-            (candidatejet.pt >= 400)
-            & (candidatejet.pt < 1200)
-            & (candidatejet.msdcorr >= 40.)
-            & (candidatejet.msdcorr < 201.)
+        bvl2 = secondjet.btagDDBvLV2
+        cvl2 = secondjet.btagDDCvLV2
+        cvb2 = secondjet.btagDDCvBV2
+
+        selection.add('jet1kin',
+            (candidatejet.pt >= 450)
+            & (candidatejet.msdcorr >= 47.)
             & (abs(candidatejet.eta) < 2.5)
         )
-        selection.add('jetid', candidatejet.isTight)
-        selection.add('n2ddt', (candidatejet.n2ddt < 0.))
-        if not self._tagger == 'v2':
-            selection.add('ddbpass', (bvl >= 0.89))
-        else:
-            selection.add('ddbpass', (bvl >= 0.64))
+        selection.add('jet2kin',
+            (secondjet.pt >= 400)
+            & (secondjet.msdcorr >= 47.)
+            & (abs(secondjet.eta) < 2.5)
+        )
+
+        selection.add('jetacceptance',
+            (candidatejet.msdcorr >= 40.)
+            & (candidatejet.pt < 1200)
+            & (candidatejet.msdcorr < 201.)
+            & (secondjet.msdcorr >= 40.)
+            & (secondjet.pt < 1200)
+            & (secondjet.msdcorr < 201.)
+        )
+
+        selection.add('jetid',
+                      candidatejet.isTight
+                      & secondjet.isTight
+        )
+        selection.add('n2ddt',
+                      (candidatejet.n2ddt < 0.)
+                      & (secondjet.n2ddt < 0.)
+        )
+
+        selection.add('ddbpass', (bvl1 >= 0.64))
 
         jets = events.Jet
         jets = jets[
@@ -217,22 +262,23 @@ class WTagProcessor(processor.ProcessorABC):
             & jets.isTight
             & (jets.puId > 0)
         ]
-        # EE noise for 2017
+        # EE noise for 2017                                             
         if self._year == '2017':
             jets = jets[
-                (jets.pt > 50) 
-                | (abs(jets.eta) < 2.65) 
+                (jets.pt > 50)
+                | (abs(jets.eta) < 2.65)
                 | (abs(jets.eta) > 3.139)
             ]
 
-        # only consider first 4 jets to be consistent with old framework
+        # only consider first 4 jets to be consistent with old framework  
         jets = jets[:, :4]
         dphi = abs(jets.delta_phi(candidatejet))
+        selection.add('antiak4btagMediumOppHem', ak.max(jets[dphi > np.pi / 2].btagDeepB, axis=1, mask_identity=False) < self._btagSF._btagwp)
         ak4_away = jets[dphi > 0.8]
-        
+        selection.add('ak4btagMedium08', ak.max(ak4_away.btagDeepB, axis=1, mask_identity=False) > self._btagSF._btagwp)
+
         met = events.MET
         selection.add('met', met.pt < 140.)
-        selection.add('met40p', met.pt > 40.)
 
         goodmuon = (
             (events.Muon.pt > 10)
@@ -242,14 +288,6 @@ class WTagProcessor(processor.ProcessorABC):
         )
         nmuons = ak.sum(goodmuon, axis=1)
         leadingmuon = ak.firsts(events.Muon[goodmuon])
-
-        selection.add('tightMuon', (leadingmuon.tightId) & (leadingmuon.pt > 53.))
-        selection.add('ptrecoW200', (leadingmuon + met).pt > 200.)
-
-        _bjets = jets[self._ak4tagBranch] > self._btagSF._btagwp
-        _nearAK8 = jets.delta_r(candidatejet)  < 0.8
-        _nearMu = jets.delta_r(ak.firsts(events.Muon))  < 0.3
-        selection.add('ak4btagTnP', ak.sum(_bjets & ~_nearAK8 & ~_nearMu, axis=1) >= 1)
 
         goodelectron = (
             (events.Electron.pt > 10)
@@ -264,8 +302,6 @@ class WTagProcessor(processor.ProcessorABC):
                 & (abs(events.Tau.eta) < 2.3)
                 & (events.Tau.rawIso < 5)
                 & (events.Tau.idDeepTau2017v2p1VSjet)
-                & ak.all(events.Tau.metric_table(events.Muon[goodmuon]) > 0.4, axis=2)
-                & ak.all(events.Tau.metric_table(events.Electron[goodelectron]) > 0.4, axis=2)
             ),
             axis=1,
         )
@@ -276,19 +312,34 @@ class WTagProcessor(processor.ProcessorABC):
         selection.add('muonDphiAK8', abs(leadingmuon.delta_phi(candidatejet)) > 2*np.pi/3)
 
         if isRealData :
-            genflavor = ak.zeros_like(candidatejet.pt)
+            genflavor1 = ak.zeros_like(candidatejet.pt)
+            genflavor2 = ak.zeros_like(secondjet.pt)
         else:
             weights.add('genweight', events.genWeight)
 
+            if 'H' in dataset and self._systematics:
+                # Jennet adds theory variations 
+
+                add_ps_weight(weights, events.PSWeight)
+                if "LHEPdfWeight" in events.fields:
+                    add_pdf_weight(weights,events.LHEPdfWeight)
+                else:
+                    add_pdf_weight(weights,[])
+                if "LHEScaleWeight" in events.fields:
+                    add_scalevar_7pt(weights, events.LHEScaleWeight)
+                    add_scalevar_3pt(weights, events.LHEScaleWeight)
+                else:
+                    add_scalevar_7pt(weights,[])
+                    add_scalevar_3pt(weights,[])
+
             add_pileup_weight(weights, events.Pileup.nPU, self._year)
             bosons = getBosons(events.GenPart)
-            matchedBoson = candidatejet.nearest(bosons, axis=None, threshold=0.8)
-            if self._tightMatch:
-                match_mask = ((candidatejet.pt - matchedBoson.pt)/matchedBoson.pt < 0.5) & ((candidatejet.msdcorr - matchedBoson.mass)/matchedBoson.mass < 0.3)
-                selmatchedBoson = ak.mask(matchedBoson, match_mask)
-                genflavor = bosonFlavor(selmatchedBoson)
-            else:
-                genflavor = bosonFlavor(matchedBoson)
+            matchedBoson1 = candidatejet.nearest(bosons, axis=None, threshold=0.8)
+            matchedBoson2 = secondjet.nearest(bosons, axis=None, threshold=0.8)
+
+            genflavor1 = bosonFlavor(matchedBoson1)
+            genflavor2 = bosonFlavor(matchedBoson2)
+
             genBosonPt = ak.fill_none(ak.firsts(bosons.pt), 0)
             add_VJets_kFactors(weights, events.GenPart, dataset)
 
@@ -302,12 +353,14 @@ class WTagProcessor(processor.ProcessorABC):
             if self._year in ("2016APV", "2016", "2017"):
                 weights.add("L1Prefiring", events.L1PreFiringWeight.Nom, events.L1PreFiringWeight.Up, events.L1PreFiringWeight.Dn)
 
+
             logger.debug("Weight statistics: %r" % weights.weightStatistics)
 
-        msd_matched = candidatejet.msdcorr * (genflavor > 0) + candidatejet.msdcorr * (genflavor == 0)
+        msd1_matched = candidatejet.msdcorr * (genflavor1 > 0) + candidatejet.msdcorr * (genflavor1 == 0)
+        msd2_matched = secondjet.msdcorr * (genflavor2 > 0) + secondjet.msdcorr * (genflavor2 == 0)
 
         regions = {
-            'tnp': ['muontrigger','lumimask','metfilter','tightMuon', 'onemuon', 'met40p', 'ptrecoW200', 'ak4btagTnP'],
+            'signal': ['trigger','lumimask','metfilter','jet1kin','jet2kin','jetid','jetacceptance','n2ddt','met','noleptons'],
         }
 
         def normalize(val, cut):
@@ -321,26 +374,43 @@ class WTagProcessor(processor.ProcessorABC):
         import time
         tic = time.time()
 
-        def fill(region, systematic='nominal', wmod=None):
+        if shift_name is None:
+            systematics = [None] + list(weights.variations)
+        else:
+            systematics = [shift_name]
+
+        def fill(region, systematic, wmod=None):
             selections = regions[region]
             cut = selection.all(*selections)
+            sname = 'nominal' if systematic is None else systematic
             if wmod is None:
-                weight = weights.weight()[cut]
+                if systematic in weights.variations:
+                    weight = weights.weight(modifier=systematic)[cut]
+                else:
+                    weight = weights.weight()[cut]
             else:
                 weight = weights.weight()[cut] * wmod[cut]
 
             output['templates'].fill(
                 dataset=dataset,
                 region=region,
-                genflavor=normalize(genflavor,cut),
-                msd1=normalize(msd_matched, cut),
-                n2ddt=normalize(candidatejet.n2ddt, cut),
-                ddb1=normalize(bvl, cut),
+                genflavor1=normalize(genflavor1,cut),
+                genflavor2=normalize(genflavor2,cut),
+                msd1=normalize(msd1_matched, cut),
+                msd2=normalize(msd2_matched, cut),
+                ddb1=normalize(bvl1, cut),
+                ddc2=normalize(cvl2, cut),
                 weight=weight,
             )
 
         for region in regions:
-            fill(region)
+            if self._systematics:
+                for systematic in systematics:
+                    if isRealData and systematic is not None:
+                        continue
+                    fill(region, systematic)
+            else:
+                fill(region, None)
 
         toc = time.time()
         output["filltime"] = toc - tic

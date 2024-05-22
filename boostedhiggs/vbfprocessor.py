@@ -194,7 +194,7 @@ class VBFProcessor(processor.ProcessorABC):
         del metfilter
 
         fatjets = events.FatJet
-        fatjets['msdcorr'] = corrected_msoftdrop(fatjets)
+        fatjets['msdcorr'] = corrected_msoftdrop(fatjets, year=self._year)
         fatjets['qcdrho'] = 2 * np.log(fatjets.msdcorr / fatjets.pt)
         fatjets['n2ddt'] = fatjets.n2b1 - n2ddt_shift(fatjets, year=self._year)
 

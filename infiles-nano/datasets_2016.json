@@ -1,9 +1,15 @@
 {
+    "JetHT_Run2016F": [
+        "/JetHT/Run2016F-UL2016_MiniAODv2_NanoAODv9-v1/NANOAOD"
+    ],
     "JetHT_Run2016G": [
         "/JetHT/Run2016G-UL2016_MiniAODv2_NanoAODv9-v1/NANOAOD"
     ],
     "JetHT_Run2016H": [
         "/JetHT/Run2016H-UL2016_MiniAODv2_NanoAODv9-v1/NANOAOD"
+    ],
+    "SingleMuon_Run2016F": [
+        "/JetHT/Run2016F-UL2016_MiniAODv2_NanoAODv9-v1/NANOAOD"
     ],
     "SingleMuon_Run2016G": [
         "/JetHT/Run2016G-UL2016_MiniAODv2_NanoAODv9-v1/NANOAOD"
@@ -45,7 +51,7 @@
         "/ggZH_HToBB_ZToNuNu_M-125_TuneCP5_13TeV-powheg-pythia8/RunIISummer20UL16NanoAODv9-106X_mcRun2_asymptotic_v17-v1/NANOAODSIM"
     ],
     "ggZH_HToBB_ZToQQ": [
-        "/ggZH_HToBB_ZToQQ_M125_TuneCP5_13TeV-powheg-pythia8/RunIISummer20UL16NanoAODv9-106X_mcRun2_asymptotic_v17-v1/NANOAODSIM"
+        "/ggZH_HToBB_ZToQQ_M-125_TuneCP5_13TeV-powheg-pythia8/RunIISummer20UL16NanoAODv9-106X_mcRun2_asymptotic_v17-v1/NANOAODSIM"
     ],
     "ttHToBB": [
         "/ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8/RunIISummer20UL16NanoAODv9-106X_mcRun2_asymptotic_v17-v2/NANOAODSIM"

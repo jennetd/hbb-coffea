@@ -22,17 +22,22 @@ for year in ["2016APV", "2016", "2017","2018"]:
     lookup = dense_lookup(h.view(), (h.axes[0].edges, h.axes[1].edges))
     ddt_dict[year] = lookup
 
-# Updated for UL
-with importlib.resources.path("boostedhiggs.data", "msdcorr.json") as filename:
-    msdcorr = correctionlib.CorrectionSet.from_file(str(filename))
-
-def corrected_msoftdrop(fatjets):
+def corrected_msoftdrop(fatjets, year="2017"):
     msdraw = np.sqrt(
         np.maximum(
             0.0,
             (fatjets.subjets * (1 - fatjets.subjets.rawFactor)).sum().mass2,
         )
     )
+
+    # Same for 2016 and 2016APV                                                                                          
+    if '2016' in year:
+        year = '2016'
+
+    # From Jeff
+    with importlib.resources.path("boostedhiggs.data", "msdcorr_"+year+".json") as filename:
+        msdcorr = correctionlib.CorrectionSet.from_file(str(filename))
+    
     msoftdrop = fatjets.msoftdrop
     msdfjcorr = msdraw / (1 - fatjets.rawFactor)
 

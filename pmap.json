@@ -1,7 +1,5 @@
 {
     "QCD": [
-        "QCD_PT120to170",
-        "QCD_PT170to300",
         "QCD_PT300to470",
         "QCD_PT470to600",
         "QCD_PT600to800",
@@ -54,10 +52,12 @@
         "ZZ",
         "WZ"
     ],
-    "EWKV": [
+    "EWKZ": [
         "EWKZ_ZToQQ",
         "EWKZ_ZToLL",
-        "EWKZ_ZToNuNu",
+        "EWKZ_ZToNuNu"
+    ],
+    "EWKW": [
         "EWKWminus_WToQQ",
         "EWKWplus_WToQQ",
         "EWKWminus_WToLNu",
@@ -93,6 +93,7 @@
         "JetHT_Run2016D_HIPM",
         "JetHT_Run2016E_HIPM",
         "JetHT_Run2016F_HIPM",
+        "JetHT_Run2016F",
         "JetHT_Run2016G",
         "JetHT_Run2016H",
         "JetHT_Run2017B",
@@ -112,6 +113,7 @@
         "SingleMuon_Run2016D_HIPM",
         "SingleMuon_Run2016E_HIPM",
         "SingleMuon_Run2016F_HIPM",
+        "SingleMuon_Run2016F",
         "SingleMuon_Run2016G",
         "SingleMuon_Run2016H",
         "SingleMuon_Run2017B",
