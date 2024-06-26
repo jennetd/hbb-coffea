@@ -1,0 +1,16 @@
+#!/usr/bin/env condor_submit
+
+executable              = run-ftest.sh
+arguments               = SUBMITARGS
+should_transfer_files   = YES
+transfer_input_files    = TRANSFERFILES
+when_to_transfer_output = ON_EXIT_OR_EVICT
+request_memory          = 2000
+
+output                  = logs/PREFIX.out
+error                   = logs/PREFIX.err
+log                     = logs/PREFIX.log
+
++ApptainerImage = "/cvmfs/singularity.opensciencegrid.org/cmssw/cms:rhel7"
+
+Queue 1
