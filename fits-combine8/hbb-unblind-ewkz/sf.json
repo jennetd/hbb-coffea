@@ -1,0 +1,50 @@
+{
+    "2016APV": {
+	"V_SF": 0.993,
+	"V_SF_ERR": 0.157,
+	"shift_SF": -0.243,
+	"shift_SF_ERR": 0.405,
+	"smear_SF": 1.129,
+	"smear_SF_ERR": 0.0355,
+	"BB_SF": 1.0, 
+	"BB_SF_UP": 0.3, 
+	"BB_SF_DOWN": -0.3,
+	"muCR_VBF_ttbar":1.21
+    },
+    "2016": {
+	"V_SF": 0.819,
+	"V_SF_ERR": 0.149,
+	"shift_SF": 0.441,
+	"shift_SF_ERR": 0.342,
+	"smear_SF": 1.205,
+	"smear_SF_ERR": 0.02925,
+	"BB_SF": 1.0, 
+	"BB_SF_UP": 0.3, 
+	"BB_SF_DOWN": -0.3,
+	"muCR_VBF_ttbar":1.72
+    },
+    "2017": {
+	"V_SF": 1.053,
+	"V_SF_ERR": 0.102,
+	"shift_SF": 0.468,
+	"shift_SF_ERR": 0.18,
+	"smear_SF": 1.087,
+	"smear_SF_ERR": 0.0175,
+	"BB_SF": 1.0,
+	"BB_SF_UP": 0.3, 
+	"BB_SF_DOWN": -0.3, 
+	"muCR_VBF_ttbar":1.49
+    }, 
+    "2018": {
+	"V_SF": 0.936,
+	"V_SF_ERR": 0.084,
+	"shift_SF": -0.99,
+	"shift_SF_ERR": 0.252,
+	"smear_SF": 1.073,
+	"smear_SF_ERR": 0.03475,
+	"BB_SF": 1.0, 
+	"BB_SF_UP": 0.3, 
+	"BB_SF_DOWN": -0.3, 
+	"muCR_VBF_ttbar":1.06
+    }
+}

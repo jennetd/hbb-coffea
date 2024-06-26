@@ -1,0 +1,16 @@
+#!/usr/bin/env condor_submit
+
+executable              = logs/TAG.sh
+arguments               = YEAR
+should_transfer_files   = YES
+transfer_input_files    = output,higgsCombine.Test.MultiDimFit.mH125.root
+when_to_transfer_output = ON_EXIT_OR_EVICT
+request_memory          = 6000
+output                  = logs/TAG.out
+error                   = logs/TAG.err
+log                     = logs/TAG.log
+
++ApptainerImage = "/cvmfs/singularity.opensciencegrid.org/cmssw/cms:rhel7"
+
+Queue 1 
+
