@@ -1,0 +1,15 @@
+#!/usr/bin/env condor_submit
+
+executable              = logs/obs_syst_TAG.sh
+arguments               = "TAG FREEZE POI 4.999 2.012"
+should_transfer_files   = YES
+transfer_input_files    = higgsCombine_Total.MultiDimFit.mH125.root
+transfer_output_files   = higgsCombine_POITAG.MultiDimFit.mH125.root
+when_to_transfer_output = ON_EXIT_OR_EVICT
+request_memory          = 8000
+output                  = logs/obs_syst_POI_TAG.out
+error                   = logs/obs_syst_POI_TAG.err
+log                     = logs/obs_syst_POI_TAG.log
+
+Queue 1 
+
