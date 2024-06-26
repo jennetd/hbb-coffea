@@ -1,0 +1,8 @@
+{
+    "fit": "single",
+    "out": "2018-FitSingle",
+    "scale": 3.0,
+    "smear": 0.5,
+    "template1": "templates/2018/TnPtemplates_var.root",
+    "template2": "newbasew17/wtemplates_cvl_var.root"
+}

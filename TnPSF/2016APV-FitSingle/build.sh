@@ -1,0 +1,2 @@
+combineCards.py wsfSinglePass=wsfSinglePass.txt wsfSingleFail=wsfSingleFail.txt > model_combined.txt
+text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel  --PO verbose --PO 'map=.*/effSF:effSF[1, 0, 10]' model_combined.txt
