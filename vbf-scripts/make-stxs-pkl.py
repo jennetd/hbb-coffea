@@ -32,7 +32,7 @@ def main():
     outsum = processor.dict_accumulator()
 
     # Check if pickle exists, remove it if it does
-    picklename = str(year)+'/templates.pkl'
+    picklename = str(year)+'/stxs-templates.pkl'
     if os.path.isfile(picklename):
         os.remove(picklename)
 
@@ -57,7 +57,8 @@ def main():
     scale_lumi = {k: xs[k] * 1000 * lumis[year] / w for k, w in outsum['sumw'].items()} 
 
     outsum['templates'].scale(scale_lumi, 'dataset')
-
+    print(outsum['templates'])
+    
     print(outsum['templates'].identifiers('dataset'))
 
     templates = outsum['templates'].group('dataset', hist.Cat('process', 'Process'), pmap)

@@ -23,7 +23,7 @@ env_extra = [
 cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="14GB",
+    memory="8GB",
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
@@ -42,16 +42,19 @@ with Client(cluster) as client:
 
     with performance_report(filename="dask-report.html"):
 
-        infiles = subprocess.getoutput("ls infiles/"+year+"_*.json").split()
+        infiles = subprocess.getoutput("ls infiles-nano/"+year+"_*.json").split()
 
         for this_file in infiles:
 
             index = this_file.split("_")[1].split(".json")[0]
 
-            if 'GluGluH' in index or 'VBF' in index or 'WH' in index or 'ZH' in index or 'ttH' in index:
+            if 'ggF' in index or 'VBF' in index or 'WH' in index or 'ZH' in index or 'ttH' in index:
                 continue
 
-            if 'JetHTData' in index:
+            if 'EWK' in index:
+                continue
+            
+            if index == 'data':
                 continue
 
             outfile = 'outfiles-tnp/'+str(year)+'_dask_'+index+'.coffea'
@@ -68,6 +71,11 @@ with Client(cluster) as client:
             p = WTagProcessor(year=year,jet_arbitration='ddb')
             args = {'savemetrics':True, 'schema':NanoAODSchema}
 
+            skip_bad_files = 1
+            if "data" in index:
+                skip_bad_files = 0
+                print("Processing data. Will NOT skip bad files")
+            
             output = processor.run_uproot_job(
                 this_file,
                 treename="Events",
@@ -75,7 +83,7 @@ with Client(cluster) as client:
                 executor=processor.dask_executor,
                 executor_args={
                     "client": client,
-                    "skipbadfiles": 1,
+                    "skipbadfiles": skip_bad_files,
                     "schema": processor.NanoAODSchema,
                     "treereduction": 2,
                 },

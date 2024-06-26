@@ -342,9 +342,9 @@ class VBFProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
-            if 'HToBB' in dataset:
+            if 'HToBB' in dataset or 'EWK' in dataset:
 
-                if self._ewkHcorr:
+                if self._ewkHcorr and 'HToBB' in dataset:
                     add_HiggsEW_kFactors(weights, events.GenPart, dataset)
 
                 if self._systematics:

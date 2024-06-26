@@ -31,7 +31,7 @@ def main():
     fout = uproot3.create(year+'/stxs-signalregion.root')
 
     # Check if pickle exists     
-    picklename = year+'/templates.pkl'
+    picklename = year+'/stxs-templates.pkl'
     if not os.path.isfile(picklename):
         print("You need to create the pickle")
         return
@@ -75,8 +75,8 @@ def main():
                 
                 intb = int(str(b).split(',')[0].split('[')[1])
 
-                hpass[intb] = thisbin.integrate('process',m).integrate('stxs',b).sum('pth',overflow='all').integrate('ddb1',int_range=slice(ddbthr,1))
-                hfail[intb] = thisbin.integrate('process',m).integrate('stxs',b).sum('pth',overflow='all').integrate('ddb1',int_range=slice(0,ddbthr))
+                hpass[intb] = thisbin.integrate('process',m).integrate('stxs',b).integrate('ddb1',int_range=slice(ddbthr,1))
+                hfail[intb] = thisbin.integrate('process',m).integrate('stxs',b).integrate('ddb1',int_range=slice(0,ddbthr))
 
             for b,bins in combine_bins[m].items():
                 print('reduced bin',bins)

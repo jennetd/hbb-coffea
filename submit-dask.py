@@ -49,9 +49,6 @@ with Client(cluster) as client:
             index = this_file.split("_")[1].split(".json")[0]
             outfile = 'outfiles-nano/'+str(year)+'_dask_'+index+'.coffea'
             
-            if "muondata" in index:
-                continue
-            
             if os.path.isfile(outfile):
                 print("File " + outfile + " already exists. Skipping.")
                 continue

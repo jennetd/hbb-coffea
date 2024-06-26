@@ -94,10 +94,10 @@ class VBFSTXSProcessor(processor.ProcessorABC):
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('category', 'Category'),
                 hist.Cat('systematic', 'Systematic'),
-                hist.Bin('stxs', 'STXS bin',101,-1,100),
                 hist.Bin('genflavor', 'Gen. jet flavor', [0, 1, 3, 4]),
+                hist.Bin('stxs', 'STXS bin', 28,0,28),
                 hist.Bin('msd1', r'Jet $m_{sd}$', 23, 40, 201),
-                hist.Bin('ddb1', r'Jet ddb score', [0, 0.4, 0.5, 0.64, 1]),
+                hist.Bin('ddb1', r'Jet ddb score', [0, 0.64, 1]),
             ),
         }
 
@@ -283,9 +283,9 @@ class VBFSTXSProcessor(processor.ProcessorABC):
         # only consider first 4 jets to be consistent with old framework
         jets = jets[:, :4]
         dphi = abs(jets.delta_phi(candidatejet))
-        selection.add('antiak4btagMediumOppHem', ak.max(jets[dphi > np.pi / 2].btagDeepFlavB, axis=1, mask_identity=False) < self._btagSF._btagwp) 
+        selection.add('antiak4btagMediumOppHem', ak.max(jets[dphi > np.pi / 2].btagDeepB, axis=1, mask_identity=False) < self._btagSF._btagwp) 
         ak4_away = jets[dphi > 0.8]
-        selection.add('ak4btagMedium08', ak.max(ak4_away.btagDeepFlavB, axis=1, mask_identity=False) > self._btagSF._btagwp) 
+        selection.add('ak4btagMedium08', ak.max(ak4_away.btagDeepB, axis=1, mask_identity=False) > self._btagSF._btagwp) 
 
         met = events.MET
         selection.add('met', met.pt < 140.)
@@ -352,15 +352,27 @@ class VBFSTXSProcessor(processor.ProcessorABC):
         else:
             weights.add('genweight', events.genWeight)
 
+            higgs = ak.firsts(events.GenPart[(events.GenPart.pdgId == 25) & events.GenPart.hasFlags(["fromHardProcess", "isLastCopy"])])
+
+            bosons = getBosons(events.GenPart)
+            matchedBoson = candidatejet.nearest(bosons, axis=None, threshold=0.8)
+            if self._tightMatch:
+                match_mask = ((candidatejet.pt - matchedBoson.pt)/matchedBoson.pt < 0.5) & ((candidatejet.msdcorr - matchedBoson.mass)/matchedBoson.mass < 0.3)
+                selmatchedBoson = ak.mask(matchedBoson, match_mask)
+                genflavor = bosonFlavor(selmatchedBoson)
+            else:
+                genflavor = bosonFlavor(matchedBoson)
+            genBosonPt = ak.fill_none(ak.firsts(bosons.pt), 0)
+
             if 'HToBB' in dataset:
 
-                stxs = events.HTXS.stage1_2_cat_pTjet30GeV
+                stxs = events.HTXS.stage1_2_fine_cat_pTjet30GeV%100
 
                 if self._ewkHcorr:
                     add_HiggsEW_kFactors(weights, events.GenPart, dataset)
 
                 if self._systematics:
-                    # Jennet adds theory variations                                                                               
+#                    # Jennet adds theory variations                                                                               
                     add_ps_weight(weights, events.PSWeight)
                     if "LHEPdfWeight" in events.fields:
                         add_pdf_weight(weights,events.LHEPdfWeight)
@@ -408,7 +420,7 @@ class VBFSTXSProcessor(processor.ProcessorABC):
             'ggf-pt6':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','notvbf','pt6'],
             'vbf-mjj1':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','isvbf','mjj1'],
             'vbf-mjj2':['trigger','lumimask','metfilter','minjetkin','jetid','n2ddt','antiak4btagMediumOppHem','met','noleptons','isvbf','mjj2'],
-            'muoncontrol': ['muontrigger','lumimask','metfilter','minjetkinmu', 'jetid', 'n2ddt', 'ak4btagMedium08', 'onemuon', 'muonkin', 'muonDphiAK8'],
+#            'muoncontrol': ['muontrigger','lumimask','metfilter','minjetkinmu', 'jetid', 'n2ddt', 'ak4btagMedium08', 'onemuon', 'muonkin', 'muonDphiAK8'],
 #            'noselection': [],
         }
 
@@ -432,6 +444,7 @@ class VBFSTXSProcessor(processor.ProcessorABC):
             selections = regions[region]
             cut = selection.all(*selections)
             sname = 'nominal' if systematic is None else systematic
+
             if wmod is None:
                 if systematic in weights.variations:
                     weight = weights.weight(modifier=systematic)[cut]
@@ -443,9 +456,9 @@ class VBFSTXSProcessor(processor.ProcessorABC):
             output['templates'].fill(
                 dataset=dataset,
                 category=region,
-                stxs=normalize(stxs,cut),
                 systematic=sname,
                 genflavor=normalize(genflavor,cut),
+                stxs=normalize(stxs,cut),
                 msd1=normalize(msd_matched, cut),
                 ddb1=normalize(bvl, cut),
                 weight=weight,
